@@ -46,7 +46,7 @@ export const Footer: FC<FooterProps> = () => {
             <ul className="space-y-2 text-sm">
               <li>123 Car Street, Autoville</li>
               <li>Phone: (123) 456-7890</li>
-              <li>Email: info@carhub.com</li>
+              <li>Email: info@attamotors.com</li>
             </ul>
           </div>
           <div>
@@ -84,7 +84,7 @@ export const Footer: FC<FooterProps> = () => {
           </div>
         </div>
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} CarHub. All rights reserved.
+          © {new Date().getFullYear()} Atta Motors. All rights reserved.
         </div>
       </div>
     </footer>

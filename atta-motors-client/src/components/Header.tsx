@@ -20,12 +20,19 @@ import {
   Info,
   ShoppingCart,
 } from "lucide-react";
-import { FC, useState } from "react";
+import { FC } from "react";
+import { AppRoutes } from "@/router";
+import { useAppDispatch, useAppState } from "@/hooks";
+import { logout } from "@/redux/store";
+import { getFirstLetterOfUserName } from "@/utils";
+
+const { VITE_APP_BASE_URL } = import.meta.env;
 
 interface HeaderProps {}
 
 export const Header: FC<HeaderProps> = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // This would be replaced with actual auth state
+  const { authenticate } = useAppState();
+  const dispatch = useAppDispatch();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -93,21 +100,22 @@ export const Header: FC<HeaderProps> = () => {
             </DropdownMenuContent>
           </DropdownMenu> */}
 
-          {isAuthenticated ? (
+          {authenticate.isLoggedIn && authenticate.user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg" alt="User" />
-                    <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                </Button>
+                <Avatar>
+                  <AvatarImage
+                    src={`${VITE_APP_BASE_URL}/api/${authenticate.user.avatar}`}
+                  />
+                  <AvatarFallback>
+                    {getFirstLetterOfUserName(authenticate.user.name)}
+                  </AvatarFallback>
+                </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  Signed in as <br /> @{authenticate.user.username}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Link to="#" className="flex items-center">
@@ -128,7 +136,7 @@ export const Header: FC<HeaderProps> = () => {
                 <DropdownMenuItem>
                   <button
                     className="flex items-center w-full"
-                    onClick={() => setIsAuthenticated(false)}
+                    onClick={() => dispatch(logout())}
                   >
                     <LogOut className="mr-2 h-4 w-4" /> Log Out
                   </button>
@@ -137,14 +145,14 @@ export const Header: FC<HeaderProps> = () => {
             </DropdownMenu>
           ) : (
             <div className="space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsAuthenticated(true)}
-              >
-                Log In
-              </Button>
-              <Button size="sm">Register</Button>
+              <Link to={AppRoutes.login}>
+                <Button variant="ghost" size="sm">
+                  Log In
+                </Button>
+              </Link>
+              <Link to={AppRoutes.register}>
+                <Button size="sm">Register</Button>
+              </Link>
             </div>
           )}
         </nav>
