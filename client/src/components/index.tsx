@@ -1,5 +1,5 @@
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import { Button } from "./ui/button";
+import { Button, ButtonProps } from "./ui/button";
 import {
   Card,
   CardHeader,
@@ -35,11 +35,13 @@ import {
   FormMessage,
   FormField,
 } from "./ui/form";
+import { GradualSpacing } from "./ui/gradual-spacing";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Particles } from "./ui/particles";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
+import { LoadingButton } from "./LoadingButton";
 import { SplashScreen } from "./SplashScreen";
 
 export {
@@ -47,6 +49,7 @@ export {
   AvatarImage,
   AvatarFallback,
   Button,
+  type ButtonProps,
   Card,
   CardHeader,
   CardFooter,
@@ -76,10 +79,12 @@ export {
   FormDescription,
   FormMessage,
   FormField,
+  GradualSpacing,
   Input,
   Label,
   Particles,
   Header,
   Footer,
+  LoadingButton,
   SplashScreen,
 };

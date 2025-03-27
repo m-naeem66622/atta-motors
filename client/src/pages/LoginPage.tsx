@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
-  Button,
   Form,
   FormControl,
   FormField,
@@ -18,8 +17,11 @@ import {
   CardContent,
   CardFooter,
   Particles,
+  LoadingButton,
 } from "@/components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppState } from "@/hooks";
+import { login, setRoute } from "@/redux/store";
 
 const formSchema = z.object({
   emailOrUsername: z
@@ -35,6 +37,10 @@ type FormValues = z.infer<typeof formSchema>;
 interface LoginPageProps {}
 
 export const LoginPage: FC<LoginPageProps> = () => {
+  const { authenticate, saveNavigation } = useAppState();
+  const dispatch = useAppDispatch();
+  const navigation = useNavigate();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,7 +51,14 @@ export const LoginPage: FC<LoginPageProps> = () => {
 
   const onSubmit = (values: FormValues) => {
     // Here you would typically handle the login process
-    console.log(values);
+    dispatch(login(values));
+
+    if (saveNavigation.saveRoute !== "") {
+      setTimeout(() => {
+        navigation(`/${saveNavigation.saveRoute}`);
+        dispatch(setRoute({ saveRoute: "" }));
+      }, 0);
+    }
   };
 
   return (
@@ -90,9 +103,13 @@ export const LoginPage: FC<LoginPageProps> = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
+              <LoadingButton
+                type="submit"
+                className="w-full"
+                isLoading={authenticate.isLoading}
+              >
                 Login
-              </Button>
+              </LoadingButton>
             </form>
           </Form>
         </CardContent>

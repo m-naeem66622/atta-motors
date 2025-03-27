@@ -7,7 +7,7 @@ import {
   Tokens,
   UserResponse,
   User,
-  UserUpdateValuesForUser,
+  UpdateUserValues,
   RegisterValues,
 } from "@/d";
 import { CookiesApi, getErrorMessage } from "@/utils";
@@ -20,10 +20,20 @@ const setAuthHeader = (token: string) => {
 export const register = createAsyncThunk<LoginResponse, RegisterValues>(
   "register",
   async (info, { rejectWithValue }) => {
+    const formData = new FormData();
+
+    formData.append("avatar", info.file as Blob);
+    formData.append("username", info.username);
+    formData.append("name", info.name);
+    formData.append("phone", info.phone);
+    formData.append("email", info.email);
+    formData.append("address", info.address || "");
+    formData.append("password", info.password);
+
     try {
       const response: AxiosResponse<LoginResponse> = await axios.post(
         "api/auth/register",
-        info
+        formData
       );
 
       setAuthHeader(response.data.tokens.accessToken);
@@ -92,14 +102,14 @@ export const fetchProfile = createAsyncThunk<UserResponse>(
 
 export const updateProfile = createAsyncThunk<
   UserResponse,
-  UserUpdateValuesForUser
+  UpdateUserValues
 >("updateProfile", async (updateUser, { rejectWithValue }) => {
   try {
     const { confirmPassword, ...rest } = updateUser;
 
     const formData = new FormData();
     Object.keys(rest).forEach((key) => {
-      const value = updateUser[key as keyof UserUpdateValuesForUser];
+      const value = updateUser[key as keyof UpdateUserValues];
       if (value !== undefined && value !== null && value !== "") {
         formData.append(key, value);
       }

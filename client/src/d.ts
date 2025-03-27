@@ -57,24 +57,25 @@ export type User = {
 };
 
 export type RegisterValues = Omit<
-  User, "_id" | "role"
->;
-
-export type UpdateUserValues = Pick<
   User,
-  "_id" | "username" | "name" | "phone" | "email"
->;
+  "_id" | "avatar" | "role" | "createdAt" | "updatedAt"
+> & { file?: File; password: string; confirmPassword: string };
+
+// export type UpdateUserValues = Pick<
+//   User,
+//   "_id" | "username" | "name" | "phone" | "email"
+// >;
 
 export type LogInValues = {
   emailOrUsername: string;
   password: string;
 };
 
-export type UserUpdateValuesForUser = Pick<
+export type UpdateUserValues = Pick<
   User,
   "name" | "phone" | "address"
 > & {
-  avatar: File | null;
+  avatar?: File;
   password?: string;
   confirmPassword?: string;
   oldPassword?: string;

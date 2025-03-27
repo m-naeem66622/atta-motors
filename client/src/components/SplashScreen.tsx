@@ -11,7 +11,7 @@ export const SplashScreen: FC<SplashScreenProps> = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 z-50"
+          className="fixed inset-0 flex items-center justify-center bg-gradient-to-r bg-white z-50"
         >
           <div className="text-center">
             <motion.div
@@ -28,13 +28,13 @@ export const SplashScreen: FC<SplashScreenProps> = () => {
               }}
               className="mb-8 flex items-center justify-center"
             >
-              <Car className="w-24 h-24 text-white" />
+              <Car className="w-24 h-24 text-black" />
             </motion.div>
             <motion.h1
               initial={{ y: -50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="text-4xl font-bold text-white mb-4"
+              className="text-4xl font-bold text-black mb-4"
             >
               Atta Motors
             </motion.h1>
@@ -42,7 +42,7 @@ export const SplashScreen: FC<SplashScreenProps> = () => {
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.7 }}
-              className="text-xl text-white"
+              className="text-xl text-black"
             >
               Your journey begins here
             </motion.p>

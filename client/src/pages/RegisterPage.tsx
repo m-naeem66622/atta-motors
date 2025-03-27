@@ -6,7 +6,6 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-  Button,
   Form,
   FormControl,
   FormField,
@@ -14,14 +13,17 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  LoadingButton,
   Particles,
 } from "@/components";
 import { User, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAppDispatch, useAppState } from "@/hooks";
+import { register } from "@/redux/authenticate/operations";
 
 const formSchema = z
   .object({
-    avatar: z.instanceof(File).optional(),
+    file: z.instanceof(File).optional(),
     username: z
       .string()
       .trim()
@@ -61,6 +63,8 @@ type FormValues = z.infer<typeof formSchema>;
 interface RegisterPageProps {}
 
 export const RegisterPage: FC<RegisterPageProps> = () => {
+  const { authenticate } = useAppState();
+  const dispatch = useAppDispatch();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
@@ -77,8 +81,7 @@ export const RegisterPage: FC<RegisterPageProps> = () => {
   });
 
   const onSubmit = (values: FormValues) => {
-    // Here you would typically handle the registration process
-    console.log(values);
+    dispatch(register(values));
   };
 
   const handleImageUpload = useCallback(
@@ -90,7 +93,7 @@ export const RegisterPage: FC<RegisterPageProps> = () => {
           setPreviewImage(reader.result as string);
         };
         reader.readAsDataURL(file);
-        form.setValue("avatar", file);
+        form.setValue("file", file);
       }
     },
     [form]
@@ -234,9 +237,13 @@ export const RegisterPage: FC<RegisterPageProps> = () => {
                 )}
               />
             </div>
-            <Button type="submit" className="w-full">
+            <LoadingButton
+              type="submit"
+              className="w-full"
+              isLoading={authenticate.isLoading}
+            >
               Register
-            </Button>
+            </LoadingButton>
           </form>
         </Form>
         <div className="px-6 pb-6 text-center">

@@ -5,6 +5,7 @@ import {
   login,
   fetchProfile,
   updateProfile,
+  register,
 } from "@/redux/authenticate/operations";
 import { CookiesApi } from "@/utils";
 
@@ -33,21 +34,21 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // .addCase(register.pending, (state) => {
-      //   state.isLoading = true;
-      // })
-      // .addCase(register.fulfilled, (state, { payload }) => {
-      //   state.isLoading = false;
-      //   state.error = null;
-      //   state.tokens = payload.tokens;
-      //   state.user = payload.data;
-      //   state.isLoggedIn = true;
-      // })
-      // .addCase(register.rejected, (state) => {
-      //   state.isLoading = false;
-      //   state.user = null;
-      //   state.isLoggedIn = false;
-      // })
+      .addCase(register.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(register.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        state.error = null;
+        state.tokens = payload.tokens;
+        state.user = payload.data;
+        state.isLoggedIn = true;
+      })
+      .addCase(register.rejected, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isLoggedIn = false;
+      })
       .addCase(login.pending, (state) => {
         state.isLoading = true;
       })

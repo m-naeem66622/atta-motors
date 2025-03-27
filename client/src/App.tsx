@@ -1,9 +1,15 @@
 import "./App.css";
-import { HomePage, LoginPage, NotFoundPage, RegisterPage } from "@/pages";
+import {
+  HomePage,
+  LoginPage,
+  NotFoundPage,
+  ProfilePage,
+  RegisterPage,
+} from "@/pages";
 import { Footer, Header, SplashScreen } from "@/components";
 import { Route, Routes } from "react-router-dom";
 import { AppRoutes } from "@/router";
-import { RestrictedRoute } from "@/hocs";
+import { PrivateRoute, RestrictedRoute } from "@/hocs";
 import { useAppState, useRefresh } from "@/hooks";
 
 function App() {
@@ -35,6 +41,16 @@ function App() {
                 <RestrictedRoute
                   redirectTo={AppRoutes.profile}
                   component={<RegisterPage />}
+                />
+              }
+            />
+            <Route
+              path="/account/profile"
+              element={
+                <PrivateRoute
+                  redirectTo={AppRoutes.login}
+                  component={<ProfilePage />}
+                  role=""
                 />
               }
             />

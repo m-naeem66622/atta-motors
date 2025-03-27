@@ -118,7 +118,7 @@ export const Header: FC<HeaderProps> = () => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <Link to="#" className="flex items-center">
+                  <Link to={AppRoutes.profile} className="flex items-center">
                     <User className="mr-2 h-4 w-4" /> View Profile
                   </Link>
                 </DropdownMenuItem>

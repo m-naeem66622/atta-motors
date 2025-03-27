@@ -6,6 +6,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  GradualSpacing,
 } from "@/components";
 import { featuredCars } from "@/constants";
 import { Car, DollarSign, Wrench } from "lucide-react";
@@ -26,13 +27,13 @@ export const HomePage: FC<HomePageProps> = () => {
         />
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10 space-y-6 px-4">
-          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl/none text-white">
-            Find Your Perfect Ride
-          </h1>
-          <p className="mx-auto max-w-[600px] text-white md:text-xl">
-            Browse our extensive collection of quality vehicles or sell your car
-            with ease. Expert maintenance services available.
-          </p>
+          <GradualSpacing
+            className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl/none text-white"
+            text="REVIVE & REVAMP"
+          />
+          <h2 className="text-3xl font-medium text-white">
+            Full Spectrum of Car Sales & Purchase
+          </h2>
           <div className="flex justify-center gap-4">
             <Button size="lg">Browse Cars</Button>
             <Button size="lg" variant="outline">
