@@ -30,7 +30,7 @@ if (process.env.DEBUG !== "true") {
   loggerOptions.meta = false; // when not debugging, log requests as one-liners
 }
 
-app.use(cors());
+app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(expressWinston.logger(loggerOptions));
