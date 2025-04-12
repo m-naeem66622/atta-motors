@@ -8,12 +8,12 @@
  * @throws {Error} - The error object with the specified properties.
  */
 const throwError = (status, statusCode, message, identifier) => {
-  const error = new Error(message);
-  error.statusCode = statusCode;
-  error.identifier = identifier;
-  error.status = status;
+    const error = new Error(message);
+    error.statusCode = statusCode;
+    error.identifier = identifier;
+    error.status = status;
 
-  throw error;
+    throw error;
 };
 
 exports.throwError = throwError;

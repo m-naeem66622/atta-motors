@@ -4,13 +4,13 @@
  * @returns {string} - Returns "email" if the string matches the email format, otherwise returns "username".
  */
 const isEmailOrUsername = (str) => {
-  // Check if the string matches the email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (emailRegex.test(str)) {
-    return "email";
-  } else {
-    return "username";
-  }
+    // Check if the string matches the email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(str)) {
+        return "email";
+    } else {
+        return "username";
+    }
 };
 
 module.exports = { isEmailOrUsername };

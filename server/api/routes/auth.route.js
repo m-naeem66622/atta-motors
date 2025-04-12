@@ -8,17 +8,17 @@ const { uploadImage } = require("../middlewares/image.middleware");
 
 // Route for logging in user
 router.post(
-  "/login",
-  validate(UserValidation.loginSchema, "BODY"),
-  Controller.loginUser
+    "/login",
+    validate(UserValidation.loginSchema, "BODY"),
+    Controller.loginUser
 );
 
 // Route for registering user
 router.post(
-  "/register",
-  uploadImage,
-  validate(UserValidation.registerSchema, "BODY"),
-  Controller.registerUser
+    "/register",
+    uploadImage,
+    validate(UserValidation.registerSchema, "BODY"),
+    Controller.registerUser
 );
 
 module.exports = router;

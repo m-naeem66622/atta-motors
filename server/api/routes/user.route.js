@@ -18,20 +18,20 @@ const { uploadImage } = require("../middlewares/image.middleware");
 
 // Route for getting user profile
 router.get(
-  "/profile",
-  authenticate,
-  Authorize.isUserOrAdmin,
-  Controller.getUserProfile
+    "/profile",
+    authenticate,
+    Authorize.isUserOrAdmin,
+    Controller.getUserProfile
 );
 
 // Route for updating user profile
 router.patch(
-  "/profile",
-  authenticate,
-  Authorize.isUserOrAdmin,
-  uploadImage,
-  validate(UserValidation.updateProfileSchema, "BODY"),
-  Controller.updateUserProfile
+    "/profile",
+    authenticate,
+    Authorize.isUserOrAdmin,
+    uploadImage,
+    validate(UserValidation.updateProfileSchema, "BODY"),
+    Controller.updateUserProfile
 );
 
 module.exports = router;

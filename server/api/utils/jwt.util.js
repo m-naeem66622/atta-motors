@@ -8,14 +8,14 @@ const JWT_SECRET = process.env.JWT_SECRET;
  * @returns {Promise<string>} The generated JWT token.
  */
 const generateToken = (_id, role) => {
-  const payload = { _id, role };
+    const payload = { _id, role };
 
-  const signedToken = JWT.sign(payload, JWT_SECRET, {
-    expiresIn: "1h",
-  });
-  return signedToken;
+    const signedToken = JWT.sign(payload, JWT_SECRET, {
+        expiresIn: "1h",
+    });
+    return signedToken;
 };
 
 module.exports = {
-  generateToken,
+    generateToken,
 };
