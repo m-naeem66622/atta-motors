@@ -7,11 +7,11 @@ import { VehicleSalesPage } from "./VehicleSalesPage";
 import { CreateVehicleListingPage } from "./CreateVehicleListingPage";
 
 export {
-  HomePage,
-  NotFoundPage,
-  LoginPage,
-  RegisterPage,
-  ProfilePage,
-  VehicleSalesPage,
-  CreateVehicleListingPage,
+    HomePage,
+    NotFoundPage,
+    LoginPage,
+    RegisterPage,
+    ProfilePage,
+    VehicleSalesPage,
+    CreateVehicleListingPage,
 };

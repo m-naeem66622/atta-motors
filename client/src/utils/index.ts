@@ -5,9 +5,9 @@ import { getFirstLetterOfUserName } from "./getFirstLetterOfUserName";
 import { notify } from "./notify";
 
 export {
-  getFirstLetterOfUserName,
-  CookiesApi,
-  getErrorMessage,
-  FormatterDate,
-  notify,
+    getFirstLetterOfUserName,
+    CookiesApi,
+    getErrorMessage,
+    FormatterDate,
+    notify,
 };

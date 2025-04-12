@@ -2,129 +2,131 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios, { AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import {
-  LogInValues,
-  LoginResponse,
-  Tokens,
-  UserResponse,
-  User,
-  UpdateUserValues,
-  RegisterValues,
+    LogInValues,
+    LoginResponse,
+    Tokens,
+    UserResponse,
+    User,
+    UpdateUserValues,
+    RegisterValues,
 } from "@/d";
 import { CookiesApi, getErrorMessage } from "@/utils";
 import { AppState } from "@/redux/store";
 
 const setAuthHeader = (token: string) => {
-  axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 };
 
 export const register = createAsyncThunk<LoginResponse, RegisterValues>(
-  "register",
-  async (info, { rejectWithValue }) => {
-    const formData = new FormData();
+    "register",
+    async (info, { rejectWithValue }) => {
+        const formData = new FormData();
 
-    formData.append("avatar", info.file as Blob);
-    formData.append("username", info.username);
-    formData.append("name", info.name);
-    formData.append("phone", info.phone);
-    formData.append("email", info.email);
-    formData.append("address", info.address || "");
-    formData.append("password", info.password);
+        formData.append("avatar", info.file as Blob);
+        formData.append("username", info.username);
+        formData.append("name", info.name);
+        formData.append("phone", info.phone);
+        formData.append("email", info.email);
+        formData.append("address", info.address || "");
+        formData.append("password", info.password);
 
-    try {
-      const response: AxiosResponse<LoginResponse> = await axios.post(
-        "api/auth/register",
-        formData
-      );
+        try {
+            const response: AxiosResponse<LoginResponse> = await axios.post(
+                "api/auth/register",
+                formData
+            );
 
-      setAuthHeader(response.data.tokens.accessToken);
+            setAuthHeader(response.data.tokens.accessToken);
 
-      CookiesApi.setValue("accessToken", response.data.tokens.accessToken);
+            CookiesApi.setValue(
+                "accessToken",
+                response.data.tokens.accessToken
+            );
 
-      toast.success("Register Success!");
+            toast.success("Register Success!");
 
-      return response.data;
-    } catch (error: any) {
-      toast.error(getErrorMessage(error.response?.data.error.message));
-      return rejectWithValue(error);
+            return response.data;
+        } catch (error: any) {
+            toast.error(getErrorMessage(error.response?.data.error.message));
+            return rejectWithValue(error);
+        }
     }
-  }
 );
 
 export const login = createAsyncThunk<
-  LoginResponse,
-  LogInValues | { tokens: Tokens; user: User }
+    LoginResponse,
+    LogInValues | { tokens: Tokens; user: User }
 >("login", async (data, { rejectWithValue }) => {
-  try {
-    let response: AxiosResponse<LoginResponse> = await axios.post(
-      "api/auth/login",
-      data
-    );
+    try {
+        let response: AxiosResponse<LoginResponse> = await axios.post(
+            "api/auth/login",
+            data
+        );
 
-    setAuthHeader(response.data.tokens.accessToken);
+        setAuthHeader(response.data.tokens.accessToken);
 
-    CookiesApi.setValue("accessToken", response.data.tokens.accessToken);
+        CookiesApi.setValue("accessToken", response.data.tokens.accessToken);
 
-    toast.success("Login Success!");
+        toast.success("Login Success!");
 
-    return response.data;
-  } catch (error: any) {
-    console.error(error);
-    toast.error(getErrorMessage(error.response?.data.error.message));
-    return rejectWithValue(error);
-  }
+        return response.data;
+    } catch (error: any) {
+        console.error(error);
+        toast.error(getErrorMessage(error.response?.data.error.message));
+        return rejectWithValue(error);
+    }
 });
 
 export const fetchProfile = createAsyncThunk<UserResponse>(
-  "profile",
-  async (_, { rejectWithValue, getState }) => {
-    const { authenticate } = getState() as AppState;
+    "profile",
+    async (_, { rejectWithValue, getState }) => {
+        const { authenticate } = getState() as AppState;
 
-    const accessToken = CookiesApi.getValue("accessToken");
+        const accessToken = CookiesApi.getValue("accessToken");
 
-    if (accessToken === undefined) return rejectWithValue(authenticate);
+        if (accessToken === undefined) return rejectWithValue(authenticate);
 
-    setAuthHeader(accessToken);
+        setAuthHeader(accessToken);
 
-    try {
-      const response: AxiosResponse<UserResponse> = await axios.get(
-        "api/users/profile"
-      );
+        try {
+            const response: AxiosResponse<UserResponse> =
+                await axios.get("api/users/profile");
 
-      // CookiesApi.setValue("accessToken", response.data.tokens.accessToken);
-      // setAuthHeader(response.data.tokens.accessToken);
+            // CookiesApi.setValue("accessToken", response.data.tokens.accessToken);
+            // setAuthHeader(response.data.tokens.accessToken);
 
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(authenticate);
+            return response.data;
+        } catch (error: any) {
+            return rejectWithValue(authenticate);
+        }
     }
-  }
 );
 
-export const updateProfile = createAsyncThunk<
-  UserResponse,
-  UpdateUserValues
->("updateProfile", async (updateUser, { rejectWithValue }) => {
-  try {
-    const { confirmPassword, ...rest } = updateUser;
+export const updateProfile = createAsyncThunk<UserResponse, UpdateUserValues>(
+    "updateProfile",
+    async (updateUser, { rejectWithValue }) => {
+        try {
+            const { confirmPassword, ...rest } = updateUser;
 
-    const formData = new FormData();
-    Object.keys(rest).forEach((key) => {
-      const value = updateUser[key as keyof UpdateUserValues];
-      if (value !== undefined && value !== null && value !== "") {
-        formData.append(key, value);
-      }
-    });
+            const formData = new FormData();
+            Object.keys(rest).forEach((key) => {
+                const value = updateUser[key as keyof UpdateUserValues];
+                if (value !== undefined && value !== null && value !== "") {
+                    formData.append(key, value);
+                }
+            });
 
-    const response: AxiosResponse<UserResponse> = await axios.patch(
-      `api/users/profile`,
-      formData
-    );
+            const response: AxiosResponse<UserResponse> = await axios.patch(
+                `api/users/profile`,
+                formData
+            );
 
-    toast.success("Personal info updated successfuly!");
+            toast.success("Personal info updated successfuly!");
 
-    return response.data;
-  } catch (error: any) {
-    toast.error(getErrorMessage(error.response?.data.error.message));
-    return rejectWithValue(error);
-  }
-});
+            return response.data;
+        } catch (error: any) {
+            toast.error(getErrorMessage(error.response?.data.error.message));
+            return rejectWithValue(error);
+        }
+    }
+);

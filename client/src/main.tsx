@@ -9,15 +9,15 @@ import App from "@/App.tsx";
 // import { ThemeProvider } from "@/providers/theme-provider";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <BrowserRouter>
-          {/* <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme"> */}
-          <App />
-          {/* </ThemeProvider> */}
-        </BrowserRouter>
-      </PersistGate>
-    </Provider>
-  </StrictMode>
+    <StrictMode>
+        <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+                <BrowserRouter>
+                    {/* <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme"> */}
+                    <App />
+                    {/* </ThemeProvider> */}
+                </BrowserRouter>
+            </PersistGate>
+        </Provider>
+    </StrictMode>
 );
