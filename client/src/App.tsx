@@ -5,6 +5,8 @@ import {
   NotFoundPage,
   ProfilePage,
   RegisterPage,
+  VehicleSalesPage,
+  CreateVehicleListingPage,
 } from "@/pages";
 import { Footer, Header, SplashScreen } from "@/components";
 import { Route, Routes } from "react-router-dom";
@@ -26,6 +28,8 @@ function App() {
           <Routes>
             <Route path="*" element={<NotFoundPage />} />
             <Route path="/" element={<HomePage />} />
+            <Route path="/vehicle-sales" element={<VehicleSalesPage />} />
+            <Route path="/create-vehicle-listing" element={<CreateVehicleListingPage />} />
             <Route
               path="/login"
               element={
