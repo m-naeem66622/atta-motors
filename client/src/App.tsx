@@ -7,6 +7,9 @@ import {
     RegisterPage,
     VehicleSalesPage,
     CreateVehicleListingPage,
+    MaintenanceBookingPage,
+    MaintenancePage,
+    MaintenanceHistoryPage,
 } from "@/pages";
 import { Footer, Header, SplashScreen } from "@/components";
 import { Route, Routes } from "react-router-dom";
@@ -32,6 +35,10 @@ function App() {
                             element={<NotFoundPage />}
                         />
                         <Route path={AppRoutes.home} element={<HomePage />} />
+                        <Route
+                            path={AppRoutes.maintenance}
+                            element={<MaintenancePage />}
+                        />
                         <Route
                             path={AppRoutes.vehicleSales}
                             element={<VehicleSalesPage />}
@@ -70,6 +77,26 @@ function App() {
                                 <PrivateRoute
                                     redirectTo={AppRoutes.login}
                                     component={<ProfilePage />}
+                                    role=""
+                                />
+                            }
+                        />
+                        <Route
+                            path={AppRoutes.createMaintenance}
+                            element={
+                                <PrivateRoute
+                                    redirectTo={AppRoutes.login}
+                                    component={<MaintenanceBookingPage />}
+                                    role=""
+                                />
+                            }
+                        />
+                        <Route
+                            path={AppRoutes.maintenanceHistory}
+                            element={
+                                <PrivateRoute
+                                    redirectTo={AppRoutes.login}
+                                    component={<MaintenanceHistoryPage />}
                                     role=""
                                 />
                             }

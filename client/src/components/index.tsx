@@ -45,6 +45,8 @@ import { LoadingButton } from "./LoadingButton";
 import { SplashScreen } from "./SplashScreen";
 import { VehicleListings } from "./VehicleListings";
 import { VehicleListingForm } from "./VehicleListingForm";
+import { MaintenanceBookingForm } from "./MaintenanceBookingForm";
+import { MaintenanceHistory } from "./MaintenanceHistory";
 
 export {
     Avatar,
@@ -91,4 +93,6 @@ export {
     SplashScreen,
     VehicleListings,
     VehicleListingForm,
+    MaintenanceBookingForm,
+    MaintenanceHistory,
 };
