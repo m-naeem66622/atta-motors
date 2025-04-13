@@ -87,16 +87,32 @@ export const VehicleListingForm: React.FC = () => {
                 className="w-full"
             >
                 <TabsList className="grid grid-cols-4 mb-8 bg-gray-100">
-                    <TabsTrigger value="1" onClick={() => setStep(1)} className="data-[state=active]:bg-black data-[state=active]:text-white">
+                    <TabsTrigger
+                        value="1"
+                        onClick={() => setStep(1)}
+                        className="data-[state=active]:bg-black data-[state=active]:text-white"
+                    >
                         Basic Info
                     </TabsTrigger>
-                    <TabsTrigger value="2" onClick={() => setStep(2)} className="data-[state=active]:bg-black data-[state=active]:text-white">
+                    <TabsTrigger
+                        value="2"
+                        onClick={() => setStep(2)}
+                        className="data-[state=active]:bg-black data-[state=active]:text-white"
+                    >
                         Vehicle Details
                     </TabsTrigger>
-                    <TabsTrigger value="3" onClick={() => setStep(3)} className="data-[state=active]:bg-black data-[state=active]:text-white">
+                    <TabsTrigger
+                        value="3"
+                        onClick={() => setStep(3)}
+                        className="data-[state=active]:bg-black data-[state=active]:text-white"
+                    >
                         Photos
                     </TabsTrigger>
-                    <TabsTrigger value="4" onClick={() => setStep(4)} className="data-[state=active]:bg-black data-[state=active]:text-white">
+                    <TabsTrigger
+                        value="4"
+                        onClick={() => setStep(4)}
+                        className="data-[state=active]:bg-black data-[state=active]:text-white"
+                    >
                         Contact Info
                     </TabsTrigger>
                 </TabsList>
@@ -143,7 +159,13 @@ export const VehicleListingForm: React.FC = () => {
                             )}
 
                             {step < 4 ? (
-                                <Button type="button" onClick={nextStep}>
+                                <Button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        nextStep();
+                                    }}
+                                >
                                     Next{" "}
                                     <ChevronRight className="ml-2 h-4 w-4" />
                                 </Button>

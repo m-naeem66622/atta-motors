@@ -31,7 +31,10 @@ async function seedVehicles() {
                 price: 18500,
                 description:
                     "Well-maintained Toyota Corolla with low mileage. Fuel efficient and reliable for daily commuting.",
-                images: ["toyota_corolla_1.jpg", "toyota_corolla_2.jpg"],
+                images: [
+                    "public/vehicles/toyota_corolla_1.jpg",
+                    "public/vehicles/toyota_corolla_2.jpg",
+                ],
                 mileage: 35000,
                 condition: "New",
                 transmission: "Automatic",
@@ -48,7 +51,10 @@ async function seedVehicles() {
                 price: 22000,
                 description:
                     "Like-new Honda Civic with modern features and excellent fuel economy.",
-                images: ["honda_civic_1.jpg", "honda_civic_2.jpg"],
+                images: [
+                    "public/vehicles/honda_civic_1.jpg",
+                    "public/vehicles/honda_civic_2.jpg",
+                ],
                 mileage: 12000,
                 condition: "New",
                 transmission: "CVT",
@@ -65,7 +71,10 @@ async function seedVehicles() {
                 price: 35000,
                 description:
                     "Powerful Ford F-150 with towing package and bed liner. Perfect for work and recreation.",
-                images: ["ford_f150_1.jpg", "ford_f150_2.jpg"],
+                images: [
+                    "public/vehicles/ford_f150_1.jpg",
+                    "public/vehicles/ford_f150_2.jpg",
+                ],
                 mileage: 45000,
                 condition: "New",
                 transmission: "Automatic",
@@ -82,7 +91,10 @@ async function seedVehicles() {
                 price: 49000,
                 description:
                     "Premium Tesla Model 3 with autopilot features and long-range battery.",
-                images: ["tesla_model3_1.jpg", "tesla_model3_2.jpg"],
+                images: [
+                    "public/vehicles/tesla_model3_1.jpg",
+                    "public/vehicles/tesla_model3_2.jpg",
+                ],
                 mileage: 5000,
                 condition: "New",
                 transmission: "Automatic",
@@ -99,7 +111,10 @@ async function seedVehicles() {
                 price: 58000,
                 description:
                     "Luxury BMW X5 SUV with premium features and excellent condition.",
-                images: ["bmw_x5_1.jpg", "bmw_x5_2.jpg"],
+                images: [
+                    "public/vehicles/bmw_x5_1.jpg",
+                    "public/vehicles/bmw_x5_2.jpg",
+                ],
                 mileage: 25000,
                 condition: "New",
                 transmission: "Automatic",
@@ -116,7 +131,10 @@ async function seedVehicles() {
                 price: 28000,
                 description:
                     "Modern Hyundai Tucson with advanced safety features and spacious interior.",
-                images: ["hyundai_tucson_1.jpg", "hyundai_tucson_2.jpg"],
+                images: [
+                    "public/vehicles/hyundai_tucson_1.jpg",
+                    "public/vehicles/hyundai_tucson_2.jpg",
+                ],
                 mileage: 18000,
                 condition: "New",
                 transmission: "Automatic",
@@ -133,7 +151,10 @@ async function seedVehicles() {
                 price: 39000,
                 description:
                     "Elegant Mercedes-Benz C-Class with premium interior and smooth driving experience.",
-                images: ["mercedes_cclass_1.jpg", "mercedes_cclass_2.jpg"],
+                images: [
+                    "public/vehicles/mercedes_cclass_1.jpg",
+                    "public/vehicles/mercedes_cclass_2.jpg",
+                ],
                 mileage: 30000,
                 condition: "New",
                 transmission: "Automatic",
@@ -150,7 +171,10 @@ async function seedVehicles() {
                 price: 32000,
                 description:
                     "Latest model Toyota RAV4 with hybrid engine and advanced tech features.",
-                images: ["toyota_rav4_1.jpg", "toyota_rav4_2.jpg"],
+                images: [
+                    "public/vehicles/toyota_rav4_1.jpg",
+                    "public/vehicles/toyota_rav4_2.jpg",
+                ],
                 mileage: 8000,
                 condition: "New",
                 transmission: "CVT",
@@ -167,7 +191,10 @@ async function seedVehicles() {
                 price: 45000,
                 description:
                     "Premium Audi Q5 with quattro all-wheel drive and luxury appointments.",
-                images: ["audi_q5_1.jpg", "audi_q5_2.jpg"],
+                images: [
+                    "public/vehicles/audi_q5_1.jpg",
+                    "public/vehicles/audi_q5_2.jpg",
+                ],
                 mileage: 22000,
                 condition: "New",
                 transmission: "Automatic",
@@ -184,7 +211,10 @@ async function seedVehicles() {
                 price: 29500,
                 description:
                     "Spacious Honda CR-V with excellent reliability and family-friendly features.",
-                images: ["honda_crv_1.jpg", "honda_crv_2.jpg"],
+                images: [
+                    "public/vehicles/honda_crv_1.jpg",
+                    "public/vehicles/honda_crv_2.jpg",
+                ],
                 mileage: 15000,
                 condition: "New",
                 transmission: "CVT",

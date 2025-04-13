@@ -15,6 +15,8 @@ import { SearchParams } from "@/d";
 import { FormatterDate } from "@/utils";
 import { Badge } from "@/components/ui/badge";
 
+const { VITE_APP_IMAGE_URL } = import.meta.env;
+
 export const VehicleListings: React.FC = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -50,9 +52,14 @@ export const VehicleListings: React.FC = () => {
                     <div className="aspect-video w-full overflow-hidden">
                         {vehicle.images && vehicle.images.length > 0 ? (
                             <img
-                                src={vehicle.images[0]}
+                                src={`${VITE_APP_IMAGE_URL}/${vehicle.images[0]}`}
                                 alt={`${vehicle.make} ${vehicle.model}`}
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    // Fallback if image fails to load
+                                    e.currentTarget.src =
+                                        "https://placehold.co/600x400/png";
+                                }}
                             />
                         ) : (
                             <div className="w-full h-full bg-gray-200 flex items-center justify-center">

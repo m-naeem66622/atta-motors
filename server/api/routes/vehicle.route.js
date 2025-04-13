@@ -6,7 +6,7 @@ const validate = require("../middlewares/validateReq.middleware");
 const VehicleValidation = require("../validators/vehicle.validator");
 const CommonValidation = require("../validators/common.validator");
 const authenticate = require("../middlewares/authenticate.middleware");
-const { uploadImage } = require("../middlewares/image.middleware");
+const { uploadImages } = require("../middlewares/image.middleware");
 
 // Public routes
 router.get(
@@ -27,7 +27,7 @@ router.use(authenticate);
 router.post(
     "/",
     authenticate,
-    uploadImage,
+    uploadImages,
     validate(VehicleValidation.createVehicleSchema, "BODY"),
     Controller.createVehicle
 );
@@ -45,7 +45,7 @@ router.get(
 // Update vehicle listing
 router.put(
     "/:id",
-    uploadImage,
+    uploadImages,
     validate(VehicleValidation.updateVehicleSchema, "BODY"),
     Controller.updateVehicle
 );
