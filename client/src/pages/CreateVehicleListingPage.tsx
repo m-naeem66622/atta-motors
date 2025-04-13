@@ -12,7 +12,7 @@ export const CreateVehicleListingPage: React.FC = () => {
                 <Link to={AppRoutes.vehicleSales}>
                     <Button
                         variant="ghost"
-                        className="mb-6 text-blue-600 hover:text-blue-800"
+                        className="mb-6 text-black hover:text-gray-700"
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to Vehicle Sales
@@ -20,11 +20,11 @@ export const CreateVehicleListingPage: React.FC = () => {
                 </Link>
 
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+                    <div className="bg-gradient-to-r from-gray-500 to-zinc-900 p-4 text-white px-6 py-4">
                         <h1 className="text-2xl font-bold text-white">
                             Create Vehicle Listing
                         </h1>
-                        <p className="text-white text-opacity-80">
+                        <p className="text-gray-300">
                             Fill out the form below to list your vehicle for
                             sale
                         </p>

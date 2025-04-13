@@ -86,17 +86,17 @@ export const VehicleListingForm: React.FC = () => {
                 onValueChange={setActiveTab}
                 className="w-full"
             >
-                <TabsList className="grid grid-cols-4 mb-8">
-                    <TabsTrigger value="1" onClick={() => setStep(1)}>
+                <TabsList className="grid grid-cols-4 mb-8 bg-gray-100">
+                    <TabsTrigger value="1" onClick={() => setStep(1)} className="data-[state=active]:bg-black data-[state=active]:text-white">
                         Basic Info
                     </TabsTrigger>
-                    <TabsTrigger value="2" onClick={() => setStep(2)}>
+                    <TabsTrigger value="2" onClick={() => setStep(2)} className="data-[state=active]:bg-black data-[state=active]:text-white">
                         Vehicle Details
                     </TabsTrigger>
-                    <TabsTrigger value="3" onClick={() => setStep(3)}>
+                    <TabsTrigger value="3" onClick={() => setStep(3)} className="data-[state=active]:bg-black data-[state=active]:text-white">
                         Photos
                     </TabsTrigger>
-                    <TabsTrigger value="4" onClick={() => setStep(4)}>
+                    <TabsTrigger value="4" onClick={() => setStep(4)} className="data-[state=active]:bg-black data-[state=active]:text-white">
                         Contact Info
                     </TabsTrigger>
                 </TabsList>

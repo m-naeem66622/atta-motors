@@ -44,7 +44,7 @@ export const VehicleSalesPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12 px-4">
+            <div className="bg-gradient-to-r from-gray-500 to-zinc-900 p-4 text-white py-12 px-4">
                 <div className="container mx-auto max-w-6xl">
                     <h1 className="text-3xl font-bold mb-6">
                         Vehicle Sales & Purchase
@@ -55,9 +55,17 @@ export const VehicleSalesPage: React.FC = () => {
                         className="w-full"
                         onValueChange={setActiveTab}
                     >
-                        <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
-                            <TabsTrigger value="buy">Buy a Vehicle</TabsTrigger>
-                            <TabsTrigger value="sell">
+                        <TabsList className="grid w-full max-w-md grid-cols-2 mb-8 bg-gray-800">
+                            <TabsTrigger
+                                value="buy"
+                                className="data-[state=active]:bg-white data-[state=active]:text-black"
+                            >
+                                Buy a Vehicle
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="sell"
+                                className="data-[state=active]:bg-white data-[state=active]:text-black"
+                            >
                                 Sell Your Vehicle
                             </TabsTrigger>
                         </TabsList>
@@ -83,11 +91,13 @@ export const VehicleSalesPage: React.FC = () => {
                                             className="pl-10 bg-white text-gray-800"
                                         />
                                     </div>
-                                    <Button type="submit">Search</Button>
+                                    <Button type="submit" variant="default">
+                                        Search
+                                    </Button>
                                 </form>
                                 <Button
                                     variant="outline"
-                                    className="bg-white text-blue-600 hover:bg-blue-50"
+                                    className="bg-white text-black hover:bg-gray-100 border-gray-300"
                                     onClick={() => setShowFilters(!showFilters)}
                                 >
                                     <Filter size={18} className="mr-2" />
@@ -225,9 +235,9 @@ export const VehicleSalesPage: React.FC = () => {
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                                        <div className="bg-blue-50 p-4 rounded-lg text-center">
-                                            <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                                                <span className="text-blue-600 font-bold text-xl">
+                                        <div className="bg-gray-50 p-4 rounded-lg text-center">
+                                            <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                <span className="text-black font-bold text-xl">
                                                     1
                                                 </span>
                                             </div>
@@ -241,9 +251,9 @@ export const VehicleSalesPage: React.FC = () => {
                                             </p>
                                         </div>
 
-                                        <div className="bg-blue-50 p-4 rounded-lg text-center">
-                                            <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                                                <span className="text-blue-600 font-bold text-xl">
+                                        <div className="bg-gray-50 p-4 rounded-lg text-center">
+                                            <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                <span className="text-black font-bold text-xl">
                                                     2
                                                 </span>
                                             </div>
@@ -257,9 +267,9 @@ export const VehicleSalesPage: React.FC = () => {
                                             </p>
                                         </div>
 
-                                        <div className="bg-blue-50 p-4 rounded-lg text-center">
-                                            <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                                                <span className="text-blue-600 font-bold text-xl">
+                                        <div className="bg-gray-50 p-4 rounded-lg text-center">
+                                            <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                <span className="text-black font-bold text-xl">
                                                     3
                                                 </span>
                                             </div>

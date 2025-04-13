@@ -67,7 +67,7 @@ export const VehicleListings: React.FC = () => {
                             </CardTitle>
                             <Badge
                                 variant="outline"
-                                className="bg-blue-50 text-blue-700 border-blue-200"
+                                className="bg-black text-white border-black"
                             >
                                 ${vehicle.price.toLocaleString()}
                             </Badge>
