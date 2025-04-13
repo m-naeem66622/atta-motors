@@ -7,12 +7,12 @@ interface FooterProps {}
 export const Footer: FC<FooterProps> = () => {
     return (
         <footer className="border-t bg-background">
-            <div className="container py-8 md:py-12 mx-auto">
+            <div className="container py-8 md:py-12 mx-auto px-4">
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
                     <div>
                         <h3 className="text-lg font-semibold mb-4">About Us</h3>
                         <p className="text-sm text-muted-foreground">
-                            CarHub is your one-stop destination for buying,
+                            Atta Motors is your one-stop destination for buying,
                             selling, and maintaining quality vehicles.
                         </p>
                     </div>

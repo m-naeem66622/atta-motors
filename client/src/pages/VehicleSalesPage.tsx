@@ -13,12 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const VehicleSalesPage: React.FC = () => {
     const navigate = useNavigate();
@@ -223,7 +218,7 @@ export const VehicleSalesPage: React.FC = () => {
                                             Sell Your Vehicle
                                         </h2>
                                         <p className="text-gray-600">
-                                            List your vehicle on CarHub and
+                                            List your vehicle on Atta Motors and
                                             reach thousands of potential buyers
                                             in your area.
                                         </p>
@@ -280,7 +275,7 @@ export const VehicleSalesPage: React.FC = () => {
 
                                     <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
                                         <h3 className="font-semibold mb-4">
-                                            Why Sell with CarHub?
+                                            Why Sell with Atta Motors?
                                         </h3>
                                         <ul className="space-y-2">
                                             <li className="flex items-start">

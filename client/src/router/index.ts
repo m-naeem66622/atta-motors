@@ -5,10 +5,15 @@ export const AppRoutes = {
     register: "/register",
     account: "/account",
     profile: "/account/profile",
+    purchases: "/account/purchases",
+    maintenance: "/account/maintenance",
     createVehicle: "/account/vehicles/create",
     vehicleSales: "/vehicle-sales",
     vehicles: "/vehicles",
     vehicleDetails: "/vehicle/:id",
+    services: "/services",
+    about: "/about",
+    contact: "/contact",
     notFound: "*",
 } as const;
 
