@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios, { AxiosResponse } from "axios";
-import { toast } from "react-toastify";
 import {
     LogInValues,
     LoginResponse,
@@ -10,8 +9,9 @@ import {
     UpdateUserValues,
     RegisterValues,
 } from "@/d";
-import { CookiesApi, getErrorMessage } from "@/utils";
+import { CookiesApi } from "@/utils";
 import { AppState } from "@/redux/store";
+import { handleApiError, handleApiSuccess } from "@/utils";
 
 const setAuthHeader = (token: string) => {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
@@ -43,11 +43,15 @@ export const register = createAsyncThunk<LoginResponse, RegisterValues>(
                 response.data.tokens.accessToken
             );
 
-            toast.success("Register Success!");
+            handleApiSuccess("Success", "Register Success!");
 
             return response.data;
         } catch (error: any) {
-            toast.error(getErrorMessage(error.response?.data.error.message));
+            handleApiError(error, {
+                context: "register",
+                resourceType: "user",
+                defaultMessage: "Failed to register",
+            });
             return rejectWithValue(error);
         }
     }
@@ -67,12 +71,16 @@ export const login = createAsyncThunk<
 
         CookiesApi.setValue("accessToken", response.data.tokens.accessToken);
 
-        toast.success("Login Success!");
+        handleApiSuccess("Success", "Login Success!");
 
         return response.data;
     } catch (error: any) {
         console.error(error);
-        toast.error(getErrorMessage(error.response?.data.error.message));
+        handleApiError(error, {
+            context: "login",
+            resourceType: "user",
+            defaultMessage: "Failed to login",
+        });
         return rejectWithValue(error);
     }
 });
@@ -89,8 +97,9 @@ export const fetchProfile = createAsyncThunk<UserResponse>(
         setAuthHeader(accessToken);
 
         try {
-            const response: AxiosResponse<UserResponse> =
-                await axios.get("api/users/profile");
+            const response: AxiosResponse<UserResponse> = await axios.get(
+                "api/users/profile"
+            );
 
             // CookiesApi.setValue("accessToken", response.data.tokens.accessToken);
             // setAuthHeader(response.data.tokens.accessToken);
@@ -121,11 +130,15 @@ export const updateProfile = createAsyncThunk<UserResponse, UpdateUserValues>(
                 formData
             );
 
-            toast.success("Personal info updated successfuly!");
+            handleApiSuccess("Success", "Personal info updated successfully!");
 
             return response.data;
         } catch (error: any) {
-            toast.error(getErrorMessage(error.response?.data.error.message));
+            handleApiError(error, {
+                context: "update",
+                resourceType: "profile",
+                defaultMessage: "Failed to update profile",
+            });
             return rejectWithValue(error);
         }
     }

@@ -43,6 +43,8 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { LoadingButton } from "./LoadingButton";
 import { SplashScreen } from "./SplashScreen";
+import { VehicleListings } from "./VehicleListings";
+import { VehicleListingForm } from "./VehicleListingForm";
 
 export {
     Avatar,
@@ -87,4 +89,6 @@ export {
     Footer,
     LoadingButton,
     SplashScreen,
+    VehicleListings,
+    VehicleListingForm,
 };

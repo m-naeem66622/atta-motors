@@ -1,3 +1,5 @@
+import { FC } from "react";
+import { Car, DollarSign, Wrench } from "lucide-react";
 import {
     Button,
     Card,
@@ -9,8 +11,6 @@ import {
     GradualSpacing,
 } from "@/components";
 import { featuredCars } from "@/constants";
-import { Car, DollarSign, Wrench } from "lucide-react";
-import { FC } from "react";
 
 interface HomePageProps {}
 

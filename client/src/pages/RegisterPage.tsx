@@ -1,5 +1,7 @@
 import { FC, useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
+import { User, Upload } from "lucide-react";
+import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -16,10 +18,9 @@ import {
     LoadingButton,
     Particles,
 } from "@/components";
-import { User, Upload } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useAppDispatch, useAppState } from "@/hooks";
-import { register } from "@/redux/authenticate/operations";
+import { register } from "@/redux/store";
+import { AppRoutes } from "@/router";
 
 const formSchema = z
     .object({
@@ -273,7 +274,7 @@ export const RegisterPage: FC<RegisterPageProps> = () => {
                     <p className="text-sm text-gray-600">
                         Already have an account?{" "}
                         <Link
-                            to="/login"
+                            to={AppRoutes.login}
                             className="text-blue-500 hover:underline"
                         >
                             Login

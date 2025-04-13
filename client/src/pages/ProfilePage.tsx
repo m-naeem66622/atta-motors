@@ -2,6 +2,7 @@ import React, { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { User, Upload } from "lucide-react";
 import {
     Form,
     FormControl,
@@ -15,7 +16,6 @@ import {
     AvatarImage,
     LoadingButton,
 } from "@/components";
-import { User, Upload } from "lucide-react";
 import { useAppDispatch, useAppState } from "@/hooks";
 import { updateProfile } from "@/redux/store";
 

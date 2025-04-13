@@ -1,10 +1,14 @@
 export const AppRoutes = {
     root: "/",
+    home: "/",
     login: "/login",
     register: "/register",
     account: "/account",
     profile: "/account/profile",
-    home: "/",
+    createVehicle: "/account/vehicles/create",
+    vehicleSales: "/vehicle-sales",
+    vehicles: "/vehicles",
+    vehicleDetails: "/vehicle/:id",
     notFound: "*",
 } as const;
 

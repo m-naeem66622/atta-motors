@@ -1,17 +1,5 @@
 import { Link } from "react-router-dom";
 import {
-    Button,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from "@/components";
-import {
     Car,
     Wrench,
     DollarSign,
@@ -25,6 +13,18 @@ import { AppRoutes } from "@/router";
 import { useAppDispatch, useAppState } from "@/hooks";
 import { logout } from "@/redux/store";
 import { getFirstLetterOfUserName } from "@/utils";
+import {
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from "@/components";
 
 const { VITE_APP_BASE_URL } = import.meta.env;
 
@@ -46,13 +46,13 @@ export const Header: FC<HeaderProps> = () => {
                 <nav className="ml-8 flex items-center justify-between space-x-4 w-full">
                     <div className="flex gap-4 sm:gap-6">
                         <Link
-                            to="#"
+                            to={AppRoutes.vehicleSales}
                             className="flex items-center text-sm font-medium hover:underline underline-offset-4"
                         >
                             <ShoppingCart className="mr-2 h-6 w-6" /> Buy
                         </Link>
                         <Link
-                            to="#"
+                            to={AppRoutes.createVehicle}
                             className="flex items-center text-sm font-medium hover:underline underline-offset-4"
                         >
                             <DollarSign className="mr-2 h-5 w-5" /> Sell
@@ -70,37 +70,6 @@ export const Header: FC<HeaderProps> = () => {
                             <Info className="mr-2 h-5 w-5" /> About
                         </Link>
                     </div>
-
-                    {/* <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <Menu className="h-4 w-4 mr-2" />
-                Menu
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Link href="#" className="flex items-center">
-                  <Car className="mr-2 h-4 w-4" /> Buy
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="#" className="flex items-center">
-                  <DollarSign className="mr-2 h-4 w-4" /> Sell
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="#" className="flex items-center">
-                  <Wrench className="mr-2 h-4 w-4" /> Services
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="#" className="flex items-center">
-                  About
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu> */}
 
                     {authenticate.isLoggedIn && authenticate.user ? (
                         <DropdownMenu>

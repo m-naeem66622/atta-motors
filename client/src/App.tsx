@@ -13,6 +13,7 @@ import { Route, Routes } from "react-router-dom";
 import { AppRoutes } from "@/router";
 import { PrivateRoute, RestrictedRoute } from "@/hocs";
 import { useAppState, useRefresh } from "@/hooks";
+import { Toaster } from "@/components/ui/toaster";
 
 function App() {
     useRefresh();
@@ -26,18 +27,27 @@ function App() {
                 <Header />
                 <main>
                     <Routes>
-                        <Route path="*" element={<NotFoundPage />} />
-                        <Route path="/" element={<HomePage />} />
                         <Route
-                            path="/vehicle-sales"
+                            path={AppRoutes.notFound}
+                            element={<NotFoundPage />}
+                        />
+                        <Route path={AppRoutes.home} element={<HomePage />} />
+                        <Route
+                            path={AppRoutes.vehicleSales}
                             element={<VehicleSalesPage />}
                         />
                         <Route
-                            path="/create-vehicle-listing"
-                            element={<CreateVehicleListingPage />}
+                            path={AppRoutes.createVehicle}
+                            element={
+                                <PrivateRoute
+                                    redirectTo={AppRoutes.login}
+                                    component={<CreateVehicleListingPage />}
+                                    role=""
+                                />
+                            }
                         />
                         <Route
-                            path="/login"
+                            path={AppRoutes.login}
                             element={
                                 <RestrictedRoute
                                     redirectTo={AppRoutes.profile}
@@ -46,7 +56,7 @@ function App() {
                             }
                         />
                         <Route
-                            path="/register"
+                            path={AppRoutes.register}
                             element={
                                 <RestrictedRoute
                                     redirectTo={AppRoutes.profile}
@@ -55,7 +65,7 @@ function App() {
                             }
                         />
                         <Route
-                            path="/account/profile"
+                            path={AppRoutes.profile}
                             element={
                                 <PrivateRoute
                                     redirectTo={AppRoutes.login}
@@ -67,6 +77,7 @@ function App() {
                     </Routes>
                 </main>
                 <Footer />
+                <Toaster />
             </div>
         </>
     );

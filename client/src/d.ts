@@ -86,3 +86,55 @@ export type SaveNavigationState = {
     saveRoute: string;
     haveModal?: boolean;
 };
+
+export type Vehicle = {
+    _id: string;
+    title: string;
+    make: string;
+    model: string;
+    year: number;
+    price: number;
+    mileage?: number;
+    fuelType?: string;
+    transmission?: string;
+    condition?: string;
+    exteriorColor?: string;
+    interiorColor?: string;
+    description?: string;
+    images?: string[];
+    location?: string;
+    contactNumber?: string;
+    contactEmail?: string;
+    owner: string; // User ID of seller
+    status: "available" | "sold" | "reserved";
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type SearchParams = {
+    page?: number;
+    limit?: number;
+    make?: string;
+    model?: string;
+    minYear?: number;
+    maxYear?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    transmission?: string;
+    fuelType?: string;
+    bodyType?: string;
+    condition?: string;
+    sort?: string;
+};
+
+export interface VehicleResponse extends BasicResponse<Vehicle> {}
+
+export interface VehiclesResponse extends BasicResponse<Vehicle[]> {}
+
+export interface VehiclesState extends BasicState {
+    isSaving: boolean;
+    isDeleting: boolean;
+    vehicles: Vehicle[];
+    foundVehicle: Vehicle | null;
+    searchParams?: SearchParams;
+}

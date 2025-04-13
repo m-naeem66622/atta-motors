@@ -15,12 +15,23 @@ import axios from "axios";
 import authenticateReducer, { logout } from "@/redux/authenticate/authSlice";
 import {
     login,
+    register,
     fetchProfile,
     updateProfile,
 } from "@/redux/authenticate/operations";
+
 import saveNavigationReducer, {
     setRoute,
 } from "@/redux/saveNavigation/saveNavigationSlice";
+
+import vehicleReducer from "@/redux/vehicles/vehicleSlice";
+import {
+    fetchVehicleById,
+    fetchVehicles,
+    createVehicle,
+    updateVehicle,
+    deleteVehicle,
+} from "@/redux/vehicles/operations";
 
 const { VITE_APP_BASE_URL } = import.meta.env;
 
@@ -35,6 +46,7 @@ const persistConfig = {
 const reducer = combineReducers({
     authenticate: persistReducer(persistConfig, authenticateReducer),
     saveNavigation: persistReducer(persistConfig, saveNavigationReducer),
+    vehicles: vehicleReducer,
 });
 
 export const store = configureStore({
@@ -59,4 +71,16 @@ export const persistor = persistStore(store);
 export type AppState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-export { login, fetchProfile as refresh, logout, updateProfile, setRoute };
+export {
+    login,
+    register,
+    fetchProfile as refresh,
+    logout,
+    updateProfile,
+    setRoute,
+    fetchVehicles,
+    fetchVehicleById,
+    createVehicle,
+    updateVehicle,
+    deleteVehicle,
+};

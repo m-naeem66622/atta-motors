@@ -1,7 +1,7 @@
 require("dotenv").config();
 const fs = require("fs");
 const express = require("express");
-const connectToDatabase = require("./api/config/db");
+const { connectDB } = require("./api/config/db");
 const {
     notFound,
     errorHandler,
@@ -9,8 +9,6 @@ const {
 const winston = require("winston");
 const expressWinston = require("express-winston");
 const cors = require("cors");
-
-connectToDatabase();
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -42,14 +40,22 @@ app.use("/api", indexRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port, () => {
-    // Create empty directories. e.g. logs
-    const dirs = ["logs", "public"];
-    dirs.forEach((dir) => {
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
-        }
+// Only start the server if this file is run directly (not imported by tests)
+if (require.main === module) {
+    // Connect to the database
+    connectDB();
+    
+    app.listen(port, () => {
+        // Create empty directories. e.g. logs
+        const dirs = ["logs", "public"];
+        dirs.forEach((dir) => {
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir);
+            }
+        });
+        console.log(`Server is running on port ${port}`);
     });
-    // startPolling(false);
-    console.log(`Server is running on port ${port}`);
-});
+}
+
+// Export the app for testing
+module.exports = app;

@@ -1,5 +1,6 @@
 import { FC } from "react";
 import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -19,9 +20,9 @@ import {
     Particles,
     LoadingButton,
 } from "@/components";
-import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppState } from "@/hooks";
 import { login, setRoute } from "@/redux/store";
+import { AppRoutes } from "@/router";
 
 const formSchema = z.object({
     emailOrUsername: z
@@ -123,7 +124,7 @@ export const LoginPage: FC<LoginPageProps> = () => {
                     <p className="text-sm text-muted-foreground">
                         Don't have an account?{" "}
                         <Link
-                            to="/register"
+                            to={AppRoutes.register}
                             className="text-primary hover:underline"
                         >
                             Register

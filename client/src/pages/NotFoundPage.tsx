@@ -1,9 +1,7 @@
-"use client";
-
 import { useState, useEffect, FC } from "react";
-import { Button } from "@/components";
-import { Car, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Car, ArrowLeft } from "lucide-react";
+import { Button } from "@/components";
 
 interface NotFoundPageProps {}
 
