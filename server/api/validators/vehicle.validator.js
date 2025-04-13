@@ -42,7 +42,7 @@ const createVehicleSchema = Joi.object({
         .optional(),
     condition: Joi.string()
         .valid("New", "Like New", "Excellent", "Good", "Fair", "Salvage")
-        .default("Used"),
+        .default("New"),
     interiorColor: Joi.string().trim().optional(),
     exteriorColor: Joi.string().trim().optional(),
     location: Joi.string().trim().optional(),

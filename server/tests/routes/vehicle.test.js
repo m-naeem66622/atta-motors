@@ -38,7 +38,7 @@ beforeAll(async () => {
         year: 2020,
         price: 25000,
         description: "Test vehicle for sale",
-        condition: "Used",
+        condition: "Like New",
         mileage: 15000,
         owner: testUser._id,
     });
@@ -253,3 +253,4 @@ describe("GET /api/vehicles/user/me", () => {
         expect(res.statusCode).toBe(401);
     });
 });
+

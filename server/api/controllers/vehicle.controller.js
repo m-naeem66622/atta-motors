@@ -255,9 +255,10 @@ const getUserVehicles = async (req, res, next) => {
         const filter = {
             isDeleted: false,
             owner: userId,
-            status: "active",
+            status: "ACTIVE",
             ...restQuery,
         };
+
         const projection = { isDeleted: 0 };
         const count = await Vehicle.countVehicles(filter);
         const vehicles = await Vehicle.getVehicles(

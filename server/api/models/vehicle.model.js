@@ -18,7 +18,7 @@ const vehicleSchema = new mongoose.Schema(
         condition: {
             type: String,
             enum: ["New", "Like New", "Excellent", "Good", "Fair", "Salvage"],
-            default: "Used",
+            default: "New",
         },
         interiorColor: { type: String, trim: true },
         exteriorColor: { type: String, trim: true },
