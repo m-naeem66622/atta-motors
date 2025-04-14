@@ -1,11 +1,15 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAppDispatch, useAppState } from "@/hooks";
+import { createMaintenanceAppointment } from "@/redux/store";
+import { AppRoutes } from "@/router";
 
 import {
     bookingSchema,
@@ -15,7 +19,6 @@ import {
     DateTimeSelection,
     VehicleInformation,
     ContactInformation,
-    SuccessConfirmation,
 } from "./maintenance-booking";
 
 export const MaintenanceBookingForm: React.FC<MaintenanceBookingFormProps> = ({
@@ -25,8 +28,9 @@ export const MaintenanceBookingForm: React.FC<MaintenanceBookingFormProps> = ({
 }) => {
     const [step, setStep] = useState<number>(1);
     const [activeTab, setActiveTab] = useState<string>("1");
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    const [isSuccess, setIsSuccess] = useState<boolean>(false);
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+    const { maintenance } = useAppState();
 
     // Current year for vehicle year selection for default values
     const currentYear = new Date().getFullYear();
@@ -51,7 +55,10 @@ export const MaintenanceBookingForm: React.FC<MaintenanceBookingFormProps> = ({
 
     // Set initial service type when component mounts
     useEffect(() => {
-        if (initialServiceType) {
+        if (
+            initialServiceType &&
+            initialServiceType !== form.getValues("maintenanceType")
+        ) {
             form.setValue("maintenanceType", initialServiceType);
         }
     }, [initialServiceType, form]);
@@ -73,37 +80,19 @@ export const MaintenanceBookingForm: React.FC<MaintenanceBookingFormProps> = ({
     };
 
     const onSubmit = async (values: FormValues) => {
-        setIsSubmitting(true);
-
         try {
-            // Here you would typically handle the form submission to your backend
-            console.log(values);
+            // Submit the form data to the backend API
+            const result = await dispatch(createMaintenanceAppointment(values));
 
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-
-            // Show success message
-            setIsSuccess(true);
-
-            // Redirect after a delay
-            setTimeout(() => {
-                onCancel();
-            }, 3000);
+            if (result.meta.requestStatus === "fulfilled") {                
+                // Reset form and navigate back to maintenance page
+                form.reset();
+                navigate(AppRoutes.maintenance);
+            }
         } catch (error) {
             console.error("Error submitting form:", error);
-        } finally {
-            setIsSubmitting(false);
         }
     };
-
-    if (isSuccess) {
-        return (
-            <SuccessConfirmation
-                onCancel={onCancel}
-                maintenanceTypes={maintenanceTypes}
-            />
-        );
-    }
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -182,13 +171,13 @@ export const MaintenanceBookingForm: React.FC<MaintenanceBookingFormProps> = ({
                         ) : (
                             <Button
                                 type="submit"
-                                disabled={isSubmitting}
+                                disabled={maintenance.isCreating}
                                 className="min-w-[120px]"
                             >
-                                {isSubmitting
+                                {maintenance.isCreating
                                     ? "Submitting..."
                                     : "Book Appointment"}
-                                {!isSubmitting && (
+                                {!maintenance.isCreating && (
                                     <Check className="ml-2 h-4 w-4" />
                                 )}
                             </Button>

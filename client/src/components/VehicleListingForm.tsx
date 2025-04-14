@@ -172,10 +172,10 @@ export const VehicleListingForm: React.FC = () => {
                             ) : (
                                 <Button
                                     type="submit"
-                                    disabled={vehicles.isSaving}
+                                    disabled={vehicles.isCreating}
                                     className="min-w-[120px]"
                                 >
-                                    {vehicles.isSaving ? (
+                                    {vehicles.isCreating ? (
                                         <span className="flex items-center">
                                             <span className="mr-2 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-white"></span>
                                             Submitting...

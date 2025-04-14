@@ -122,10 +122,14 @@ const getMaintenanceHistory = async (req, res, next) => {
 
         res.status(200).json({
             status: "SUCCESS",
-            count: result.data.length,
-            total: countResult.data,
-            currentPage: parseInt(page),
-            totalPages: Math.ceil(countResult.data / parseInt(limit)),
+            meta: {
+                hasNextPage: page < Math.ceil(countResult.data / limit),
+                hasPreviousPage: page > 1,
+                itemCount: countResult.data,
+                page: page,
+                pageCount: Math.ceil(countResult.data / limit),
+                limit,
+            },
             data: result.data,
         });
     } catch (error) {
@@ -345,10 +349,14 @@ const getAllMaintenanceAppointments = async (req, res, next) => {
 
         res.status(200).json({
             status: "SUCCESS",
-            count: result.data.length,
-            total: countResult.data,
-            currentPage: parseInt(page),
-            totalPages: Math.ceil(countResult.data / parseInt(limit)),
+            meta: {
+                hasNextPage: page < Math.ceil(countResult.data / limit),
+                hasPreviousPage: page > 1,
+                itemCount: countResult.data,
+                page: page,
+                pageCount: Math.ceil(countResult.data / limit),
+                limit,
+            },
             data: result.data,
         });
     } catch (error) {

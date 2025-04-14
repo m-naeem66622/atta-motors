@@ -119,7 +119,7 @@ export const MaintenancePage: React.FC = () => {
     };
 
     const handleViewHistory = () => {
-        navigate("/maintenance/history");
+        navigate("/account/maintenance/history");
     };
 
     return (

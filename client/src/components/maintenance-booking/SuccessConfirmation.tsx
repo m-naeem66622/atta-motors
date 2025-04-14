@@ -10,19 +10,18 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { FormValues, MaintenanceType } from "./types";
-import { useFormContext } from "react-hook-form";
 
 interface SuccessConfirmationProps {
     onCancel: () => void;
     maintenanceTypes: MaintenanceType[];
+    formData?: FormValues;
 }
 
 export const SuccessConfirmation = ({
     onCancel,
     maintenanceTypes,
+    formData,
 }: SuccessConfirmationProps) => {
-    const { getValues } = useFormContext<FormValues>();
-
     return (
         <Card className="max-w-2xl mx-auto">
             <CardHeader className="text-center bg-black text-white">
@@ -44,25 +43,34 @@ export const SuccessConfirmation = ({
                     We've sent a confirmation email with all the details of your
                     appointment.
                 </p>
-                <div className="bg-gray-50 p-4 rounded-lg mb-4 inline-block mx-auto text-left">
-                    <p className="font-medium">Appointment Details:</p>
-                    <p className="text-sm text-gray-600">
-                        {format(
-                            getValues("appointmentDate"),
-                            "EEEE, MMMM d, yyyy"
-                        )}{" "}
-                        at {getValues("appointmentTime")}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                        Service:{" "}
-                        {
-                            maintenanceTypes.find(
-                                (t) => t.id === getValues("maintenanceType")
-                            )?.title
-                        }{" "}
-                        - {getValues("specificService")}
-                    </p>
-                </div>
+                {formData ? (
+                    <div className="bg-gray-50 p-4 rounded-lg mb-4 inline-block mx-auto text-left">
+                        <p className="font-medium">Appointment Details:</p>
+                        <p className="text-sm text-gray-600">
+                            {format(
+                                formData.appointmentDate,
+                                "EEEE, MMMM d, yyyy"
+                            )}{" "}
+                            at {formData.appointmentTime}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                            Service:{" "}
+                            {
+                                maintenanceTypes.find(
+                                    (t) => t.id === formData.maintenanceType
+                                )?.title
+                            }{" "}
+                            - {formData.specificService}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="bg-gray-50 p-4 rounded-lg mb-4 inline-block mx-auto text-left">
+                        <p className="font-medium">Appointment Details:</p>
+                        <p className="text-sm text-gray-600">
+                            Your appointment details will be sent to your email.
+                        </p>
+                    </div>
+                )}
             </CardContent>
             <CardFooter className="flex justify-center pb-6">
                 <Button onClick={onCancel}>

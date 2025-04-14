@@ -87,6 +87,64 @@ export type SaveNavigationState = {
     haveModal?: boolean;
 };
 
+export type MaintenanceAppointment = {
+    _id: string;
+    userId: string;
+    maintenanceType: string;
+    specificService: string;
+    appointmentDate: string;
+    appointmentTime: string;
+    status: "Scheduled" | "Completed" | "Cancelled";
+    vehicle: {
+        make: string;
+        model: string;
+        year: string;
+        registration: string;
+    };
+    customer: {
+        name: string;
+        email: string;
+        phone: string;
+    };
+    technician: string | null;
+    cost: string | null;
+    notes: string;
+    additionalNotes: string;
+    createdAt: string;
+    updatedAt: string;
+    formattedDate?: string;
+};
+
+export type TimeSlot = {
+    time: string;
+    available: boolean;
+};
+
+export interface MaintenanceResponse
+    extends BasicResponse<MaintenanceAppointment> {}
+export interface MaintenanceHistoryResponse
+    extends BasicResponse<MaintenanceAppointment[]> {}
+export interface MaintenanceAvailabilityResponse
+    extends BasicResponse<{
+        date: string;
+        availability: {
+            morning: TimeSlot[];
+            afternoon: TimeSlot[];
+            evening: TimeSlot[];
+        };
+    }> {}
+
+export interface MaintenanceState extends BasicState {
+    isUpdating: boolean;
+    isCreating: boolean;
+    appointments: MaintenanceAppointment[];
+    currentAppointment: MaintenanceAppointment | null;
+    availability: {
+        date: string;
+        slots: Record<string, TimeSlot[]>;
+    } | null;
+}
+
 export type Vehicle = {
     _id: string;
     title: string;
@@ -132,7 +190,8 @@ export interface VehicleResponse extends BasicResponse<Vehicle> {}
 export interface VehiclesResponse extends BasicResponse<Vehicle[]> {}
 
 export interface VehiclesState extends BasicState {
-    isSaving: boolean;
+    isCreating: boolean;
+    isUpdating: boolean;
     isDeleting: boolean;
     vehicles: Vehicle[];
     foundVehicle: Vehicle | null;

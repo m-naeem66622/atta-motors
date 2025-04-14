@@ -1,5 +1,6 @@
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { format } from "date-fns";
 import {
     Card,
     CardContent,
@@ -10,67 +11,60 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wrench, XCircle, User, DollarSign } from "lucide-react";
-
-// Mock data for maintenance history
-const maintenanceHistory = [
-    {
-        id: 1,
-        date: "October 15, 2023",
-        type: "Routine Maintenance",
-        service: "Oil Change & Filter Replacement",
-        status: "Completed",
-        technician: "Michael Johnson",
-        cost: "$95.00",
-        notes: "Changed oil and filter, topped up all fluids, performed multi-point inspection.",
-        vehicle: "2020 Toyota Camry",
-    },
-    {
-        id: 2,
-        date: "August 3, 2023",
-        type: "Mechanical Maintenance",
-        service: "Brake System Repair",
-        status: "Completed",
-        technician: "Robert Smith",
-        cost: "$320.00",
-        notes: "Replaced front brake pads and rotors, performed brake fluid flush.",
-        vehicle: "2020 Toyota Camry",
-    },
-    {
-        id: 3,
-        date: "May 22, 2023",
-        type: "Electrical Maintenance",
-        service: "Battery Replacement",
-        status: "Completed",
-        technician: "Sarah Williams",
-        cost: "$175.00",
-        notes: "Replaced battery and tested charging system.",
-        vehicle: "2020 Toyota Camry",
-    },
-    {
-        id: 4,
-        date: "November 10, 2023",
-        type: "Computerized Maintenance",
-        service: "ECU Programming",
-        status: "Scheduled",
-        technician: "David Chen",
-        cost: "Estimate: $150.00",
-        notes: "Scheduled for ECU update and diagnostics.",
-        vehicle: "2020 Toyota Camry",
-    },
-];
-
+import { Wrench, XCircle, User, DollarSign, Loader2 } from "lucide-react";
+import { useAppDispatch, useAppState } from "@/hooks";
+import {
+    getMaintenanceHistory,
+    cancelMaintenanceAppointment,
+} from "@/redux/store";
+import { toast } from "@/hooks/use-toast";
 export const MaintenanceHistory: React.FC = () => {
     const [activeTab, setActiveTab] = useState("all");
+    const dispatch = useAppDispatch();
+    const { maintenance } = useAppState();
+    const [isCancelling, setIsCancelling] = useState<string | null>(null);
 
-    const filteredHistory =
-        activeTab === "all"
-            ? maintenanceHistory
-            : maintenanceHistory.filter((item) =>
-                  activeTab === "completed"
-                      ? item.status === "Completed"
-                      : item.status === "Scheduled"
-              );
+    // Fetch maintenance history on component mount and when tab changes
+    useEffect(() => {
+        const status =
+            activeTab === "all"
+                ? undefined
+                : activeTab === "completed"
+                ? "Completed"
+                : "Scheduled";
+
+        dispatch(getMaintenanceHistory({ status }));
+    }, [dispatch, activeTab]);
+
+    const handleCancelAppointment = async (appointmentId: string) => {
+        try {
+            setIsCancelling(appointmentId);
+            await dispatch(
+                cancelMaintenanceAppointment(appointmentId)
+            ).unwrap();
+            toast({
+                title: "Success",
+                description: "Appointment cancelled successfully",
+            });
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to cancel appointment",
+                variant: "destructive",
+            });
+        } finally {
+            setIsCancelling(null);
+        }
+    };
+
+    // Format the appointment date for display
+    const formatAppointmentDate = (dateString: string) => {
+        try {
+            return format(new Date(dateString), "MMMM d, yyyy");
+        } catch (error) {
+            return dateString;
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -89,32 +83,46 @@ export const MaintenanceHistory: React.FC = () => {
                 </Tabs>
             </div>
 
-            {filteredHistory.length > 0 ? (
+            {maintenance.isLoading ? (
+                <div className="flex justify-center items-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                    <span className="ml-2 text-gray-500">
+                        Loading maintenance history...
+                    </span>
+                </div>
+            ) : maintenance.appointments.length > 0 ? (
                 <div className="space-y-4">
-                    {filteredHistory.map((item) => (
-                        <Card key={item.id} className="overflow-hidden">
+                    {maintenance.appointments.map((appointment) => (
+                        <Card key={appointment._id} className="overflow-hidden">
                             <CardHeader className="pb-2 flex flex-row justify-between items-start">
                                 <div>
                                     <CardTitle className="text-lg">
-                                        {item.service}
+                                        {appointment.specificService}
                                     </CardTitle>
                                     <CardDescription>
-                                        {item.vehicle} • {item.date}
+                                        {appointment.vehicle.make}{" "}
+                                        {appointment.vehicle.model}{" "}
+                                        {appointment.vehicle.year} •{" "}
+                                        {formatAppointmentDate(
+                                            appointment.appointmentDate
+                                        )}
                                     </CardDescription>
                                 </div>
                                 <Badge
                                     variant={
-                                        item.status === "Completed"
+                                        appointment.status === "Completed"
                                             ? "outline"
                                             : "default"
                                     }
                                     className={
-                                        item.status === "Completed"
+                                        appointment.status === "Completed"
                                             ? "bg-green-50 text-green-700 border-green-200"
+                                            : appointment.status === "Cancelled"
+                                            ? "bg-red-50 text-red-700 border-red-200"
                                             : "bg-blue-500 text-white"
                                     }
                                 >
-                                    {item.status}
+                                    {appointment.status}
                                 </Badge>
                             </CardHeader>
                             <CardContent>
@@ -125,7 +133,7 @@ export const MaintenanceHistory: React.FC = () => {
                                         </p>
                                         <div className="flex items-center">
                                             <Wrench className="h-4 w-4 mr-2 text-gray-400" />
-                                            {item.type}
+                                            {appointment.maintenanceType}
                                         </div>
                                     </div>
                                     <div>
@@ -134,7 +142,8 @@ export const MaintenanceHistory: React.FC = () => {
                                         </p>
                                         <div className="flex items-center">
                                             <User className="h-4 w-4 mr-2 text-gray-400" />
-                                            {item.technician}
+                                            {appointment.technician ||
+                                                "Not assigned yet"}
                                         </div>
                                     </div>
                                     <div>
@@ -143,14 +152,20 @@ export const MaintenanceHistory: React.FC = () => {
                                         </p>
                                         <div className="flex items-center font-medium">
                                             <DollarSign className="h-4 w-4 mr-2 text-gray-400" />
-                                            {item.cost}
+                                            {appointment.cost
+                                                ? `$${appointment.cost}`
+                                                : "To be determined"}
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="mt-4 pt-4 border-t">
                                     <p className="text-gray-500 mb-1">Notes</p>
-                                    <p className="text-sm">{item.notes}</p>
+                                    <p className="text-sm">
+                                        {appointment.notes ||
+                                            appointment.additionalNotes ||
+                                            "No notes available"}
+                                    </p>
                                 </div>
 
                                 <div className="mt-4 flex justify-end">
@@ -161,13 +176,29 @@ export const MaintenanceHistory: React.FC = () => {
                                     >
                                         View Details
                                     </Button>
-                                    {item.status === "Scheduled" && (
+                                    {appointment.status === "Scheduled" && (
                                         <Button
                                             variant="outline"
                                             size="sm"
                                             className="text-red-500 border-red-200 hover:bg-red-50"
+                                            onClick={() =>
+                                                handleCancelAppointment(
+                                                    appointment._id
+                                                )
+                                            }
+                                            disabled={
+                                                isCancelling === appointment._id
+                                            }
                                         >
-                                            Cancel Appointment
+                                            {isCancelling ===
+                                            appointment._id ? (
+                                                <>
+                                                    <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                                                    Cancelling...
+                                                </>
+                                            ) : (
+                                                "Cancel Appointment"
+                                            )}
                                         </Button>
                                     )}
                                 </div>

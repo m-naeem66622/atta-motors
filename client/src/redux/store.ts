@@ -33,6 +33,15 @@ import {
     deleteVehicle,
 } from "@/redux/vehicles/operations";
 
+import maintenanceReducer from "@/redux/maintenance/maintenanceSlice";
+import {
+    createMaintenanceAppointment,
+    getMaintenanceHistory,
+    getMaintenanceAppointment,
+    cancelMaintenanceAppointment,
+    checkAppointmentAvailability,
+} from "@/redux/maintenance/operations";
+
 const { VITE_APP_BASE_URL } = import.meta.env;
 
 axios.defaults.baseURL = `${VITE_APP_BASE_URL}`;
@@ -47,6 +56,7 @@ const reducer = combineReducers({
     authenticate: persistReducer(persistConfig, authenticateReducer),
     saveNavigation: persistReducer(persistConfig, saveNavigationReducer),
     vehicles: vehicleReducer,
+    maintenance: maintenanceReducer,
 });
 
 export const store = configureStore({
@@ -83,4 +93,9 @@ export {
     createVehicle,
     updateVehicle,
     deleteVehicle,
+    createMaintenanceAppointment,
+    getMaintenanceHistory,
+    getMaintenanceAppointment,
+    cancelMaintenanceAppointment,
+    checkAppointmentAvailability,
 };
