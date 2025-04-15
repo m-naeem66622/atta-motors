@@ -54,12 +54,19 @@ const getVehicles = async (req, res, next) => {
         } = req.query;
         const filter = { isDeleted: false, ...restQuery };
         const projection = { isDeleted: 0 };
+        const options = {
+            populate: {
+                path: "owner",
+                select: "avatar name phone email createdAt",
+            },
+        };
         const count = await Vehicle.countVehicles(filter);
         const vehicles = await Vehicle.getVehicles(
             filter,
             projection,
             parseInt(page),
-            parseInt(limit)
+            parseInt(limit),
+            options
         );
 
         if (vehicles.status === "FAILED") {
@@ -98,7 +105,17 @@ const getVehicleById = async (req, res, next) => {
         const vehicleId = req.params.id;
 
         const projection = { isDeleted: 0 };
-        const vehicle = await Vehicle.getVehicleById(vehicleId, projection);
+        const options = {
+            populate: {
+                path: "owner",
+                select: "avatar name phone email createdAt",
+            },
+        };
+        const vehicle = await Vehicle.getVehicleById(
+            vehicleId,
+            projection,
+            options
+        );
 
         if (vehicle.status === "FAILED") {
             throwError(

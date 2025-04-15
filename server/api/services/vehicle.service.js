@@ -41,9 +41,10 @@ const countVehicles = async (filter) => {
 };
 
 // GetVehicles
-const getVehicles = async (filter, projection, page, limit) => {
+const getVehicles = async (filter, projection, page, limit, options = {}) => {
     try {
         const vehicles = await Vehicle.find(filter, projection, {
+            ...options,
             skip: (page - 1) * limit,
             limit: limit,
         });
@@ -69,11 +70,12 @@ const getVehicles = async (filter, projection, page, limit) => {
 };
 
 // GetVehicleById
-const getVehicleById = async (vehicleId, projection) => {
+const getVehicleById = async (vehicleId, projection, options = {}) => {
     try {
         const vehicle = await Vehicle.findOne(
             { _id: vehicleId, isDeleted: false },
-            projection
+            projection,
+            options
         );
 
         if (vehicle) {
