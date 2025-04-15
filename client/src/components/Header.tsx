@@ -13,7 +13,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     Car,
     Wrench,
-    DollarSign,
     User,
     LogOut,
     Menu,
@@ -39,8 +38,7 @@ export function Header() {
     const navItems = [
         { label: "Home", href: AppRoutes.home, icon: Home },
         { label: "Buy", href: AppRoutes.vehicleSales, icon: Car },
-        { label: "Sell", href: AppRoutes.createVehicle, icon: DollarSign },
-        { label: "Services", href: AppRoutes.services, icon: Wrench },
+        { label: "Maintenance", href: AppRoutes.maintenance, icon: Wrench },
         { label: "About", href: AppRoutes.about, icon: Info },
         { label: "Contact", href: AppRoutes.contact, icon: Phone },
     ];
@@ -68,32 +66,33 @@ export function Header() {
             }`}
         >
             <div className="container flex h-16 items-center justify-between px-4 mx-auto">
-                <div className="flex items-center">
-                    <Link to="/" className="flex items-center space-x-2">
-                        <Car className="h-8 w-8" />
-                        <span className="text-xl font-bold sm:text-2xl">
-                            Atta Motors
-                        </span>
-                    </Link>
-                </div>
-
-                {/* Desktop Navigation */}
-                <nav className="hidden md:flex items-center space-x-1">
-                    {navItems.map((item) => (
-                        <Link to={item.href} key={item.label}>
-                            <Button
-                                key={item.label}
-                                variant="ghost"
-                                size="sm"
-                                className="text-sm"
-                            >
-                                <item.icon className="h-4 w-4 mr-2" />
-                                {item.label}
-                            </Button>
+                <div className="flex gap-x-4">
+                    <div className="flex items-center">
+                        <Link to="/" className="flex items-center space-x-2">
+                            <Car className="h-8 w-8" />
+                            <span className="text-xl font-bold sm:text-2xl">
+                                Atta Motors
+                            </span>
                         </Link>
-                    ))}
+                    </div>
 
-                    {/* <DropdownMenu>
+                    {/* Desktop Navigation */}
+                    <nav className="hidden md:flex items-center space-x-1">
+                        {navItems.map((item) => (
+                            <Link to={item.href} key={item.label}>
+                                <Button
+                                    key={item.label}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-sm"
+                                >
+                                    <item.icon className="h-4 w-4 mr-2" />
+                                    {item.label}
+                                </Button>
+                            </Link>
+                        ))}
+
+                        {/* <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
@@ -115,7 +114,8 @@ export function Header() {
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu> */}
-                </nav>
+                    </nav>
+                </div>
 
                 <div className="flex items-center space-x-2">
                     {/* Authentication Section */}
@@ -142,19 +142,19 @@ export function Header() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem>
                                     <Link to={AppRoutes.profile}>
-                                        <Car className="mr-2 h-4 w-4" /> View
+                                        <User className="mr-2 h-4 w-4" /> View
                                         Profile
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                    <Link to={AppRoutes.purchases}>
+                                    <Link to={AppRoutes.myVehicles}>
                                         <Car className="mr-2 h-4 w-4" /> My
-                                        Purchases
+                                        Listing
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                    <Link to={AppRoutes.maintenance}>
-                                        <Wrench className="mr-2 h-4 w-4" />{" "}
+                                    <Link to={AppRoutes.maintenanceHistory}>
+                                        <Wrench className="mr-2 h-4 w-4" /> My
                                         Maintenance
                                     </Link>
                                 </DropdownMenuItem>

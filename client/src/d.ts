@@ -161,9 +161,9 @@ export type Vehicle = {
     description?: string;
     images?: string[];
     location?: string;
-    contactNumber?: string;
+    contactPhone?: string;
     contactEmail?: string;
-    owner: string; // User ID of seller
+    owner: Pick<User, "_id" | "name" | "avatar" | "phone" | "email" | "createdAt">;
     status: "available" | "sold" | "reserved";
     createdAt: string;
     updatedAt: string;

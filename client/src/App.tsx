@@ -10,6 +10,7 @@ import {
     MaintenanceBookingPage,
     MaintenancePage,
     MaintenanceHistoryPage,
+    VehicleDetailPage,
 } from "@/pages";
 import { Footer, Header, SplashScreen } from "@/components";
 import { Route, Routes } from "react-router-dom";
@@ -42,6 +43,10 @@ function App() {
                         <Route
                             path={AppRoutes.vehicleSales}
                             element={<VehicleSalesPage />}
+                        />
+                        <Route
+                            path={`${AppRoutes.vehicles}/:id`}
+                            element={<VehicleDetailPage />}
                         />
                         <Route
                             path={AppRoutes.createVehicle}

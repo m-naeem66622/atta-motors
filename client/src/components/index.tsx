@@ -47,6 +47,7 @@ import { VehicleListings } from "./VehicleListings";
 import { VehicleListingForm } from "./VehicleListingForm";
 import { MaintenanceBookingForm } from "./MaintenanceBookingForm";
 import { MaintenanceHistory } from "./MaintenanceHistory";
+import { VehicleCard } from "./VehicleCard";
 
 export {
     Avatar,
@@ -95,4 +96,5 @@ export {
     VehicleListingForm,
     MaintenanceBookingForm,
     MaintenanceHistory,
+    VehicleCard,
 };

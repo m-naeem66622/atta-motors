@@ -8,6 +8,7 @@ import { CreateVehicleListingPage } from "./CreateVehicleListingPage";
 import { MaintenancePage } from "./MaintenancePage";
 import { MaintenanceBookingPage } from "./MaintenanceBookingPage";
 import { MaintenanceHistoryPage } from "./MaintenanceHistoryPage";
+import { VehicleDetailPage } from "./VehicleDetailPage";
 
 export {
     HomePage,
@@ -20,4 +21,5 @@ export {
     MaintenancePage,
     MaintenanceBookingPage,
     MaintenanceHistoryPage,
+    VehicleDetailPage
 };

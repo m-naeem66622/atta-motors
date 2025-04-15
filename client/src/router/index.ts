@@ -12,6 +12,7 @@ export const AppRoutes = {
     createVehicle: "/account/vehicles/create",
     vehicleSales: "/vehicle-sales",
     vehicles: "/vehicles",
+    myVehicles: "/account/vehicles",
     vehicleDetails: "/vehicle/:id",
     services: "/services",
     about: "/about",

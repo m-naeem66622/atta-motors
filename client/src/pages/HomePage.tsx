@@ -1,5 +1,5 @@
-import { FC } from "react";
-import { Car, DollarSign, Wrench } from "lucide-react";
+import { FC, useEffect } from "react";
+import { Car, DollarSign, Wrench, Loader2 } from "lucide-react";
 import {
     Button,
     Card,
@@ -10,11 +10,24 @@ import {
     CardTitle,
     GradualSpacing,
 } from "@/components";
-import { featuredCars } from "@/constants";
+import { VehicleCard } from "@/components/VehicleCard";
+import { useAppDispatch, useAppState } from "@/hooks";
+import { fetchVehicles } from "@/redux/store";
 
 interface HomePageProps {}
 
 export const HomePage: FC<HomePageProps> = () => {
+    const dispatch = useAppDispatch();
+    const { vehicles } = useAppState();
+
+    useEffect(() => {
+        const fetchFeaturedVehicles = async () => {
+            // Fetch the newest vehicles with a limit of 3 for featured section
+            dispatch(fetchVehicles({ limit: 3 }));
+        };
+
+        fetchFeaturedVehicles();
+    }, [dispatch]);
     return (
         <>
             <section className="relative h-[600px] flex items-center justify-center text-center">
@@ -119,34 +132,33 @@ export const HomePage: FC<HomePageProps> = () => {
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
                         Featured Cars
                     </h2>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {featuredCars.map((car) => (
-                            <Card key={car.id}>
-                                <div className="h-52">
-                                    <img
-                                        src={car.image}
-                                        alt={`Featured Car ${car.name}`}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
-                                <CardHeader>
-                                    <CardTitle>{car.name}</CardTitle>
-                                    <CardDescription>
-                                        Year: {car.year} | Mileage:{" "}
-                                        {car.mileage}
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-2xl font-bold">
-                                        Rs. {car.price}
-                                    </p>
-                                </CardContent>
-                                <CardFooter>
-                                    <Button>View Details</Button>
-                                </CardFooter>
-                            </Card>
-                        ))}
-                    </div>
+                    {vehicles.isLoading ? (
+                        <div className="flex justify-center items-center py-20">
+                            <Loader2 className="h-10 w-10 animate-spin text-gray-500" />
+                        </div>
+                    ) : vehicles.vehicles.length > 0 ? (
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            {vehicles.vehicles.map((vehicle) => (
+                                <VehicleCard
+                                    key={vehicle._id}
+                                    vehicle={vehicle}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <p className="text-gray-500">
+                                No featured vehicles available at the moment.
+                            </p>
+                            <Button
+                                className="mt-4"
+                                variant="outline"
+                                onClick={() => window.location.reload()}
+                            >
+                                Refresh
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </section>
             <section
