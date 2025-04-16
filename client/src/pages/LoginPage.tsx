@@ -50,15 +50,25 @@ export const LoginPage: FC<LoginPageProps> = () => {
         },
     });
 
-    const onSubmit = (values: FormValues) => {
-        // Here you would typically handle the login process
-        dispatch(login(values));
+    const onSubmit = async (values: FormValues) => {
+        try {
+            // Here you would typically handle the login process
+            const result = await dispatch(login(values)).unwrap();
 
-        if (saveNavigation.saveRoute !== "") {
-            setTimeout(() => {
-                navigation(`/${saveNavigation.saveRoute}`);
-                dispatch(setRoute({ saveRoute: "" }));
-            }, 0);
+            console.log("Result:", result);
+
+            if (result.status === "SUCCESS") {
+                if (saveNavigation.saveRoute !== "") {
+                    setTimeout(() => {
+                        navigation(`/${saveNavigation.saveRoute}`);
+                        dispatch(setRoute({ saveRoute: "" }));
+                    }, 0);
+                } else if (result.data.role === "ADMIN") {
+                    navigation(AppRoutes.admin);
+                }
+            }
+        } catch (error) {
+            console.error("Error submitting form:", error);
         }
     };
 

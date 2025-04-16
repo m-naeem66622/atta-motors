@@ -17,6 +17,7 @@ export const AppRoutes = {
     services: "/services",
     about: "/about",
     contact: "/contact",
+    admin: "/admin",
     notFound: "*",
 } as const;
 

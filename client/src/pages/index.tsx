@@ -9,6 +9,15 @@ import { MaintenancePage } from "./MaintenancePage";
 import { MaintenanceBookingPage } from "./MaintenanceBookingPage";
 import { MaintenanceHistoryPage } from "./MaintenanceHistoryPage";
 import { VehicleDetailPage } from "./VehicleDetailPage";
+import { AdminDashboard } from "./admin/AdminDashboard";
+import { AdminMaintenance } from "./admin/AdminMaintenance";
+import { AdminMaintenanceDetail } from "./admin/AdminMaintenanceDetail";
+import { AdminOverview } from "./admin/AdminOverview";
+import { AdminSettings } from "./admin/AdminSettings";
+import { AdminUserDetail } from "./admin/AdminUserDetail";
+import { AdminUsers } from "./admin/AdminUsers";
+import { AdminVehicleDetail } from "./admin/AdminVehicleDetail";
+import { AdminVehicles } from "./admin/AdminVehicles";
 
 export {
     HomePage,
@@ -21,5 +30,14 @@ export {
     MaintenancePage,
     MaintenanceBookingPage,
     MaintenanceHistoryPage,
-    VehicleDetailPage
+    VehicleDetailPage,
+    AdminDashboard,
+    AdminMaintenance,
+    AdminMaintenanceDetail,
+    AdminOverview,
+    AdminSettings,
+    AdminUserDetail,
+    AdminUsers,
+    AdminVehicleDetail,
+    AdminVehicles,
 };

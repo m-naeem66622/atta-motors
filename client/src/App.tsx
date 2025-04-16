@@ -11,9 +11,17 @@ import {
     MaintenancePage,
     MaintenanceHistoryPage,
     VehicleDetailPage,
+    AdminDashboard,
+    AdminOverview,
+    AdminVehicles,
+    AdminMaintenance,
+    AdminUsers,
+    AdminVehicleDetail,
+    AdminMaintenanceDetail,
+    AdminUserDetail,
 } from "@/pages";
 import { Footer, Header, SplashScreen } from "@/components";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { AppRoutes } from "@/router";
 import { PrivateRoute, RestrictedRoute } from "@/hocs";
 import { useAppState, useRefresh } from "@/hooks";
@@ -22,13 +30,14 @@ import { Toaster } from "@/components/ui/toaster";
 function App() {
     useRefresh();
     const { authenticate } = useAppState();
+    const location = useLocation();
 
     return authenticate.isRefreshing ? (
         <SplashScreen />
     ) : (
         <>
             <div className="min-h-screen bg-background">
-                <Header />
+                {!location.pathname.startsWith("/admin") && <Header />}
                 <main>
                     <Routes>
                         <Route
@@ -54,7 +63,7 @@ function App() {
                                 <PrivateRoute
                                     redirectTo={AppRoutes.login}
                                     component={<CreateVehicleListingPage />}
-                                    role=""
+                                    role="ADMIN"
                                 />
                             }
                         />
@@ -106,9 +115,43 @@ function App() {
                                 />
                             }
                         />
+
+                        <Route
+                            path={AppRoutes.admin}
+                            element={
+                                <PrivateRoute
+                                    redirectTo={AppRoutes.login}
+                                    component={<AdminDashboard />}
+                                    role="ADMIN"
+                                />
+                            }
+                        >
+                            <Route index element={<AdminOverview />} />
+                            <Route
+                                path="vehicles"
+                                element={<AdminVehicles />}
+                            />
+                            <Route
+                                path="vehicles/:id"
+                                element={<AdminVehicleDetail />}
+                            />
+                            <Route
+                                path="maintenance"
+                                element={<AdminMaintenance />}
+                            />
+                            <Route
+                                path="maintenance/:id"
+                                element={<AdminMaintenanceDetail />}
+                            />
+                            <Route path="users" element={<AdminUsers />} />
+                            <Route
+                                path="users/:id"
+                                element={<AdminUserDetail />}
+                            />
+                        </Route>
                     </Routes>
                 </main>
-                <Footer />
+                {!location.pathname.startsWith("/admin") && <Footer />}
                 <Toaster />
             </div>
         </>
