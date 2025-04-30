@@ -28,6 +28,11 @@ const userSchema = new mongoose.Schema(
             enum: ["USER", "ADMIN"],
         },
         password: { type: String, required: true },
+        status: {
+            type: String,
+            default: "Active",
+            enum: ["Active", "Inactive", "Suspended"],
+        },
         isDeleted: { type: Boolean, default: false },
     },
     {
@@ -56,6 +61,6 @@ userSchema.pre("findOneAndUpdate", async function (next) {
     next();
 });
 
-const UserSchema = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
 
-module.exports = UserSchema;
+module.exports = User;

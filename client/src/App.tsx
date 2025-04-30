@@ -19,6 +19,7 @@ import {
     AdminVehicleDetail,
     AdminMaintenanceDetail,
     AdminUserDetail,
+    EditVehicleListingPage,
 } from "@/pages";
 import { Footer, Header, SplashScreen } from "@/components";
 import { Route, Routes, useLocation } from "react-router-dom";
@@ -57,7 +58,7 @@ function App() {
                             path={`${AppRoutes.vehicles}/:id`}
                             element={<VehicleDetailPage />}
                         />
-                        <Route
+                        {/* <Route
                             path={AppRoutes.createVehicle}
                             element={
                                 <PrivateRoute
@@ -66,7 +67,7 @@ function App() {
                                     role="ADMIN"
                                 />
                             }
-                        />
+                        /> */}
                         <Route
                             path={AppRoutes.login}
                             element={
@@ -127,13 +128,22 @@ function App() {
                             }
                         >
                             <Route index element={<AdminOverview />} />
+                            <Route path="profile" element={<ProfilePage />} />
                             <Route
                                 path="vehicles"
                                 element={<AdminVehicles />}
                             />
                             <Route
+                                path="vehicles/new"
+                                element={<CreateVehicleListingPage />}
+                            />
+                            <Route
                                 path="vehicles/:id"
                                 element={<AdminVehicleDetail />}
+                            />
+                            <Route
+                                path="vehicles/:id/edit"
+                                element={<EditVehicleListingPage />}
                             />
                             <Route
                                 path="maintenance"

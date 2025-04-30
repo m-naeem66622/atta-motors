@@ -40,6 +40,7 @@ export interface AuthenticateState extends BasicState {
     isCreating: boolean;
     isRefreshing: boolean;
     user: User | null;
+    users: User[];
     tokens: Tokens | null;
 }
 
@@ -52,13 +53,14 @@ export type User = {
     email: string;
     address?: string;
     role: string;
+    status: "Active" | "Inactive" | "Suspended";
     createdAt: string;
     updatedAt: string;
 };
 
 export type RegisterValues = Omit<
     User,
-    "_id" | "avatar" | "role" | "createdAt" | "updatedAt"
+    "_id" | "avatar" | "role" | "createdAt" | "updatedAt" | "status"
 > & { file?: File; password: string; confirmPassword: string };
 
 // export type UpdateUserValues = Pick<
@@ -94,7 +96,7 @@ export type MaintenanceAppointment = {
     specificService: string;
     appointmentDate: string;
     appointmentTime: string;
-    status: "Scheduled" | "Completed" | "Cancelled";
+    status: "Pending" | "Scheduled" | "Completed" | "Cancelled";
     vehicle: {
         make: string;
         model: string;
@@ -106,7 +108,7 @@ export type MaintenanceAppointment = {
         email: string;
         phone: string;
     };
-    technician: string | null;
+    technician: string | null; // When technician is set, it means the appointment is approved
     cost: string | null;
     notes: string;
     additionalNotes: string;
@@ -145,6 +147,31 @@ export interface MaintenanceState extends BasicState {
     } | null;
 }
 
+export interface AdminOverviewResponse
+    extends BasicResponse<{
+        totalVehicles: number;
+        maintenanceRequests: number;
+        activeUsers: number;
+        pendingApprovals: number;
+        recentAppointments: MaintenanceAppointment[];
+        recentVehicles: Vehicle[];
+        recentUsers: User[];
+    }> {}
+
+export interface AdminState extends BasicState {
+    isUpdating: boolean;
+    overview: {
+        totalVehicles: number;
+        maintenanceRequests: number;
+        activeUsers: number;
+        pendingApprovals: number;
+        recentAppointments: MaintenanceAppointment[];
+        recentVehicles: Vehicle[];
+        recentUsers: User[];
+    };
+    maintenanceAppointments: MaintenanceAppointment[];
+}
+
 export type Vehicle = {
     _id: string;
     title: string;
@@ -163,7 +190,10 @@ export type Vehicle = {
     location?: string;
     contactPhone?: string;
     contactEmail?: string;
-    owner: Pick<User, "_id" | "name" | "avatar" | "phone" | "email" | "createdAt">;
+    owner: Pick<
+        User,
+        "_id" | "name" | "avatar" | "phone" | "email" | "createdAt"
+    >;
     status: "available" | "sold" | "reserved";
     createdAt: string;
     updatedAt: string;
@@ -174,15 +204,20 @@ export type SearchParams = {
     limit?: number;
     make?: string;
     model?: string;
-    minYear?: number;
-    maxYear?: number;
-    minPrice?: number;
-    maxPrice?: number;
+    year?: number;
+    min_year?: number;
+    max_year?: number;
+    min_price?: number;
+    max_price?: number;
+    mileage_min?: number;
+    mileage_max?: number;
     transmission?: string;
     fuelType?: string;
     bodyType?: string;
     condition?: string;
     sort?: string;
+    search?: string;
+    status?: string;
 };
 
 export interface VehicleResponse extends BasicResponse<Vehicle> {}

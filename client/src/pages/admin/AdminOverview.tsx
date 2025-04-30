@@ -1,20 +1,14 @@
 "use client";
-
-import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Car,
     Wrench,
     Users,
-    DollarSign,
     TrendingUp,
-    TrendingDown,
-    BarChart3,
     ArrowRight,
     Clock,
-    CheckCircle2,
-    XCircle,
-    AlertCircle,
+    Loader2,
 } from "lucide-react";
 import {
     Card,
@@ -24,173 +18,22 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAppDispatch, useAppState } from "@/hooks";
+import { getAdminOverview } from "@/redux/store";
 
-// Mock data for stats
-const statsData = [
-    {
-        title: "Total Vehicles",
-        value: "124",
-        change: "+12%",
-        increasing: true,
-        icon: <Car className="h-5 w-5" />,
-        color: "bg-blue-500",
-    },
-    {
-        title: "Maintenance Requests",
-        value: "45",
-        change: "+5%",
-        increasing: true,
-        icon: <Wrench className="h-5 w-5" />,
-        color: "bg-purple-500",
-    },
-    {
-        title: "Active Users",
-        value: "2,453",
-        change: "+18%",
-        increasing: true,
-        icon: <Users className="h-5 w-5" />,
-        color: "bg-green-500",
-    },
-    {
-        title: "Pending Approvals",
-        value: "12",
-        change: "+5%",
-        increasing: true,
-        icon: <Clock className="h-5 w-5" />,
-        color: "bg-amber-500",
-    },
-];
-
-// Mock data for recent maintenance requests
-const recentMaintenanceRequests = [
-    {
-        id: "MNT-1234",
-        customer: {
-            name: "John Smith",
-            email: "john@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2020 Toyota Camry",
-        service: "Oil Change & Filter Replacement",
-        status: "pending",
-        date: "2025-04-15T10:30:00Z",
-    },
-    {
-        id: "MNT-1235",
-        customer: {
-            name: "Sarah Johnson",
-            email: "sarah@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2019 Honda Accord",
-        service: "Brake System Repair",
-        status: "approved",
-        date: "2025-04-16T14:00:00Z",
-    },
-    {
-        id: "MNT-1236",
-        customer: {
-            name: "Michael Chen",
-            email: "michael@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2021 Tesla Model 3",
-        service: "Battery Inspection",
-        status: "completed",
-        date: "2025-04-14T09:15:00Z",
-    },
-    {
-        id: "MNT-1237",
-        customer: {
-            name: "Emily Davis",
-            email: "emily@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2018 Ford F-150",
-        service: "Transmission Service",
-        status: "rejected",
-        date: "2025-04-13T11:45:00Z",
-    },
-];
-
-// Mock data for recent vehicle listings
-const recentVehicleListings = [
-    {
-        id: "VEH-4567",
-        title: "2022 Toyota RAV4 XLE",
-        price: 32500,
-        status: "active",
-        added: "2025-04-14T08:30:00Z",
-        image: "/placeholder.svg?height=100&width=150",
-    },
-    {
-        id: "VEH-4568",
-        title: "2021 Honda CR-V Touring",
-        price: 29800,
-        status: "active",
-        added: "2025-04-13T14:20:00Z",
-        image: "/placeholder.svg?height=100&width=150",
-    },
-    {
-        id: "VEH-4569",
-        title: "2020 Ford Mustang GT",
-        price: 38500,
-        status: "pending",
-        added: "2025-04-12T10:15:00Z",
-        image: "/placeholder.svg?height=100&width=150",
-    },
-    {
-        id: "VEH-4570",
-        title: "2019 Chevrolet Silverado LT",
-        price: 34200,
-        status: "sold",
-        added: "2025-04-10T16:45:00Z",
-        image: "/placeholder.svg?height=100&width=150",
-    },
-];
-
-// Mock data for recent users
-const recentUsers = [
-    {
-        id: "USR-7890",
-        name: "Robert Wilson",
-        email: "robert@example.com",
-        joined: "2025-04-14T08:30:00Z",
-        status: "active",
-        avatar: "/placeholder.svg",
-    },
-    {
-        id: "USR-7891",
-        name: "Jennifer Lopez",
-        email: "jennifer@example.com",
-        joined: "2025-04-13T14:20:00Z",
-        status: "active",
-        avatar: "/placeholder.svg",
-    },
-    {
-        id: "USR-7892",
-        name: "David Kim",
-        email: "david@example.com",
-        joined: "2025-04-12T10:15:00Z",
-        status: "suspended",
-        avatar: "/placeholder.svg",
-    },
-    {
-        id: "USR-7893",
-        name: "Maria Garcia",
-        email: "maria@example.com",
-        joined: "2025-04-10T16:45:00Z",
-        status: "inactive",
-        avatar: "/placeholder.svg",
-    },
-];
+const { VITE_APP_IMAGE_URL } = import.meta.env;
 
 export const AdminOverview = () => {
     const navigate = useNavigate();
-    const [period, setPeriod] = useState("week");
+    const dispatch = useAppDispatch();
+    const { admin } = useAppState();
+
+    // Fetch overview data when component mounts
+    useEffect(() => {
+        dispatch(getAdminOverview());
+    }, [dispatch]);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -201,55 +44,87 @@ export const AdminOverview = () => {
         });
     };
 
+    // const formatTime = (dateString: string) => {
+    //     const date = new Date(dateString);
+    //     return date.toLocaleTimeString("en-US", {
+    //         hour: "2-digit",
+    //         minute: "2-digit",
+    //     });
+    // };
+
     const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "active":
-            case "approved":
-            case "completed":
+        const normalizedStatus = status?.toUpperCase() || "";
+
+        switch (normalizedStatus) {
+            case "PENDING":
                 return (
-                    <Badge className="bg-green-100 text-green-800 border-green-200">
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </Badge>
-                );
-            case "pending":
-                return (
-                    <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                    <Badge className="bg-amber-100 text-amber-800 border-amber-200">
                         Pending
                     </Badge>
                 );
-            case "rejected":
-            case "suspended":
-            case "inactive":
+            case "SCHEDULED":
                 return (
-                    <Badge className="bg-red-100 text-red-800 border-red-200">
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                    <Badge className="bg-amber-100 text-amber-800 border-amber-200">
+                        Scheduled
                     </Badge>
                 );
-            case "sold":
+            case "APPROVED":
                 return (
                     <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                        Approved
+                    </Badge>
+                );
+            case "COMPLETED":
+                return (
+                    <Badge className="bg-green-100 text-green-800 border-green-200">
+                        Completed
+                    </Badge>
+                );
+            case "REJECTED":
+            case "CANCELLED":
+                return (
+                    <Badge className="bg-red-100 text-red-800 border-red-200">
+                        {normalizedStatus === "CANCELLED"
+                            ? "Cancelled"
+                            : "Rejected"}
+                    </Badge>
+                );
+            case "ACTIVE":
+                return (
+                    <Badge className="bg-green-100 text-green-800 border-green-200">
+                        Active
+                    </Badge>
+                );
+            case "INACTIVE":
+                return (
+                    <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+                        Inactive
+                    </Badge>
+                );
+            case "SUSPENDED":
+                return (
+                    <Badge className="bg-red-100 text-red-800 border-red-200">
+                        Suspended
+                    </Badge>
+                );
+            case "SOLD":
+                return (
+                    <Badge className="bg-purple-100 text-purple-800 border-purple-200">
                         Sold
                     </Badge>
                 );
+            case "DRAFT":
+                return (
+                    <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+                        Draft
+                    </Badge>
+                );
             default:
-                return <Badge variant="outline">{status}</Badge>;
-        }
-    };
-
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case "active":
-            case "approved":
-            case "completed":
-                return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-            case "pending":
-                return <Clock className="h-5 w-5 text-yellow-500" />;
-            case "rejected":
-            case "suspended":
-            case "inactive":
-                return <XCircle className="h-5 w-5 text-red-500" />;
-            default:
-                return <AlertCircle className="h-5 w-5 text-gray-500" />;
+                return (
+                    <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+                        {status}
+                    </Badge>
+                );
         }
     };
 
@@ -279,155 +154,120 @@ export const AdminOverview = () => {
 
             {/* Stats Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {statsData.map((stat, index) => (
-                    <Card key={index}>
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between space-y-0 pb-2">
-                                <div className="flex items-center">
-                                    <div
-                                        className={`mr-3 rounded-full p-2 ${stat.color} text-white`}
-                                    >
-                                        {stat.icon}
-                                    </div>
-                                    <p className="text-sm font-medium">
-                                        {stat.title}
-                                    </p>
+                {/* Total Vehicles Card */}
+                <Card>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between space-y-0 pb-2">
+                            <div className="flex items-center">
+                                <div className="mr-3 rounded-full p-2 bg-blue-500 text-white">
+                                    <Car className="h-5 w-5" />
                                 </div>
-                                <div
-                                    className={`flex items-center text-sm ${
-                                        stat.increasing
-                                            ? "text-green-600"
-                                            : "text-red-600"
-                                    }`}
-                                >
-                                    {stat.increasing ? (
-                                        <TrendingUp className="mr-1 h-4 w-4" />
-                                    ) : (
-                                        <TrendingDown className="mr-1 h-4 w-4" />
-                                    )}
-                                    {stat.change}
-                                </div>
-                            </div>
-                            <div className="text-2xl font-bold">
-                                {stat.value}
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-
-            {/* Charts and Activity */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                {/* Chart */}
-                <Card className="lg:col-span-4">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <div className="space-y-1">
-                            <CardTitle>Vehicle Inventory Overview</CardTitle>
-                            <CardDescription>
-                                Monthly vehicle listings and maintenance
-                            </CardDescription>
-                        </div>
-                        <Tabs defaultValue={period} onValueChange={setPeriod}>
-                            <TabsList className="grid grid-cols-3 h-8">
-                                <TabsTrigger value="week" className="text-xs">
-                                    Week
-                                </TabsTrigger>
-                                <TabsTrigger value="month" className="text-xs">
-                                    Month
-                                </TabsTrigger>
-                                <TabsTrigger value="year" className="text-xs">
-                                    Year
-                                </TabsTrigger>
-                            </TabsList>
-                        </Tabs>
-                    </CardHeader>
-                    <CardContent className="pl-2">
-                        <div className="h-[240px] flex items-center justify-center bg-gray-50 rounded-md">
-                            <div className="text-center">
-                                <BarChart3 className="h-16 w-16 text-gray-300 mx-auto mb-2" />
-                                <p className="text-sm text-gray-500">
-                                    Sales chart visualization
+                                <p className="text-sm font-medium">
+                                    Total Vehicles
                                 </p>
                             </div>
+                            <div className="flex items-center text-sm text-green-600">
+                                <TrendingUp className="mr-1 h-4 w-4" />
+                                +12%
+                            </div>
+                        </div>
+                        <div className="text-2xl font-bold">
+                            {admin.isLoading ? (
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : admin.overview?.totalVehicles !== undefined ? (
+                                admin.overview.totalVehicles
+                            ) : (
+                                "124" // Fallback value
+                            )}
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Recent Activity */}
-                <Card className="lg:col-span-3">
-                    <CardHeader>
-                        <CardTitle>Recent Activity</CardTitle>
-                        <CardDescription>
-                            Latest actions and updates
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-4">
-                                <div className="rounded-full bg-blue-100 p-2">
-                                    <Car className="h-4 w-4 text-blue-600" />
+                {/* Maintenance Requests Card */}
+                <Card>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between space-y-0 pb-2">
+                            <div className="flex items-center">
+                                <div className="mr-3 rounded-full p-2 bg-purple-500 text-white">
+                                    <Wrench className="h-5 w-5" />
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium">
-                                        New vehicle listed
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        2022 Toyota RAV4 XLE added to inventory
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        2 hours ago
-                                    </p>
-                                </div>
+                                <p className="text-sm font-medium">
+                                    Maintenance Requests
+                                </p>
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="rounded-full bg-green-100 p-2">
-                                    <DollarSign className="h-4 w-4 text-green-600" />
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium">
-                                        Vehicle updated
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        2019 Honda Civic price updated to
-                                        $18,500
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        5 hours ago
-                                    </p>
-                                </div>
+                            <div className="flex items-center text-sm text-green-600">
+                                <TrendingUp className="mr-1 h-4 w-4" />
+                                +5%
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="rounded-full bg-purple-100 p-2">
-                                    <Wrench className="h-4 w-4 text-purple-600" />
+                        </div>
+                        <div className="text-2xl font-bold">
+                            {admin.isLoading ? (
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : admin.overview?.maintenanceRequests !==
+                              undefined ? (
+                                admin.overview.maintenanceRequests
+                            ) : (
+                                "45" // Fallback value
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Active Users Card */}
+                <Card>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between space-y-0 pb-2">
+                            <div className="flex items-center">
+                                <div className="mr-3 rounded-full p-2 bg-green-500 text-white">
+                                    <Users className="h-5 w-5" />
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium">
-                                        Maintenance completed
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        Oil change for 2020 Toyota Camry
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Yesterday
-                                    </p>
-                                </div>
+                                <p className="text-sm font-medium">
+                                    Active Users
+                                </p>
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="rounded-full bg-amber-100 p-2">
-                                    <Users className="h-4 w-4 text-amber-600" />
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium">
-                                        New user registered
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        Robert Wilson created an account
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Yesterday
-                                    </p>
-                                </div>
+                            <div className="flex items-center text-sm text-green-600">
+                                <TrendingUp className="mr-1 h-4 w-4" />
+                                +18%
                             </div>
+                        </div>
+                        <div className="text-2xl font-bold">
+                            {admin.isLoading ? (
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : admin.overview?.activeUsers !== undefined ? (
+                                admin.overview.activeUsers
+                            ) : (
+                                "2,453" // Fallback value
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Pending Approvals Card */}
+                <Card>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between space-y-0 pb-2">
+                            <div className="flex items-center">
+                                <div className="mr-3 rounded-full p-2 bg-amber-500 text-white">
+                                    <Clock className="h-5 w-5" />
+                                </div>
+                                <p className="text-sm font-medium">
+                                    Pending Approvals
+                                </p>
+                            </div>
+                            <div className="flex items-center text-sm text-green-600">
+                                <TrendingUp className="mr-1 h-4 w-4" />
+                                +5%
+                            </div>
+                        </div>
+                        <div className="text-2xl font-bold">
+                            {admin.isLoading ? (
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : admin.overview?.pendingApprovals !==
+                              undefined ? (
+                                admin.overview.pendingApprovals
+                            ) : (
+                                "12" // Fallback value
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -454,116 +294,134 @@ export const AdminOverview = () => {
                         </Button>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="text-left font-medium p-2 pl-0">
-                                            ID
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Customer
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Vehicle
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Service
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Date
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Status
-                                        </th>
-                                        <th className="text-right font-medium p-2 pr-0">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {recentMaintenanceRequests.map(
-                                        (request) => (
-                                            <tr
-                                                key={request.id}
-                                                className="border-b last:border-0 hover:bg-gray-50"
-                                            >
-                                                <td className="p-2 pl-0">
-                                                    {request.id}
-                                                </td>
-                                                <td className="p-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <Avatar className="h-8 w-8">
-                                                            <AvatarImage
-                                                                src={
-                                                                    request
-                                                                        .customer
-                                                                        .avatar ||
-                                                                    "/placeholder.svg"
-                                                                }
-                                                                alt={
-                                                                    request
-                                                                        .customer
-                                                                        .name
-                                                                }
-                                                            />
-                                                            <AvatarFallback>
-                                                                {request.customer.name.charAt(
-                                                                    0
-                                                                )}
-                                                            </AvatarFallback>
-                                                        </Avatar>
-                                                        <div>
-                                                            <p className="font-medium">
-                                                                {
-                                                                    request
-                                                                        .customer
-                                                                        .name
-                                                                }
-                                                            </p>
-                                                            <p className="text-xs text-muted-foreground">
-                                                                {
-                                                                    request
-                                                                        .customer
-                                                                        .email
-                                                                }
-                                                            </p>
+                        {admin.isLoading ? (
+                            <div className="flex justify-center items-center py-8">
+                                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                                <span className="ml-2 text-gray-500">
+                                    Loading maintenance requests...
+                                </span>
+                            </div>
+                        ) : admin.overview.recentAppointments &&
+                          admin.overview.recentAppointments.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b">
+                                            <th className="text-left font-medium p-2 pl-0">
+                                                ID
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Customer
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Vehicle
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Service
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Date
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Status
+                                            </th>
+                                            <th className="text-right font-medium p-2 pr-0">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {admin.overview.recentAppointments.map(
+                                            (request) => (
+                                                <tr
+                                                    key={request._id}
+                                                    className="border-b last:border-0 hover:bg-gray-50"
+                                                >
+                                                    <td className="p-2 pl-0">
+                                                        {request._id.substring(
+                                                            9,
+                                                            17
+                                                        )}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <Avatar className="h-8 w-8">
+                                                                <AvatarImage
+                                                                    src="/placeholder.svg"
+                                                                    alt={
+                                                                        request
+                                                                            .customer
+                                                                            .name
+                                                                    }
+                                                                />
+                                                                <AvatarFallback>
+                                                                    {request.customer.name.charAt(
+                                                                        0
+                                                                    )}
+                                                                </AvatarFallback>
+                                                            </Avatar>
+                                                            <div>
+                                                                <p className="font-medium">
+                                                                    {
+                                                                        request
+                                                                            .customer
+                                                                            .name
+                                                                    }
+                                                                </p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {
+                                                                        request
+                                                                            .customer
+                                                                            .email
+                                                                    }
+                                                                </p>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td className="p-2">
-                                                    {request.vehicle}
-                                                </td>
-                                                <td className="p-2">
-                                                    {request.service}
-                                                </td>
-                                                <td className="p-2">
-                                                    {formatDate(request.date)}
-                                                </td>
-                                                <td className="p-2">
-                                                    {getStatusBadge(
-                                                        request.status
-                                                    )}
-                                                </td>
-                                                <td className="p-2 pr-0 text-right">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            navigate(
-                                                                `/admin/maintenance/${request.id}`
-                                                            )
+                                                    </td>
+                                                    <td className="p-2">
+                                                        {`${request.vehicle.year} ${request.vehicle.make} ${request.vehicle.model}`}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        {
+                                                            request.specificService
                                                         }
-                                                    >
-                                                        Details
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        )
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                                                    </td>
+                                                    <td className="p-2">
+                                                        {formatDate(
+                                                            request.appointmentDate
+                                                        )}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        {getStatusBadge(
+                                                            request.status
+                                                        )}
+                                                    </td>
+                                                    <td className="p-2 pr-0 text-right">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    `/admin/maintenance/${request._id}`
+                                                                )
+                                                            }
+                                                        >
+                                                            Details
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <p className="text-gray-500">
+                                    No maintenance requests found.
+                                </p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -586,82 +444,106 @@ export const AdminOverview = () => {
                         </Button>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="text-left font-medium p-2 pl-0">
-                                            ID
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Vehicle
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Price
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Added
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Status
-                                        </th>
-                                        <th className="text-right font-medium p-2 pr-0">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {recentVehicleListings.map((vehicle) => (
-                                        <tr
-                                            key={vehicle.id}
-                                            className="border-b last:border-0 hover:bg-gray-50"
-                                        >
-                                            <td className="p-2 pl-0">
-                                                {vehicle.id}
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="flex items-center gap-2">
-                                                    <img
-                                                        src={
-                                                            vehicle.image ||
-                                                            "/placeholder.svg"
-                                                        }
-                                                        alt={vehicle.title}
-                                                        className="h-10 w-16 object-cover rounded"
-                                                    />
-                                                    <p className="font-medium">
-                                                        {vehicle.title}
-                                                    </p>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
-                                                $
-                                                {vehicle.price.toLocaleString()}
-                                            </td>
-                                            <td className="p-2">
-                                                {formatDate(vehicle.added)}
-                                            </td>
-                                            <td className="p-2">
-                                                {getStatusBadge(vehicle.status)}
-                                            </td>
-                                            <td className="p-2 pr-0 text-right">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/admin/vehicles/${vehicle.id}`
-                                                        )
-                                                    }
-                                                >
-                                                    Edit
-                                                </Button>
-                                            </td>
+                        {admin.isLoading ? (
+                            <div className="flex justify-center items-center py-8">
+                                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                                <span className="ml-2 text-gray-500">
+                                    Loading vehicles...
+                                </span>
+                            </div>
+                        ) : admin.overview.recentVehicles &&
+                          admin.overview.recentVehicles.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b">
+                                            <th className="text-left font-medium p-2 pl-0">
+                                                ID
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Vehicle
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Price
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Added
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Status
+                                            </th>
+                                            <th className="text-right font-medium p-2 pr-0">
+                                                Actions
+                                            </th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {admin.overview.recentVehicles.map(
+                                            (vehicle) => (
+                                                <tr
+                                                    key={vehicle._id}
+                                                    className="border-b last:border-0 hover:bg-gray-50"
+                                                >
+                                                    <td className="p-2 pl-0">
+                                                        {vehicle._id.substring(
+                                                            9,
+                                                            17
+                                                        )}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <img
+                                                                src={`${VITE_APP_IMAGE_URL}/${vehicle.images?.[0]}`}
+                                                                alt={
+                                                                    vehicle.title
+                                                                }
+                                                                className="h-10 w-16 object-cover rounded"
+                                                            />
+                                                            <p className="font-medium">
+                                                                {vehicle.title}
+                                                            </p>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-2">
+                                                        $
+                                                        {vehicle.price.toLocaleString()}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        {formatDate(
+                                                            vehicle.createdAt
+                                                        )}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        {getStatusBadge(
+                                                            vehicle.status
+                                                        )}
+                                                    </td>
+                                                    <td className="p-2 pr-0 text-right">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    `/admin/vehicles/${vehicle._id}`
+                                                                )
+                                                            }
+                                                        >
+                                                            Edit
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <p className="text-gray-500">
+                                    No vehicles found.
+                                </p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -684,87 +566,115 @@ export const AdminOverview = () => {
                         </Button>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="text-left font-medium p-2 pl-0">
-                                            ID
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            User
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Email
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Joined
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Status
-                                        </th>
-                                        <th className="text-right font-medium p-2 pr-0">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {recentUsers.map((user) => (
-                                        <tr
-                                            key={user.id}
-                                            className="border-b last:border-0 hover:bg-gray-50"
-                                        >
-                                            <td className="p-2 pl-0">
-                                                {user.id}
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="h-8 w-8">
-                                                        <AvatarImage
-                                                            src={
-                                                                user.avatar ||
-                                                                "/placeholder.svg"
-                                                            }
-                                                            alt={user.name}
-                                                        />
-                                                        <AvatarFallback>
-                                                            {user.name.charAt(
-                                                                0
-                                                            )}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <p className="font-medium">
-                                                        {user.name}
-                                                    </p>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
-                                                {user.email}
-                                            </td>
-                                            <td className="p-2">
-                                                {formatDate(user.joined)}
-                                            </td>
-                                            <td className="p-2">
-                                                {getStatusBadge(user.status)}
-                                            </td>
-                                            <td className="p-2 pr-0 text-right">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/admin/users/${user.id}`
-                                                        )
-                                                    }
-                                                >
-                                                    Manage
-                                                </Button>
-                                            </td>
+                        {admin.isLoading ? (
+                            <div className="flex justify-center items-center py-8">
+                                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                                <span className="ml-2 text-gray-500">
+                                    Loading users...
+                                </span>
+                            </div>
+                        ) : admin.overview.recentUsers &&
+                          admin.overview.recentUsers.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b">
+                                            <th className="text-left font-medium p-2 pl-0">
+                                                ID
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                User
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Email
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Joined
+                                            </th>
+                                            {/* Will add status column later */}
+                                            {/* <th className="text-left font-medium p-2">
+                                                Status
+                                            </th> */}
+                                            <th className="text-right font-medium p-2 pr-0">
+                                                Actions
+                                            </th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {admin.overview.recentUsers.map(
+                                            (user) => (
+                                                <tr
+                                                    key={user._id}
+                                                    className="border-b last:border-0 hover:bg-gray-50"
+                                                >
+                                                    <td className="p-2 pl-0">
+                                                        {user._id.substring(
+                                                            9,
+                                                            17
+                                                        )}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <Avatar className="h-8 w-8">
+                                                                <AvatarImage
+                                                                    src={
+                                                                        user.avatar ||
+                                                                        "/placeholder.svg"
+                                                                    }
+                                                                    alt={
+                                                                        user.name
+                                                                    }
+                                                                />
+                                                                <AvatarFallback>
+                                                                    {user.name.charAt(
+                                                                        0
+                                                                    )}
+                                                                </AvatarFallback>
+                                                            </Avatar>
+                                                            <p className="font-medium">
+                                                                {user.name}
+                                                            </p>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-2">
+                                                        {user.email}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        {formatDate(
+                                                            user.createdAt
+                                                        )}
+                                                    </td>
+                                                    {/* <td className="p-2">
+                                                        {getStatusBadge(
+                                                            user.active
+                                                                ? "active"
+                                                                : "inactive"
+                                                        )}
+                                                    </td> */}
+                                                    <td className="p-2 pr-0 text-right">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    `/admin/users/${user._id}`
+                                                                )
+                                                            }
+                                                        >
+                                                            Manage
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <p className="text-gray-500">No users found.</p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

@@ -1,9 +1,9 @@
 import type React from "react";
-import { useState } from "react";
-import { Search, Filter, ChevronDown } from "lucide-react";
+// import { useState } from "react";
+// import { Search, Filter, ChevronDown } from "lucide-react";
 import { Particles, VehicleListings } from "@/components";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
 import {
     Select,
     SelectContent,
@@ -13,25 +13,25 @@ import {
 } from "@/components/ui/select";
 
 export const VehicleSalesPage: React.FC = () => {
-    const [searchTerm, setSearchTerm] = useState<string>("");
-    const [filters, setFilters] = useState({
-        minPrice: "",
-        maxPrice: "",
-        minYear: "",
-        maxYear: "",
-        fuelType: "",
-    });
-    const [showFilters, setShowFilters] = useState<boolean>(false);
+    // const [searchTerm, setSearchTerm] = useState<string>("");
+    // const [filters, setFilters] = useState({
+    //     minPrice: "",
+    //     maxPrice: "",
+    //     minYear: "",
+    //     maxYear: "",
+    //     fuelType: "",
+    // });
+    // const [showFilters, setShowFilters] = useState<boolean>(false);
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Implement search functionality
-        console.log("Searching for:", searchTerm);
-    };
+    // const handleSearch = (e: React.FormEvent) => {
+    //     e.preventDefault();
+    //     // Implement search functionality
 
-    const handleFilterChange = (name: string, value: string) => {
-        setFilters((prev) => ({ ...prev, [name]: value }));
-    };
+    // };
+
+    // const handleFilterChange = (name: string, value: string) => {
+    //     setFilters((prev) => ({ ...prev, [name]: value }));
+    // };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -41,7 +41,7 @@ export const VehicleSalesPage: React.FC = () => {
                         Vehicle Sales & Purchase
                     </h1>
 
-                    <div className="flex flex-col md:flex-row gap-4">
+                    {/* <div className="flex flex-col md:flex-row gap-4">
                         <form
                             onSubmit={handleSearch}
                             className="flex-1 flex gap-2"
@@ -79,9 +79,9 @@ export const VehicleSalesPage: React.FC = () => {
                                 }`}
                             />
                         </Button>
-                    </div>
+                    </div> */}
 
-                    {showFilters && (
+                    {/* {showFilters && (
                         <div className="bg-white p-4 rounded-lg shadow-md grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -182,7 +182,7 @@ export const VehicleSalesPage: React.FC = () => {
                                 </Select>
                             </div>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 <Particles

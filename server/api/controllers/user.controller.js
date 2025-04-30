@@ -98,64 +98,46 @@ const updateUserProfile = async (req, res, next) => {
 // ---------------------------- ADMIN CONTROLLERS ----------------------------
 
 /**
- * @desc    Create a new user
- * @route   POST /api/users
- * @access  Private/Admin
- */
-const createUser = async (req, res, next) => {
-    try {
-        const { username, email } = req.body;
-
-        const userExists = await User.checkUsernameAndEmailAvailability(
-            username,
-            email
-        );
-
-        if (userExists.status === "FAILED") {
-            throwError(
-                userExists.status,
-                userExists.error.statusCode,
-                userExists.error.message,
-                userExists.error.identifier
-            );
-        }
-
-        // Note: Default password will be same as username
-        req.body.password = req.body.username;
-
-        const newUser = await User.createUser(req.body);
-
-        if (newUser.status === "FAILED") {
-            throwError(
-                newUser.status,
-                newUser.error.statusCode,
-                newUser.error.message,
-                newUser.error.identifier
-            );
-        }
-
-        // Soft delete properties
-        newUser.data.password = undefined;
-        newUser.data.isDeleted = undefined;
-
-        res.status(201).json({
-            status: "SUCCESS",
-            data: newUser.data,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-/**
  * @desc    Get all users
  * @route   GET /api/users
  * @access  Private/Admin
  */
 const getUsers = async (req, res, next) => {
     try {
-        const { page = 1, limit = 20, ...restQuery } = req.query;
+        const {
+            page = 1,
+            limit = 20,
+            status,
+            joinedFrom,
+            joinedTo,
+            search,
+        } = req.query;
         const filter = { isDeleted: false, role: "USER", ...restQuery };
+
+        if (status) {
+            filter.status = status;
+        }
+
+        if (joinedFrom || joinedTo) {
+            filter.createdAt = {};
+            if (joinedFrom) {
+                filter.createdAt["$gte"] = new Date(joinedFrom);
+            }
+            if (joinedTo) {
+                filter.createdAt["$lte"] = new Date(joinedTo);
+            }
+        }
+
+        if (search) {
+            filter.$or = [
+                { _id: search },
+                { username: { $regex: search, $options: "i" } },
+                { name: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } },
+                { phone: { $regex: search, $options: "i" } },
+            ];
+        }
+
         const projection = { password: 0, isDeleted: 0 };
         const count = await User.countUsers(filter);
         const users = await User.getUsers(filter, projection, page, limit);
@@ -226,9 +208,7 @@ const updateUser = async (req, res, next) => {
         const userId = req.params.id;
 
         const user = await User.getUserById(userId, {
-            email: 1,
-            username: 1,
-            avatar: 1,
+            _id: userId,
         });
 
         if (user.status === "FAILED") {
@@ -240,34 +220,13 @@ const updateUser = async (req, res, next) => {
             );
         }
 
-        if (
-            req.body.email !== user.data.email ||
-            req.body.username !== user.data.username
-        ) {
-            const emailExists = await User.checkUsernameAndEmailAvailability(
-                req.body.username !== user.data.username
-                    ? req.body.username
-                    : null,
-                req.body.email !== user.data.email ? req.body.email : null
-            );
-
-            if (emailExists.status === "FAILED") {
-                throwError(
-                    emailExists.status,
-                    emailExists.error.statusCode,
-                    emailExists.error.message,
-                    emailExists.error.identifier
-                );
-            }
-        }
-
         const options = {
             new: true,
             fields: { password: 0, isDeleted: 0 },
         };
         const updatedUser = await User.updateUserById(
             userId,
-            req.body,
+            req.body, // only status and password
             options
         );
 
@@ -278,11 +237,6 @@ const updateUser = async (req, res, next) => {
                 updatedUser.error.message,
                 updatedUser.error.identifier
             );
-        }
-
-        if (updatedUser.data.avatar !== user.data?.avatar) {
-            // Delete old avatar
-            imageCleanup(user.data.avatar);
         }
 
         res.status(200).json({
@@ -326,7 +280,6 @@ const deleteUser = async (req, res, next) => {
 module.exports = {
     getUserProfile,
     updateUserProfile,
-    createUser,
     getUsers,
     getUser,
     updateUser,

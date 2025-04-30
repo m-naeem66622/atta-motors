@@ -41,12 +41,12 @@ const countMaintenanceAppointments = async (filter) => {
 };
 
 // GetMaintenanceAppointments
-const getMaintenanceAppointments = async (filter, projection, page, limit) => {
+const getMaintenanceAppointments = async (filter, projection, page, limit, sort = { appointmentDate: -1, appointmentTime: -1 }) => {
     try {
         const appointments = await Maintenance.find(filter, projection, {
             skip: (page - 1) * limit,
             limit: limit,
-        }).sort({ appointmentDate: -1, appointmentTime: -1 });
+        }).sort(sort);
 
         if (appointments && appointments.length) {
             return {

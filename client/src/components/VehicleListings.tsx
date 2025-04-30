@@ -13,10 +13,10 @@ export const VehicleListings: React.FC = () => {
         searchParams || {
             page: 1,
             limit: 12,
-            minPrice: 0,
-            maxPrice: 100000,
-            minYear: 2000,
-            maxYear: new Date().getFullYear(),
+            min_price: 0,
+            max_price: 100000,
+            min_year: 2000,
+            max_year: new Date().getFullYear(),
         }
     );
 

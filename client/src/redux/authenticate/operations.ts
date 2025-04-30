@@ -8,6 +8,7 @@ import {
     User,
     UpdateUserValues,
     RegisterValues,
+    UsersResponse,
 } from "@/d";
 import { CookiesApi } from "@/utils";
 import { AppState } from "@/redux/store";
@@ -143,3 +144,51 @@ export const updateProfile = createAsyncThunk<UserResponse, UpdateUserValues>(
         }
     }
 );
+
+export const getAllUsers = createAsyncThunk<
+    UsersResponse,
+    | {
+          status?: string;
+          joinedFrom?: string;
+          joinedTo?: string;
+          search?: string;
+          page?: number;
+          limit?: number;
+      }
+    | undefined
+>("getUsers", async (params = {}, { rejectWithValue }) => {
+    try {
+        const queryParams = new URLSearchParams();
+        if (params.status && params.status !== "all") {
+            queryParams.append("status", params.status);
+        }
+        if (params.joinedFrom) {
+            queryParams.append("joinedFrom", params.joinedFrom);
+        }
+        if (params.joinedTo) {
+            queryParams.append("joinedTo", params.joinedTo);
+        }
+        if (params.search) {
+            queryParams.append("search", params.search);
+        }
+        if (params.page) {
+            queryParams.append("page", params.page.toString());
+        }
+        if (params.limit) {
+            queryParams.append("limit", params.limit.toString());
+        }
+
+        const response: AxiosResponse<UsersResponse> =
+            await axios.get(
+                `api/users?${queryParams.toString()}`
+            );
+        return response.data;
+    } catch (error: any) {
+        handleApiError(error, {
+            context: "fetch",
+            resourceType: "users",
+            defaultMessage: "Failed to fetch users",
+        });
+        return rejectWithValue(error);
+    }
+});

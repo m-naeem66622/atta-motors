@@ -3,11 +3,7 @@ const Schema = mongoose.Schema;
 
 const maintenanceSchema = new Schema(
     {
-        userId: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-        },
+        userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
         maintenanceType: {
             type: String,
             required: true,
@@ -20,76 +16,32 @@ const maintenanceSchema = new Schema(
                 "painting",
             ],
         },
-        specificService: {
-            type: String,
-            required: true,
-        },
-        appointmentDate: {
-            type: Date,
-            required: true,
-        },
-        appointmentTime: {
-            type: String,
-            required: true,
-        },
+        specificService: { type: String, required: true },
+        appointmentDate: { type: Date, required: true },
+        appointmentTime: { type: String, required: true },
         status: {
             type: String,
             required: true,
-            enum: ["Scheduled", "Completed", "Cancelled"],
-            default: "Scheduled",
+            enum: ["Pending", "Scheduled", "Completed", "Cancelled"],
+            default: "Pending",
         },
         vehicle: {
-            make: {
-                type: String,
-                required: true,
-            },
-            model: {
-                type: String,
-                required: true,
-            },
-            year: {
-                type: String,
-                required: true,
-            },
-            registration: {
-                type: String,
-                required: true,
-            },
+            make: { type: String, required: true },
+            model: { type: String, required: true },
+            year: { type: String, required: true },
+            registration: { type: String, required: true },
         },
         customer: {
-            name: {
-                type: String,
-                required: true,
-            },
-            email: {
-                type: String,
-                required: true,
-            },
-            phone: {
-                type: String,
-                required: true,
-            },
+            name: { type: String, required: true },
+            email: { type: String, required: true },
+            phone: { type: String, required: true },
         },
-        technician: {
-            type: String,
-            default: null,
-        },
-        cost: {
-            type: String,
-            default: null,
-        },
-        notes: {
-            type: String,
-            default: "",
-        },
-        additionalNotes: {
-            type: String,
-            default: "",
-        },
+        technician: { type: String, default: null },
+        cost: { type: String, default: null },
+        notes: { type: String, default: "" },
+        additionalNotes: { type: String, default: "" },
     },
-    {
-        timestamps: true,
-    }
+    { timestamps: true }
 );
 
 // Virtual for formatted date

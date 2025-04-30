@@ -6,6 +6,8 @@ import {
     getMaintenanceAppointment,
     cancelMaintenanceAppointment,
     checkAppointmentAvailability,
+    getAllMaintenanceAppointments,
+    updateMaintenanceAppointment,
 } from "./operations";
 
 const initialState: MaintenanceState = {
@@ -137,6 +139,61 @@ const maintenanceSlice = createSlice({
                 state.error =
                     action.error.message ||
                     "Failed to check appointment availability";
+            });
+
+        // Get all maintenance appointments (admin)
+        builder
+            .addCase(getAllMaintenanceAppointments.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(
+                getAllMaintenanceAppointments.fulfilled,
+                (state, action) => {
+                    state.isLoading = false;
+                    state.appointments = action.payload.data;
+                    state.meta = action.payload.meta;
+                }
+            )
+            .addCase(
+                getAllMaintenanceAppointments.rejected,
+                (state, action) => {
+                    state.isLoading = false;
+                    state.error =
+                        action.error.message ||
+                        "Failed to fetch maintenance appointments";
+                }
+            );
+
+        // Update maintenance appointment (admin)
+        builder
+            .addCase(updateMaintenanceAppointment.pending, (state) => {
+                state.isUpdating = true;
+                state.error = null;
+            })
+            .addCase(
+                updateMaintenanceAppointment.fulfilled,
+                (state, action) => {
+                    state.isUpdating = false;
+                    // Update the current appointment if it's the same one
+                    if (
+                        state.currentAppointment &&
+                        state.currentAppointment._id === action.payload.data._id
+                    ) {
+                        state.currentAppointment = action.payload.data;
+                    }
+                    // Update in the list if present
+                    state.appointments = state.appointments.map((appointment) =>
+                        appointment._id === action.payload.data._id
+                            ? action.payload.data
+                            : appointment
+                    );
+                }
+            )
+            .addCase(updateMaintenanceAppointment.rejected, (state, action) => {
+                state.isUpdating = false;
+                state.error =
+                    action.error.message || "Failed to update appointment";
             });
     },
 });

@@ -42,6 +42,9 @@ import {
     checkAppointmentAvailability,
 } from "@/redux/maintenance/operations";
 
+import adminReducer from "@/redux/admin/adminSlice";
+import { getAdminOverview } from "@/redux/admin/operations";
+
 const { VITE_APP_BASE_URL } = import.meta.env;
 
 axios.defaults.baseURL = `${VITE_APP_BASE_URL}`;
@@ -57,6 +60,7 @@ const reducer = combineReducers({
     saveNavigation: persistReducer(persistConfig, saveNavigationReducer),
     vehicles: vehicleReducer,
     maintenance: maintenanceReducer,
+    admin: adminReducer,
 });
 
 export const store = configureStore({
@@ -98,4 +102,5 @@ export {
     getMaintenanceAppointment,
     cancelMaintenanceAppointment,
     checkAppointmentAvailability,
+    getAdminOverview,
 };

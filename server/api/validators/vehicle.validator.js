@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { paginationSchema } = require("./common.validator");
 
 const createVehicleSchema = Joi.object({
     title: Joi.string().trim().required().messages({
@@ -81,7 +82,47 @@ const updateVehicleSchema = Joi.object({
         .optional(),
 });
 
+const getVehiclesSchema = Joi.object({
+    page: Joi.number().integer().min(1).default(1),
+    limit: Joi.number().integer().min(1).max(50).default(20),
+    status: Joi.string()
+        .uppercase()
+        .valid("ACTIVE", "SOLD", "PENDING", "DRAFT")
+        .default("ACTIVE"),
+    sort: Joi.string(),
+    search: Joi.string().trim().optional(),
+    make: Joi.string().trim().optional(),
+    model: Joi.string().trim().optional(),
+    year: Joi.number()
+        .integer()
+        .min(1886)
+        .max(new Date().getFullYear() + 1)
+        .optional(),
+    min_price: Joi.number().min(0).optional(),
+    max_price: Joi.number().min(0).optional(),
+    mileage_min: Joi.number().min(0).optional(),
+    mileage_max: Joi.number().min(0).optional(),
+    min_year: Joi.number()
+        .integer()
+        .min(1886)
+        .max(new Date().getFullYear() + 1)
+        .optional(),
+    max_year: Joi.number()
+        .integer()
+        .min(1886)
+        .max(new Date().getFullYear() + 1)
+        .optional(),
+    fuelType: Joi.string().valid(
+        "Petrol",
+        "Diesel",
+        "Hybrid",
+        "Electric",
+        "CNG"
+    ),
+});
+
 module.exports = {
     createVehicleSchema,
     updateVehicleSchema,
+    getVehiclesSchema,
 };

@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Car,
@@ -18,14 +18,20 @@ import {
     Pencil,
     Trash2,
     Eye,
-    CheckCircle2,
-    XCircle,
-    AlertCircle,
+    Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -41,91 +47,27 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { VehicleSortOrder } from "@/utils/vehicleFilters";
+import { useAppDispatch, useAppState } from "@/hooks";
+import { fetchVehicles, deleteVehicle } from "@/redux/vehicles/operations";
+import type { SearchParams } from "@/d";
+import { toast } from "@/hooks/use-toast";
 
-// Mock data for vehicle listings
-const vehicleListings = [
-    {
-        id: "VEH-4567",
-        title: "2022 Toyota RAV4 XLE",
-        price: 32500,
-        location: "San Francisco, CA",
-        year: 2022,
-        mileage: 15000,
-        fuelType: "Gasoline",
-        transmission: "Automatic",
-        image: "/placeholder.svg?height=200&width=300",
-        status: "active",
-        added: "2025-04-14T08:30:00Z",
-    },
-    {
-        id: "VEH-4568",
-        title: "2021 Honda CR-V Touring",
-        price: 29800,
-        location: "Los Angeles, CA",
-        year: 2021,
-        mileage: 22000,
-        fuelType: "Gasoline",
-        transmission: "Automatic",
-        image: "/placeholder.svg?height=200&width=300",
-        status: "active",
-        added: "2025-04-13T14:20:00Z",
-    },
-    {
-        id: "VEH-4569",
-        title: "2020 Ford Mustang GT",
-        price: 38500,
-        location: "Seattle, WA",
-        year: 2020,
-        mileage: 18000,
-        fuelType: "Gasoline",
-        transmission: "Manual",
-        image: "/placeholder.svg?height=200&width=300",
-        status: "pending",
-        added: "2025-04-12T10:15:00Z",
-    },
-    {
-        id: "VEH-4570",
-        title: "2019 Chevrolet Silverado LT",
-        price: 34200,
-        location: "Dallas, TX",
-        year: 2019,
-        mileage: 45000,
-        fuelType: "Gasoline",
-        transmission: "Automatic",
-        image: "/placeholder.svg?height=200&width=300",
-        status: "sold",
-        added: "2025-04-10T16:45:00Z",
-    },
-    {
-        id: "VEH-4571",
-        title: "2023 Tesla Model Y",
-        price: 52800,
-        location: "San Jose, CA",
-        year: 2023,
-        mileage: 5000,
-        fuelType: "Electric",
-        transmission: "Automatic",
-        image: "/placeholder.svg?height=200&width=300",
-        status: "active",
-        added: "2025-04-09T09:30:00Z",
-    },
-    {
-        id: "VEH-4572",
-        title: "2020 BMW X5 xDrive40i",
-        price: 48500,
-        location: "Miami, FL",
-        year: 2020,
-        mileage: 28000,
-        fuelType: "Gasoline",
-        transmission: "Automatic",
-        image: "/placeholder.svg?height=200&width=300",
-        status: "active",
-        added: "2025-04-08T11:20:00Z",
-    },
-];
+// Environment variables
+const { VITE_APP_IMAGE_URL } = import.meta.env;
+
+// Define image path function
+const getImagePath = (path: string) => {
+    if (!path) return "/placeholder.svg";
+    return path.startsWith("http") ? path : `${VITE_APP_IMAGE_URL}/${path}`;
+};
 
 export const AdminVehicles = () => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+    const { vehicles, isLoading, isDeleting, meta } = useAppState().vehicles;
+
+    // Search and filter state
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [filters, setFilters] = useState({
         minPrice: "",
@@ -137,15 +79,98 @@ export const AdminVehicles = () => {
     });
     const [showFilters, setShowFilters] = useState<boolean>(false);
     const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+    const [sortOrder, setSortOrder] = useState<VehicleSortOrder>("newest");
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] =
+        useState<boolean>(false);
+    const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
+
+    // Construct search params for API call
+    const getSearchParams = useCallback((): SearchParams => {
+        const params: SearchParams = {
+            page: currentPage,
+            limit: 12,
+        };
+
+        // Add search term if present
+        if (searchTerm) {
+            params.search = searchTerm;
+        } // Add price range if present
+        if (filters.minPrice) {
+            params.min_price = parseInt(filters.minPrice);
+        }
+        if (filters.maxPrice) {
+            params.max_price = parseInt(filters.maxPrice);
+        }
+
+        // Add year range filter
+        // The backend expects either a specific year, or we'll need to implement a custom range filter
+        if (
+            filters.minYear &&
+            filters.maxYear &&
+            filters.minYear === filters.maxYear
+        ) {
+            // If min and max year are the same, use the single year filter
+            params.year = parseInt(filters.minYear);
+        } else {
+            // For now, we'll use the first value as a basic filter
+            // In a future enhancement, we could add minYear/maxYear support to the backend
+            if (filters.minYear) {
+                params.min_year = parseInt(filters.minYear);
+            }
+            if (filters.maxYear) {
+                params.max_year = parseInt(filters.maxYear);
+            }
+        }
+
+        // Add fuel type if present and not "any"
+        if (filters.fuelType && filters.fuelType !== "any") {
+            params.fuelType = filters.fuelType;
+        }
+
+        // Add status if present and not "any"
+        if (filters.status && filters.status !== "any") {
+            params.status = filters.status;
+        }
+
+        // Add sort param
+        let sortParam = "";
+        switch (sortOrder) {
+            case "newest":
+                sortParam = "createdAt:desc";
+                break;
+            case "oldest":
+                sortParam = "createdAt:asc";
+                break;
+            case "price_low":
+                sortParam = "price:asc";
+                break;
+            case "price_high":
+                sortParam = "price:desc";
+                break;
+        }
+        params.sort = sortParam;
+
+        return params;
+    }, [searchTerm, filters, sortOrder, currentPage]);
+
+    // Fetch vehicles on initial load and when params change
+    useEffect(() => {
+        dispatch(fetchVehicles(getSearchParams()));
+    }, [dispatch, getSearchParams]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        // Implement search functionality
-        console.log("Searching for:", searchTerm);
+        // Reset page to 1 when searching
+        setCurrentPage(1);
+        // The useEffect will trigger API call with updated searchTerm
     };
 
     const handleFilterChange = (name: string, value: string) => {
+        // Reset page to 1 when filter changes
+        setCurrentPage(1);
         setFilters((prev) => ({ ...prev, [name]: value }));
+        // The useEffect will trigger API call with updated filters
     };
 
     const handleCreateVehicle = () => {
@@ -161,8 +186,47 @@ export const AdminVehicles = () => {
     };
 
     const handleDeleteVehicle = (id: string) => {
-        // Implement delete functionality
-        console.log("Deleting vehicle:", id);
+        // Open dialog and set vehicle ID to delete
+        setVehicleToDelete(id);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const confirmDeleteVehicle = () => {
+        if (vehicleToDelete) {
+            dispatch(deleteVehicle(vehicleToDelete))
+                .unwrap()
+                .then(() => {
+                    toast({
+                        title: "Vehicle deleted",
+                        description: "Vehicle has been successfully deleted",
+                        variant: "default",
+                    });
+                    // Refresh the vehicles list
+                    dispatch(fetchVehicles(getSearchParams()));
+                    // Close dialog
+                    setIsDeleteDialogOpen(false);
+                    setVehicleToDelete(null);
+                })
+                .catch(() => {
+                    toast({
+                        title: "Error",
+                        description: "Failed to delete vehicle",
+                        variant: "destructive",
+                    });
+                });
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (meta && currentPage > 1) {
+            setCurrentPage((prev) => prev - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (meta && meta.hasNextPage) {
+            setCurrentPage((prev) => prev + 1);
+        }
     };
 
     const formatDate = (dateString: string) => {
@@ -175,92 +239,126 @@ export const AdminVehicles = () => {
     };
 
     const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "active":
+        const normalizedStatus = status?.toUpperCase() || "";
+
+        switch (normalizedStatus) {
+            case "ACTIVE":
+            case "AVAILABLE":
                 return (
                     <Badge className="bg-green-100 text-green-800 border-green-200">
-                        Active
+                        {normalizedStatus === "ACTIVE" ? "Active" : "Available"}
                     </Badge>
                 );
-            case "pending":
+            case "SOLD":
                 return (
-                    <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                        Pending
-                    </Badge>
-                );
-            case "sold":
-                return (
-                    <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                    <Badge className="bg-purple-100 text-purple-800 border-purple-200">
                         Sold
                     </Badge>
                 );
+            case "PENDING":
+            case "RESERVED":
+                return (
+                    <Badge className="bg-amber-100 text-amber-800 border-amber-200">
+                        {normalizedStatus === "PENDING"
+                            ? "Pending"
+                            : "Reserved"}
+                    </Badge>
+                );
+            case "DRAFT":
+                return (
+                    <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+                        Draft
+                    </Badge>
+                );
             default:
-                return <Badge variant="outline">{status}</Badge>;
+                return (
+                    <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+                        {status}
+                    </Badge>
+                );
         }
     };
 
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case "active":
-                return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-            case "pending":
-                return <AlertCircle className="h-5 w-5 text-yellow-500" />;
-            case "sold":
-                return <XCircle className="h-5 w-5 text-blue-500" />;
-            default:
-                return <AlertCircle className="h-5 w-5 text-gray-500" />;
-        }
+    // Loading state
+    const renderLoading = () => (
+        <div className="flex justify-center items-center h-64">
+            <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">
+                    Loading vehicles...
+                </p>
+            </div>
+        </div>
+    );
+
+    // Error state when no vehicles are found
+    const renderEmpty = () => (
+        <div className="flex justify-center items-center h-64">
+            <div className="flex flex-col items-center gap-2 text-center">
+                <Car className="h-12 w-12 text-muted-foreground" />
+                <h3 className="text-lg font-medium">No vehicles found</h3>
+                <p className="text-sm text-muted-foreground">
+                    Try adjusting your search or filters
+                </p>
+                <Button
+                    className="mt-2"
+                    variant="outline"
+                    onClick={() => {
+                        setSearchTerm("");
+                        setFilters({
+                            minPrice: "",
+                            maxPrice: "",
+                            minYear: "",
+                            maxYear: "",
+                            fuelType: "",
+                            status: "",
+                        });
+                    }}
+                >
+                    Reset Filters
+                </Button>
+            </div>
+        </div>
+    );
+
+    // Pagination component
+    const renderPagination = () => {
+        if (!meta) return null;
+
+        return (
+            <div className="flex justify-between items-center mt-6">
+                <div className="text-sm text-gray-500">
+                    Showing{" "}
+                    {meta.itemCount > 0
+                        ? (currentPage - 1) * parseInt(meta.limit.toString()) +
+                          1
+                        : 0}{" "}
+                    -{" "}
+                    {Math.min(
+                        currentPage * parseInt(meta.limit.toString()),
+                        meta.itemCount
+                    )}{" "}
+                    of {meta.itemCount} vehicles
+                </div>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        disabled={currentPage <= 1}
+                        onClick={handlePreviousPage}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        disabled={!meta.hasNextPage}
+                        onClick={handleNextPage}
+                    >
+                        Next
+                    </Button>
+                </div>
+            </div>
+        );
     };
-
-    const filteredVehicles = vehicleListings.filter((vehicle) => {
-        // Filter by search term
-        if (
-            searchTerm &&
-            !vehicle.title.toLowerCase().includes(searchTerm.toLowerCase())
-        ) {
-            return false;
-        }
-
-        // Filter by price range
-        if (
-            filters.minPrice &&
-            vehicle.price < Number.parseInt(filters.minPrice)
-        ) {
-            return false;
-        }
-        if (
-            filters.maxPrice &&
-            vehicle.price > Number.parseInt(filters.maxPrice)
-        ) {
-            return false;
-        }
-
-        // Filter by year range
-        if (
-            filters.minYear &&
-            vehicle.year < Number.parseInt(filters.minYear)
-        ) {
-            return false;
-        }
-        if (
-            filters.maxYear &&
-            vehicle.year > Number.parseInt(filters.maxYear)
-        ) {
-            return false;
-        }
-
-        // Filter by fuel type
-        if (filters.fuelType && vehicle.fuelType !== filters.fuelType) {
-            return false;
-        }
-
-        // Filter by status
-        if (filters.status && vehicle.status !== filters.status) {
-            return false;
-        }
-
-        return true;
-    });
 
     return (
         <div className="space-y-6">
@@ -426,7 +524,7 @@ export const AdminVehicles = () => {
                                 </label>
                                 <Select
                                     value={filters.fuelType}
-                                    onValueChange={(value) =>
+                                    onValueChange={(value: string) =>
                                         handleFilterChange("fuelType", value)
                                     }
                                 >
@@ -434,19 +532,20 @@ export const AdminVehicles = () => {
                                         <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Any</SelectItem>
-                                        <SelectItem value="Gasoline">
-                                            Gasoline
+                                        <SelectItem value="any">Any</SelectItem>
+                                        <SelectItem value="Petrol">
+                                            Petrol
                                         </SelectItem>
                                         <SelectItem value="Diesel">
                                             Diesel
                                         </SelectItem>
-                                        <SelectItem value="Electric">
-                                            Electric
-                                        </SelectItem>
                                         <SelectItem value="Hybrid">
                                             Hybrid
                                         </SelectItem>
+                                        <SelectItem value="Electric">
+                                            Electric
+                                        </SelectItem>
+                                        <SelectItem value="CNG">CNG</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -456,7 +555,7 @@ export const AdminVehicles = () => {
                                 </label>
                                 <Select
                                     value={filters.status}
-                                    onValueChange={(value) =>
+                                    onValueChange={(value: string) =>
                                         handleFilterChange("status", value)
                                     }
                                 >
@@ -464,12 +563,12 @@ export const AdminVehicles = () => {
                                         <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Any</SelectItem>
-                                        <SelectItem value="active">
-                                            Active
+                                        <SelectItem value="any">Any</SelectItem>
+                                        <SelectItem value="available">
+                                            Available
                                         </SelectItem>
-                                        <SelectItem value="pending">
-                                            Pending
+                                        <SelectItem value="reserved">
+                                            Reserved
                                         </SelectItem>
                                         <SelectItem value="sold">
                                             Sold
@@ -486,9 +585,14 @@ export const AdminVehicles = () => {
             <div>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold">
-                        {filteredVehicles.length} Vehicles
+                        {meta?.itemCount || 0} Vehicles
                     </h2>
-                    <Select defaultValue="newest">
+                    <Select
+                        value={sortOrder}
+                        onValueChange={(value) =>
+                            setSortOrder(value as VehicleSortOrder)
+                        }
+                    >
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
@@ -505,126 +609,145 @@ export const AdminVehicles = () => {
                     </Select>
                 </div>
 
-                {viewMode === "grid" ? (
+                {isLoading ? (
+                    renderLoading()
+                ) : vehicles && vehicles.length === 0 ? (
+                    renderEmpty()
+                ) : viewMode === "grid" ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredVehicles.map((vehicle) => (
-                            <Card
-                                key={vehicle.id}
-                                className="overflow-hidden hover:shadow-lg transition-shadow"
-                            >
-                                <div className="relative">
-                                    <img
-                                        src={
-                                            vehicle.image || "/placeholder.svg"
-                                        }
-                                        alt={vehicle.title}
-                                        className="w-full h-48 object-cover"
-                                    />
-                                    <div className="absolute top-2 right-2">
-                                        {getStatusBadge(vehicle.status)}
-                                    </div>
-                                </div>
-                                <CardHeader className="pb-2">
-                                    <div className="flex justify-between items-start">
-                                        <CardTitle className="text-lg">
-                                            {vehicle.title}
-                                        </CardTitle>
-                                        <div className="font-bold">
-                                            ${vehicle.price.toLocaleString()}
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center text-gray-500 text-sm">
-                                        <MapPin size={14} className="mr-1" />
-                                        {vehicle.location}
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="pb-4">
-                                    <div className="grid grid-cols-2 gap-y-2 text-sm mb-4">
-                                        <div className="flex items-center">
-                                            <Calendar
-                                                size={14}
-                                                className="mr-2 text-gray-500"
-                                            />
-                                            {vehicle.year}
-                                        </div>
-                                        <div className="flex items-center">
-                                            <Gauge
-                                                size={14}
-                                                className="mr-2 text-gray-500"
-                                            />
-                                            {vehicle.mileage.toLocaleString()}{" "}
-                                            mi
-                                        </div>
-                                        <div className="flex items-center">
-                                            <Fuel
-                                                size={14}
-                                                className="mr-2 text-gray-500"
-                                            />
-                                            {vehicle.fuelType}
-                                        </div>
-                                        <div className="flex items-center">
-                                            <Car
-                                                size={14}
-                                                className="mr-2 text-gray-500"
-                                            />
-                                            {vehicle.transmission}
-                                        </div>
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                        Added: {formatDate(vehicle.added)}
-                                    </div>
-                                    <div className="flex justify-between mt-4">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                                handleViewVehicle(vehicle.id)
+                        {vehicles &&
+                            vehicles.map((vehicle: any) => (
+                                <Card
+                                    key={vehicle._id}
+                                    className="overflow-hidden hover:shadow-lg transition-shadow"
+                                >
+                                    <div className="relative">
+                                        <img
+                                            src={
+                                                vehicle.images &&
+                                                vehicle.images.length > 0
+                                                    ? getImagePath(
+                                                          vehicle.images[0]
+                                                      )
+                                                    : "/placeholder.svg"
                                             }
-                                        >
-                                            <Eye className="mr-2 h-4 w-4" />
-                                            View
-                                        </Button>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                >
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>
-                                                    Actions
-                                                </DropdownMenuLabel>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem
-                                                    onClick={() =>
-                                                        handleEditVehicle(
-                                                            vehicle.id
-                                                        )
-                                                    }
-                                                >
-                                                    <Pencil className="mr-2 h-4 w-4" />
-                                                    Edit
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    onClick={() =>
-                                                        handleDeleteVehicle(
-                                                            vehicle.id
-                                                        )
-                                                    }
-                                                    className="text-red-600"
-                                                >
-                                                    <Trash2 className="mr-2 h-4 w-4" />
-                                                    Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                            alt={vehicle.title}
+                                            className="w-full h-48 object-cover"
+                                        />
+                                        <div className="absolute top-2 right-2">
+                                            {getStatusBadge(vehicle.status)}
+                                        </div>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                    <CardHeader className="pb-2">
+                                        <div className="flex justify-between items-start">
+                                            <CardTitle className="text-lg">
+                                                {vehicle.title}
+                                            </CardTitle>
+                                            <div className="font-bold">
+                                                $
+                                                {vehicle.price.toLocaleString()}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center text-gray-500 text-sm">
+                                            <MapPin
+                                                size={14}
+                                                className="mr-1"
+                                            />
+                                            {vehicle.location ||
+                                                "Location not specified"}
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="pb-4">
+                                        <div className="grid grid-cols-2 gap-y-2 text-sm mb-4">
+                                            <div className="flex items-center">
+                                                <Calendar
+                                                    size={14}
+                                                    className="mr-2 text-gray-500"
+                                                />
+                                                {vehicle.year}
+                                            </div>
+                                            <div className="flex items-center">
+                                                <Gauge
+                                                    size={14}
+                                                    className="mr-2 text-gray-500"
+                                                />
+                                                {vehicle.mileage?.toLocaleString() ||
+                                                    "N/A"}{" "}
+                                                mi
+                                            </div>
+                                            <div className="flex items-center">
+                                                <Fuel
+                                                    size={14}
+                                                    className="mr-2 text-gray-500"
+                                                />
+                                                {vehicle.fuelType || "N/A"}
+                                            </div>
+                                            <div className="flex items-center">
+                                                <Car
+                                                    size={14}
+                                                    className="mr-2 text-gray-500"
+                                                />
+                                                {vehicle.transmission || "N/A"}
+                                            </div>
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            Added:{" "}
+                                            {formatDate(vehicle.createdAt)}
+                                        </div>
+                                        <div className="flex justify-between mt-4">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    handleViewVehicle(
+                                                        vehicle._id
+                                                    )
+                                                }
+                                            >
+                                                <Eye className="mr-2 h-4 w-4" />
+                                                View
+                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                    >
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuLabel>
+                                                        Actions
+                                                    </DropdownMenuLabel>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            handleEditVehicle(
+                                                                vehicle._id
+                                                            )
+                                                        }
+                                                    >
+                                                        <Pencil className="mr-2 h-4 w-4" />
+                                                        Edit
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            handleDeleteVehicle(
+                                                                vehicle._id
+                                                            )
+                                                        }
+                                                        className="text-red-600"
+                                                    >
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                        Delete
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
@@ -661,95 +784,151 @@ export const AdminVehicles = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredVehicles.map((vehicle) => (
-                                    <tr
-                                        key={vehicle.id}
-                                        className="border-b last:border-0 hover:bg-gray-50"
-                                    >
-                                        <td className="p-2 pl-0">
-                                            {vehicle.id}
-                                        </td>
-                                        <td className="p-2">
-                                            <div className="flex items-center gap-2">
-                                                <img
-                                                    src={
-                                                        vehicle.image ||
-                                                        "/placeholder.svg"
-                                                    }
-                                                    alt={vehicle.title}
-                                                    className="h-10 w-16 object-cover rounded"
-                                                />
-                                                <div>
-                                                    <p className="font-medium">
-                                                        {vehicle.title}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">
-                                                        {vehicle.location}
-                                                    </p>
+                                {vehicles &&
+                                    vehicles.map((vehicle: any) => (
+                                        <tr
+                                            key={vehicle._id}
+                                            className="border-b last:border-0 hover:bg-gray-50"
+                                        >
+                                            <td className="p-2 pl-0">
+                                                {vehicle._id.slice(-8)}
+                                            </td>
+                                            <td className="p-2">
+                                                <div className="flex items-center gap-2">
+                                                    <img
+                                                        src={
+                                                            vehicle.images &&
+                                                            vehicle.images
+                                                                .length > 0
+                                                                ? getImagePath(
+                                                                      vehicle
+                                                                          .images[0]
+                                                                  )
+                                                                : "/placeholder.svg"
+                                                        }
+                                                        alt={vehicle.title}
+                                                        className="h-10 w-16 object-cover rounded"
+                                                    />
+                                                    <div>
+                                                        <p className="font-medium">
+                                                            {vehicle.title}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">
+                                                            {vehicle.location ||
+                                                                "Location not specified"}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="p-2">
-                                            ${vehicle.price.toLocaleString()}
-                                        </td>
-                                        <td className="p-2">{vehicle.year}</td>
-                                        <td className="p-2">
-                                            {vehicle.mileage.toLocaleString()}{" "}
-                                            mi
-                                        </td>
-                                        <td className="p-2">
-                                            {vehicle.fuelType}
-                                        </td>
-                                        <td className="p-2">
-                                            {formatDate(vehicle.added)}
-                                        </td>
-                                        <td className="p-2">
-                                            {getStatusBadge(vehicle.status)}
-                                        </td>
-                                        <td className="p-2 pr-0 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleViewVehicle(
-                                                            vehicle.id
-                                                        )
-                                                    }
-                                                >
-                                                    <Eye className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleEditVehicle(
-                                                            vehicle.id
-                                                        )
-                                                    }
-                                                >
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleDeleteVehicle(
-                                                            vehicle.id
-                                                        )
-                                                    }
-                                                    className="text-red-600"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                            </td>
+                                            <td className="p-2">
+                                                $
+                                                {vehicle.price.toLocaleString()}
+                                            </td>
+                                            <td className="p-2">
+                                                {vehicle.year}
+                                            </td>
+                                            <td className="p-2">
+                                                {vehicle.mileage?.toLocaleString() ||
+                                                    "N/A"}{" "}
+                                                mi
+                                            </td>
+                                            <td className="p-2">
+                                                {vehicle.fuelType || "N/A"}
+                                            </td>
+                                            <td className="p-2">
+                                                {formatDate(vehicle.createdAt)}
+                                            </td>
+                                            <td className="p-2">
+                                                {getStatusBadge(vehicle.status)}
+                                            </td>
+                                            <td className="p-2 pr-0 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            handleViewVehicle(
+                                                                vehicle._id
+                                                            )
+                                                        }
+                                                    >
+                                                        <Eye className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            handleEditVehicle(
+                                                                vehicle._id
+                                                            )
+                                                        }
+                                                    >
+                                                        <Pencil className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            handleDeleteVehicle(
+                                                                vehicle._id
+                                                            )
+                                                        }
+                                                        className="text-red-600"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                     </div>
                 )}
+
+                {/* Pagination */}
+                {renderPagination()}
+
+                {/* Delete Confirmation */}
+                {isDeleting && (
+                    <div className="flex justify-center mt-4">
+                        <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
+                        <span className="text-sm">Deleting vehicle...</span>
+                    </div>
+                )}
+
+                {/* Delete Confirmation Dialog */}
+                <Dialog
+                    open={isDeleteDialogOpen}
+                    onOpenChange={setIsDeleteDialogOpen}
+                >
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>
+                                Are you sure you want to delete this vehicle?
+                            </DialogTitle>
+                            <DialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete the vehicle listing and
+                                remove it from our servers.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsDeleteDialogOpen(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                onClick={confirmDeleteVehicle}
+                            >
+                                Delete Vehicle
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
     );

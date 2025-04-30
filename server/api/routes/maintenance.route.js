@@ -33,14 +33,14 @@ router.get(
 // Get maintenance appointment by ID
 router.get(
     "/:id",
-    validate(CommonValidation.mogooseIdSchema, "PARAMS"),
+    validate(CommonValidation.mongooseIdSchema, "PARAMS"),
     Controller.getMaintenanceById
 );
 
 // Update maintenance appointment
-router.put(
+router.patch(
     "/:id",
-    validate(CommonValidation.mogooseIdSchema, "PARAMS"),
+    validate(CommonValidation.mongooseIdSchema, "PARAMS"),
     validate(MaintenanceValidation.updateMaintenanceSchema, "BODY"),
     Controller.updateMaintenance
 );
@@ -48,7 +48,7 @@ router.put(
 // Cancel maintenance appointment
 router.delete(
     "/:id/cancel",
-    validate(CommonValidation.mogooseIdSchema, "PARAMS"),
+    validate(CommonValidation.mongooseIdSchema, "PARAMS"),
     Controller.cancelMaintenance
 );
 
@@ -58,5 +58,8 @@ router.get(
     validate(MaintenanceValidation.maintenanceFilterSchema, "QUERY"),
     Controller.getAllMaintenanceAppointments
 );
+
+// Admin routes - get overview statistics
+router.get("/admin/overview", Controller.getAdminOverviewStats);
 
 module.exports = router;

@@ -18,6 +18,7 @@ import { AdminUserDetail } from "./admin/AdminUserDetail";
 import { AdminUsers } from "./admin/AdminUsers";
 import { AdminVehicleDetail } from "./admin/AdminVehicleDetail";
 import { AdminVehicles } from "./admin/AdminVehicles";
+import { EditVehicleListingPage } from "./EditVehicleListingPage";
 
 export {
     HomePage,
@@ -40,4 +41,5 @@ export {
     AdminUsers,
     AdminVehicleDetail,
     AdminVehicles,
+    EditVehicleListingPage
 };

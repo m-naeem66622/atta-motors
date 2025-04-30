@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { paginationSchema } = require("./common.validator");
 
 const createMaintenanceSchema = Joi.object({
     maintenanceType: Joi.string()
@@ -66,9 +67,11 @@ const createMaintenanceSchema = Joi.object({
 });
 
 const updateMaintenanceSchema = Joi.object({
-    status: Joi.string().valid("Scheduled", "Completed", "Cancelled").messages({
-        "any.only": "Invalid status value",
-    }),
+    status: Joi.string()
+        .valid("Pending", "Scheduled", "Completed", "Cancelled")
+        .messages({
+            "any.only": "Invalid status value",
+        }),
     technician: Joi.string().allow(null).messages({
         "string.base": "Technician must be a string",
     }),
@@ -83,13 +86,22 @@ const updateMaintenanceSchema = Joi.object({
     }),
 }).min(1);
 
-const maintenanceFilterSchema = Joi.object({
-    status: Joi.string()
-        .valid("all", "Scheduled", "Completed", "Cancelled")
-        .default("all"),
-    page: Joi.number().integer().min(1).default(1),
-    limit: Joi.number().integer().min(1).default(10),
-});
+const maintenanceFilterSchema = paginationSchema.concat(
+    Joi.object({
+        status: Joi.string()
+            .valid("all", "Pending", "Scheduled", "Completed", "Cancelled")
+            .default("all"),
+        dateFrom: Joi.date().iso().optional().messages({
+            "date.format": "Invalid date format for dateFrom",
+        }),
+        dateTo: Joi.date().iso().optional().messages({
+            "date.format": "Invalid date format for dateTo",
+        }),
+        search: Joi.string().optional().messages({
+            "string.base": "Search must be a string",
+        }),
+    })
+);
 
 const availabilityCheckSchema = Joi.object({
     date: Joi.date().iso().required().messages({

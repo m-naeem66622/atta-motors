@@ -12,7 +12,8 @@
         "test:maintenance": "jest --forceExit --detectOpenHandles tests/routes/maintenance.test.js",
         "seed:users": "node seeders/userSeeder.js",
         "seed:vehicles": "node seeders/vehicleSeeder.js",
-        "seed:all": "node seeders/userSeeder.js && node seeders/vehicleSeeder.js"
+        "seed:maintenance": "node seeders/maintenanceSeeder.js",
+        "seed:all": "node seeders/userSeeder.js && node seeders/vehicleSeeder.js && node seeders/maintenanceSeeder.js"
     },
     "keywords": [
         "Nodejs"

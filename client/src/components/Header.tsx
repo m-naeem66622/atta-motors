@@ -17,8 +17,9 @@ import {
     LogOut,
     Menu,
     Home,
-    Info,
-    Phone,
+    // Info,
+    // Phone,
+    Settings,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useMobile } from "@/hooks/use-mobile";
@@ -39,8 +40,8 @@ export function Header() {
         { label: "Home", href: AppRoutes.home, icon: Home },
         { label: "Buy", href: AppRoutes.vehicleSales, icon: Car },
         { label: "Maintenance", href: AppRoutes.maintenance, icon: Wrench },
-        { label: "About", href: AppRoutes.about, icon: Info },
-        { label: "Contact", href: AppRoutes.contact, icon: Phone },
+        // { label: "About", href: AppRoutes.about, icon: Info },
+        // { label: "Contact", href: AppRoutes.contact, icon: Phone },
     ];
 
     // Handle scroll effect
@@ -146,18 +147,27 @@ export function Header() {
                                         Profile
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                {/* <DropdownMenuItem>
                                     <Link to={AppRoutes.myVehicles}>
                                         <Car className="mr-2 h-4 w-4" /> My
                                         Listing
                                     </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <Link to={AppRoutes.maintenanceHistory}>
-                                        <Wrench className="mr-2 h-4 w-4" /> My
-                                        Maintenance
-                                    </Link>
-                                </DropdownMenuItem>
+                                </DropdownMenuItem> */}
+                                {authenticate.user.role === "ADMIN" ? (
+                                    <DropdownMenuItem>
+                                        <Link to={AppRoutes.admin}>
+                                            <Settings className="mr-2 h-4 w-4" />
+                                            Dashboard
+                                        </Link>
+                                    </DropdownMenuItem>
+                                ) : (
+                                    <DropdownMenuItem>
+                                        <Link to={AppRoutes.maintenanceHistory}>
+                                            <Wrench className="mr-2 h-4 w-4" />{" "}
+                                            My Maintenance
+                                        </Link>
+                                    </DropdownMenuItem>
+                                )}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     onClick={() => dispatch(logout())}

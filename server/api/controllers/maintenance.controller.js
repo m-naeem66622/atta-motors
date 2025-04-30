@@ -1,3 +1,4 @@
+const User = require("../models/user.model");
 const Maintenance = require("../services/maintenance.service");
 const { throwError } = require("../utils/error.util");
 
@@ -139,7 +140,7 @@ const getMaintenanceHistory = async (req, res, next) => {
 
 /**
  * @desc    Update maintenance appointment
- * @route   PUT /api/maintenance/:id
+ * @route   PATCH /api/maintenance/:id
  * @access  Private/User
  */
 const updateMaintenance = async (req, res, next) => {
@@ -176,18 +177,18 @@ const updateMaintenance = async (req, res, next) => {
             }
         }
 
-        // Check if already completed
-        if (
-            getResult.data.status === "Completed" &&
-            req.body.status === "Cancelled"
-        ) {
-            throwError(
-                "FAILED",
-                400,
-                "Cannot cancel a completed maintenance appointment",
-                "COMPLETED_CANCELLATION_ERROR"
-            );
-        }
+        // // Check if already completed
+        // if (
+        //     getResult.data.status === "Completed" &&
+        //     req.body.status === "Cancelled"
+        // ) {
+        //     throwError(
+        //         "FAILED",
+        //         400,
+        //         "Cannot cancel a completed maintenance appointment",
+        //         "COMPLETED_CANCELLATION_ERROR"
+        //     );
+        // }
 
         // Update the maintenance record
         const result = await Maintenance.updateMaintenance(
@@ -246,15 +247,15 @@ const cancelMaintenance = async (req, res, next) => {
             );
         }
 
-        // Check if already completed
-        if (getResult.data.status === "Completed") {
-            throwError(
-                "FAILED",
-                400,
-                "Cannot cancel a completed maintenance appointment",
-                "COMPLETED_CANCELLATION_ERROR"
-            );
-        }
+        // // Check if already completed
+        // if (getResult.data.status === "Completed") {
+        //     throwError(
+        //         "FAILED",
+        //         400,
+        //         "Cannot cancel a completed maintenance appointment",
+        //         "COMPLETED_CANCELLATION_ERROR"
+        //     );
+        // }
 
         // Cancel the maintenance record
         const result = await Maintenance.cancelMaintenance(req.params.id);
@@ -285,17 +286,14 @@ const cancelMaintenance = async (req, res, next) => {
  */
 const getAllMaintenanceAppointments = async (req, res, next) => {
     try {
-        // Check if user is admin
-        if (req.user.role !== "ADMIN") {
-            throwError(
-                "FAILED",
-                403,
-                "Access denied. Admin privileges required",
-                "UNAUTHORIZED_ACCESS"
-            );
-        }
-
-        const { status = "all", date, page = 1, limit = 10 } = req.query;
+        const {
+            status = "all",
+            dateFrom,
+            dateTo,
+            search,
+            page = 1,
+            limit = 10,
+        } = req.query;
 
         // Build filter
         const filter = {};
@@ -305,15 +303,29 @@ const getAllMaintenanceAppointments = async (req, res, next) => {
             filter.status = status;
         }
 
-        // Add date filter if provided
-        if (date) {
-            const startDate = new Date(date);
-            startDate.setHours(0, 0, 0, 0);
+        // Add date range filter if provided
+        if (dateFrom || dateTo) {
+            filter.appointmentDate = {};
+            if (dateFrom) {
+                filter.appointmentDate.$gte = new Date(dateFrom);
+            }
+            if (dateTo) {
+                filter.appointmentDate.$lte = new Date(dateTo);
+            }
+        }
 
-            const endDate = new Date(date);
-            endDate.setHours(23, 59, 59, 999);
-
-            filter.appointmentDate = { $gte: startDate, $lte: endDate };
+        // Add search term filter for vehicle, service, or customer
+        if (search) {
+            const regex = new RegExp(search, "i"); // Case-insensitive regex
+            filter.$or = [
+                { "vehicle.make": regex },
+                { "vehicle.model": regex },
+                { "vehicle.year": regex },
+                { specificService: regex },
+                { "customer.name": regex },
+                { "customer.phone": regex },
+                { "customer.email": regex },
+            ];
         }
 
         // Get appointments with pagination
@@ -402,6 +414,112 @@ const checkAvailability = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Get admin dashboard overview statistics
+ * @route   GET /api/maintenance/admin/overview
+ * @access  Private/Admin
+ */
+const getAdminOverviewStats = async (req, res, next) => {
+    try {
+        // Get total maintenance appointments count
+        const totalAppointmentsResult =
+            await Maintenance.countMaintenanceAppointments({});
+
+        // Get pending appointments count
+        const pendingAppointmentsResult =
+            await Maintenance.countMaintenanceAppointments({
+                status: "Pending",
+            });
+
+        // Get today's appointments
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const todayAppointmentsResult =
+            await Maintenance.countMaintenanceAppointments({
+                appointmentDate: { $gte: today, $lt: tomorrow },
+            });
+
+        // Get this week's appointments
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+        const weekAppointmentsResult =
+            await Maintenance.countMaintenanceAppointments({
+                appointmentDate: { $gte: startOfWeek, $lt: endOfWeek },
+            });
+
+        // Get recent appointments (limit to 5)
+        const recentAppointmentsResult =
+            await Maintenance.getMaintenanceAppointments({}, {}, 1, 5, {
+                createdAt: -1,
+            });
+
+        // Collect all error statuses
+        if (totalAppointmentsResult.status === "FAILED") {
+            throwError(
+                totalAppointmentsResult.status,
+                totalAppointmentsResult.error.statusCode,
+                totalAppointmentsResult.error.message,
+                totalAppointmentsResult.error.identifier
+            );
+        }
+
+        if (pendingAppointmentsResult.status === "FAILED") {
+            throwError(
+                pendingAppointmentsResult.status,
+                pendingAppointmentsResult.error.statusCode,
+                pendingAppointmentsResult.error.message,
+                pendingAppointmentsResult.error.identifier
+            );
+        }
+
+        if (todayAppointmentsResult.status === "FAILED") {
+            throwError(
+                todayAppointmentsResult.status,
+                todayAppointmentsResult.error.statusCode,
+                todayAppointmentsResult.error.message,
+                todayAppointmentsResult.error.identifier
+            );
+        }
+
+        if (weekAppointmentsResult.status === "FAILED") {
+            throwError(
+                weekAppointmentsResult.status,
+                weekAppointmentsResult.error.statusCode,
+                weekAppointmentsResult.error.message,
+                weekAppointmentsResult.error.identifier
+            );
+        }
+
+        if (recentAppointmentsResult.status === "FAILED") {
+            throwError(
+                recentAppointmentsResult.status,
+                recentAppointmentsResult.error.statusCode,
+                recentAppointmentsResult.error.message,
+                recentAppointmentsResult.error.identifier
+            );
+        }
+
+        res.status(200).json({
+            status: "SUCCESS",
+            data: {
+                totalAppointments: totalAppointmentsResult.data,
+                pendingAppointments: pendingAppointmentsResult.data,
+                todayAppointments: todayAppointmentsResult.data,
+                weekAppointments: weekAppointmentsResult.data,
+                recentAppointments: recentAppointmentsResult.data,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createMaintenanceAppointment,
     getMaintenanceById,
@@ -409,5 +527,6 @@ module.exports = {
     updateMaintenance,
     cancelMaintenance,
     getAllMaintenanceAppointments,
+    getAdminOverviewStats,
     checkAvailability,
 };

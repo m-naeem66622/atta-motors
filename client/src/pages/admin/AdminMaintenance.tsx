@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Search,
@@ -10,12 +10,11 @@ import {
     ChevronDown,
     MoreHorizontal,
     CheckCircle2,
-    XCircle,
-    Clock,
     Eye,
     CheckCheck,
     X,
     Calendar,
+    Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,127 +35,25 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { useAppState } from "@/hooks/useAppState";
+import {
+    getAllMaintenanceAppointments,
+    updateMaintenanceAppointment,
+} from "@/redux/maintenance/operations";
+import { toast } from "@/hooks/use-toast";
+import type { MaintenanceAppointment } from "@/d";
 
-// Mock data for maintenance requests
-const maintenanceRequests = [
-    {
-        id: "MNT-1234",
-        customer: {
-            name: "John Smith",
-            email: "john@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2020 Toyota Camry",
-        service: "Oil Change & Filter Replacement",
-        status: "pending",
-        date: "2025-04-15T10:30:00Z",
-        notes: "Customer requested synthetic oil",
-        price: 95.0,
-    },
-    {
-        id: "MNT-1235",
-        customer: {
-            name: "Sarah Johnson",
-            email: "sarah@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2019 Honda Accord",
-        service: "Brake System Repair",
-        status: "approved",
-        date: "2025-04-16T14:00:00Z",
-        notes: "Front brake pads and rotors need replacement",
-        price: 320.0,
-    },
-    {
-        id: "MNT-1236",
-        customer: {
-            name: "Michael Chen",
-            email: "michael@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2021 Tesla Model 3",
-        service: "Battery Inspection",
-        status: "completed",
-        date: "2025-04-14T09:15:00Z",
-        notes: "Routine battery health check",
-        price: 150.0,
-    },
-    {
-        id: "MNT-1237",
-        customer: {
-            name: "Emily Davis",
-            email: "emily@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2018 Ford F-150",
-        service: "Transmission Service",
-        status: "rejected",
-        date: "2025-04-13T11:45:00Z",
-        notes: "Service not available for this model",
-        price: 0.0,
-    },
-    {
-        id: "MNT-1238",
-        customer: {
-            name: "Robert Wilson",
-            email: "robert@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2022 Hyundai Tucson",
-        service: "Tire Rotation",
-        status: "pending",
-        date: "2025-04-17T13:30:00Z",
-        notes: "Customer will provide own tires",
-        price: 60.0,
-    },
-    {
-        id: "MNT-1239",
-        customer: {
-            name: "Jennifer Lopez",
-            email: "jennifer@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2020 BMW X5",
-        service: "Air Conditioning Service",
-        status: "approved",
-        date: "2025-04-18T15:45:00Z",
-        notes: "AC not cooling properly",
-        price: 220.0,
-    },
-    {
-        id: "MNT-1240",
-        customer: {
-            name: "David Kim",
-            email: "david@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2019 Audi Q5",
-        service: "Engine Diagnostics",
-        status: "completed",
-        date: "2025-04-12T10:00:00Z",
-        notes: "Check engine light is on",
-        price: 180.0,
-    },
-    {
-        id: "MNT-1241",
-        customer: {
-            name: "Maria Garcia",
-            email: "maria@example.com",
-            avatar: "/placeholder.svg",
-        },
-        vehicle: "2021 Mazda CX-5",
-        service: "Wheel Alignment",
-        status: "pending",
-        date: "2025-04-19T09:00:00Z",
-        notes: "Vehicle pulling to the right",
-        price: 120.0,
-    },
-];
+// No need for mock data anymore as we'll use real data from the API
 
 export const AdminMaintenance = () => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+    const { maintenance } = useAppState();
+    const { isLoading, isUpdating, appointments, meta, error } = maintenance;
+
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [filters, setFilters] = useState({
         status: "",
@@ -165,34 +62,74 @@ export const AdminMaintenance = () => {
     });
     const [showFilters, setShowFilters] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState<string>("all");
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [limit] = useState<number>(10);
+
+    // Fetch maintenance appointments when component mounts or filters change
+    const fetchAppointments = useCallback(() => {
+        const statusParam = activeTab !== "all" ? activeTab : filters.status;
+        dispatch(
+            getAllMaintenanceAppointments({
+                status: statusParam || undefined,
+                dateFrom: filters.dateFrom || undefined,
+                dateTo: filters.dateTo || undefined,
+                search: searchTerm || undefined,
+                page: currentPage,
+                limit,
+            })
+        );
+    }, [dispatch, activeTab, filters, searchTerm, currentPage, limit]);
+
+    useEffect(() => {
+        fetchAppointments();
+    }, [fetchAppointments]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        // Implement search functionality
-        console.log("Searching for:", searchTerm);
+        setCurrentPage(1); // Reset to first page when searching
+        fetchAppointments();
     };
 
     const handleFilterChange = (name: string, value: string) => {
-        setFilters((prev) => ({ ...prev, [name]: value }));
+        setFilters((prev) => ({ ...prev, [name]: value === "any" ? "" : value }));
+        setCurrentPage(1); // Reset to first page when filtering
     };
 
     const handleViewRequest = (id: string) => {
         navigate(`/admin/maintenance/${id}`);
     };
 
-    const handleApproveRequest = (id: string) => {
-        // Implement approve functionality
-        console.log("Approving request:", id);
-    };
+    const handleStatusUpdate = (id: string, status: string) => {
+        dispatch(
+            updateMaintenanceAppointment({
+                id,
+                data: { status },
+            })
+        ).then(() => {
+            let message = "";
+            switch (status) {
+                case "Pending":
+                    message = "Appointment is now pending";
+                    break;
+                case "Scheduled":
+                    message = "Appointment is now scheduled";
+                    break;
+                case "Completed":
+                    message = "Appointment marked as completed";
+                    break;
+                case "Cancelled":
+                    message = "Appointment has been cancelled";
+                    break;
+                default:
+                    message = `Status updated to ${status}`;
+            }
 
-    const handleRejectRequest = (id: string) => {
-        // Implement reject functionality
-        console.log("Rejecting request:", id);
-    };
-
-    const handleCompleteRequest = (id: string) => {
-        // Implement complete functionality
-        console.log("Completing request:", id);
+            toast({
+                title: "Status Updated",
+                description: message,
+            });
+            fetchAppointments();
+        });
     };
 
     const formatDate = (dateString: string) => {
@@ -204,38 +141,30 @@ export const AdminMaintenance = () => {
         });
     };
 
-    const formatTime = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-    };
-
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case "approved":
-                return (
-                    <Badge className="bg-green-100 text-green-800 border-green-200">
-                        Approved
-                    </Badge>
-                );
-            case "pending":
+            case "Pending":
                 return (
                     <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
                         Pending
                     </Badge>
                 );
-            case "completed":
+            case "Scheduled":
+                return (
+                    <Badge className="bg-green-100 text-green-800 border-green-200">
+                        Scheduled
+                    </Badge>
+                );
+            case "Completed":
                 return (
                     <Badge className="bg-blue-100 text-blue-800 border-blue-200">
                         Completed
                     </Badge>
                 );
-            case "rejected":
+            case "Cancelled":
                 return (
                     <Badge className="bg-red-100 text-red-800 border-red-200">
-                        Rejected
+                        Cancelled
                     </Badge>
                 );
             default:
@@ -243,64 +172,16 @@ export const AdminMaintenance = () => {
         }
     };
 
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case "approved":
-                return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-            case "pending":
-                return <Clock className="h-5 w-5 text-yellow-500" />;
-            case "completed":
-                return <CheckCheck className="h-5 w-5 text-blue-500" />;
-            case "rejected":
-                return <XCircle className="h-5 w-5 text-red-500" />;
-            default:
-                return <Clock className="h-5 w-5 text-gray-500" />;
-        }
+    // Get vehicle display name from maintenance appointment
+    const getVehicleDisplay = (appointment: MaintenanceAppointment) => {
+        const { vehicle } = appointment;
+        return `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
     };
 
-    const filteredRequests = maintenanceRequests.filter((request) => {
-        // Filter by tab
-        if (activeTab !== "all" && request.status !== activeTab) {
-            return false;
-        }
-
-        // Filter by search term
-        if (
-            searchTerm &&
-            !request.customer.name
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()) &&
-            !request.vehicle.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            !request.service.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            !request.id.toLowerCase().includes(searchTerm.toLowerCase())
-        ) {
-            return false;
-        }
-
-        // Filter by status
-        if (filters.status && request.status !== filters.status) {
-            return false;
-        }
-
-        // Filter by date range
-        if (filters.dateFrom) {
-            const fromDate = new Date(filters.dateFrom);
-            const requestDate = new Date(request.date);
-            if (requestDate < fromDate) {
-                return false;
-            }
-        }
-
-        if (filters.dateTo) {
-            const toDate = new Date(filters.dateTo);
-            const requestDate = new Date(request.date);
-            if (requestDate > toDate) {
-                return false;
-            }
-        }
-
-        return true;
-    });
+    // Handle pagination
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+    };
 
     return (
         <div className="space-y-6">
@@ -341,8 +222,19 @@ export const AdminMaintenance = () => {
                                     className="pl-10"
                                 />
                             </div>
-                            <Button type="submit" variant="default">
-                                Search
+                            <Button
+                                type="submit"
+                                variant="default"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Searching...
+                                    </>
+                                ) : (
+                                    "Search"
+                                )}
                             </Button>
                         </form>
                         <Button
@@ -376,18 +268,18 @@ export const AdminMaintenance = () => {
                                         <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Any</SelectItem>
-                                        <SelectItem value="pending">
+                                        <SelectItem value="any">Any</SelectItem>{" "}
+                                        <SelectItem value="Pending">
                                             Pending
                                         </SelectItem>
-                                        <SelectItem value="approved">
-                                            Approved
+                                        <SelectItem value="Scheduled">
+                                            Scheduled
                                         </SelectItem>
-                                        <SelectItem value="completed">
+                                        <SelectItem value="Completed">
                                             Completed
                                         </SelectItem>
-                                        <SelectItem value="rejected">
-                                            Rejected
+                                        <SelectItem value="Cancelled">
+                                            Cancelled
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -436,195 +328,286 @@ export const AdminMaintenance = () => {
                 >
                     <TabsList className="grid w-full grid-cols-5 mb-4">
                         <TabsTrigger value="all">All</TabsTrigger>
-                        <TabsTrigger value="pending">Pending</TabsTrigger>
-                        <TabsTrigger value="approved">Approved</TabsTrigger>
-                        <TabsTrigger value="completed">Completed</TabsTrigger>
-                        <TabsTrigger value="rejected">Rejected</TabsTrigger>
+                        <TabsTrigger value="Pending">Pending</TabsTrigger>
+                        <TabsTrigger value="Scheduled">Scheduled</TabsTrigger>
+                        <TabsTrigger value="Completed">Completed</TabsTrigger>
+                        <TabsTrigger value="Cancelled">Cancelled</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value={activeTab}>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="text-left font-medium p-2 pl-0">
-                                            ID
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Customer
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Vehicle
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Service
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Date & Time
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Price
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Status
-                                        </th>
-                                        <th className="text-right font-medium p-2 pr-0">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredRequests.map((request) => (
-                                        <tr
-                                            key={request.id}
-                                            className="border-b last:border-0 hover:bg-gray-50"
-                                        >
-                                            <td className="p-2 pl-0">
-                                                {request.id}
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="h-8 w-8">
-                                                        <AvatarImage
-                                                            src={
-                                                                request.customer
-                                                                    .avatar ||
-                                                                "/placeholder.svg"
-                                                            }
-                                                            alt={
-                                                                request.customer
-                                                                    .name
-                                                            }
-                                                        />
-                                                        <AvatarFallback>
-                                                            {request.customer.name.charAt(
-                                                                0
-                                                            )}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <div>
-                                                        <p className="font-medium">
-                                                            {
-                                                                request.customer
-                                                                    .name
-                                                            }
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {
-                                                                request.customer
-                                                                    .email
-                                                            }
-                                                        </p>
+                        {isLoading ? (
+                            <div className="flex justify-center items-center p-8">
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                <span className="ml-2">
+                                    Loading maintenance requests...
+                                </span>
+                            </div>
+                        ) : error ? (
+                            <div className="text-center p-4 text-red-500">
+                                Error loading maintenance requests:{" "}
+                                {error.toString()}
+                            </div>
+                        ) : appointments.length === 0 ? (
+                            <div className="text-center p-4">
+                                No maintenance requests found.
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b">
+                                            <th className="text-left font-medium p-2 pl-0">
+                                                ID
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Customer
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Vehicle
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Service
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Date & Time
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Price
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Status
+                                            </th>
+                                            <th className="text-right font-medium p-2 pr-0">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {appointments.map((appointment) => (
+                                            <tr
+                                                key={appointment._id}
+                                                className="border-b last:border-0 hover:bg-gray-50"
+                                            >
+                                                <td className="p-2 pl-0">
+                                                    {appointment._id.slice(-8)}
+                                                </td>
+                                                <td className="p-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <Avatar className="h-8 w-8">
+                                                            <AvatarFallback>
+                                                                {appointment.customer.name.charAt(
+                                                                    0
+                                                                )}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <div>
+                                                            <p className="font-medium">
+                                                                {
+                                                                    appointment
+                                                                        .customer
+                                                                        .name
+                                                                }
+                                                            </p>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                {
+                                                                    appointment
+                                                                        .customer
+                                                                        .email
+                                                                }
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
-                                                {request.vehicle}
-                                            </td>
-                                            <td className="p-2">
-                                                {request.service}
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="flex items-center gap-1">
-                                                    <Calendar className="h-4 w-4 text-gray-500" />
-                                                    <span>
-                                                        {formatDate(
-                                                            request.date
-                                                        )}
-                                                    </span>
-                                                    <span className="text-gray-500 mx-1">
-                                                        •
-                                                    </span>
-                                                    <span>
-                                                        {formatTime(
-                                                            request.date
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
-                                                ${request.price.toFixed(2)}
-                                            </td>
-                                            <td className="p-2">
-                                                {getStatusBadge(request.status)}
-                                            </td>
-                                            <td className="p-2 pr-0 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            handleViewRequest(
-                                                                request.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger
-                                                            asChild
+                                                </td>
+                                                <td className="p-2">
+                                                    {getVehicleDisplay(
+                                                        appointment
+                                                    )}
+                                                </td>
+                                                <td className="p-2">
+                                                    {
+                                                        appointment.specificService
+                                                    }
+                                                </td>
+                                                <td className="p-2">
+                                                    <div className="flex items-center gap-1">
+                                                        <Calendar className="h-4 w-4 text-gray-500" />
+                                                        <span>
+                                                            {formatDate(
+                                                                appointment.appointmentDate
+                                                            )}
+                                                        </span>
+                                                        <span className="text-gray-500 mx-1">
+                                                            •
+                                                        </span>
+                                                        <span>
+                                                            {
+                                                                appointment.appointmentTime
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="p-2">
+                                                    {appointment.cost
+                                                        ? `$${appointment.cost}`
+                                                        : "Not set"}
+                                                </td>
+                                                <td className="p-2">
+                                                    {getStatusBadge(
+                                                        appointment.status
+                                                    )}
+                                                </td>
+                                                <td className="p-2 pr-0 text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                handleViewRequest(
+                                                                    appointment._id
+                                                                )
+                                                            }
                                                         >
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger
+                                                                asChild
                                                             >
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuLabel>
-                                                                Actions
-                                                            </DropdownMenuLabel>
-                                                            <DropdownMenuSeparator />
-                                                            {request.status ===
-                                                                "pending" && (
-                                                                <>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    disabled={
+                                                                        isUpdating
+                                                                    }
+                                                                >
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuLabel>
+                                                                    Actions
+                                                                </DropdownMenuLabel>
+                                                                <DropdownMenuSeparator />
+                                                                {/* Show available status transitions based on current status */}
+                                                                {appointment.status !==
+                                                                    "Pending" && (
                                                                     <DropdownMenuItem
                                                                         onClick={() =>
-                                                                            handleApproveRequest(
-                                                                                request.id
+                                                                            handleStatusUpdate(
+                                                                                appointment._id,
+                                                                                "Pending"
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <CheckCircle2 className="mr-2 h-4 w-4 text-yellow-500" />
+                                                                        Mark as
+                                                                        Pending
+                                                                    </DropdownMenuItem>
+                                                                )}
+
+                                                                {appointment.status !==
+                                                                    "Scheduled" && (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() =>
+                                                                            handleStatusUpdate(
+                                                                                appointment._id,
+                                                                                "Scheduled"
                                                                             )
                                                                         }
                                                                     >
                                                                         <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
-                                                                        Approve
+                                                                        Mark as
+                                                                        Scheduled
                                                                     </DropdownMenuItem>
+                                                                )}
+
+                                                                {appointment.status !==
+                                                                    "Completed" && (
                                                                     <DropdownMenuItem
                                                                         onClick={() =>
-                                                                            handleRejectRequest(
-                                                                                request.id
+                                                                            handleStatusUpdate(
+                                                                                appointment._id,
+                                                                                "Completed"
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <CheckCheck className="mr-2 h-4 w-4 text-blue-500" />
+                                                                        Mark as
+                                                                        Completed
+                                                                    </DropdownMenuItem>
+                                                                )}
+
+                                                                {appointment.status !==
+                                                                    "Cancelled" && (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() =>
+                                                                            handleStatusUpdate(
+                                                                                appointment._id,
+                                                                                "Cancelled"
                                                                             )
                                                                         }
                                                                     >
                                                                         <X className="mr-2 h-4 w-4 text-red-500" />
-                                                                        Reject
+                                                                        Cancel
+                                                                        Appointment
                                                                     </DropdownMenuItem>
-                                                                </>
-                                                            )}
-                                                            {request.status ===
-                                                                "approved" && (
-                                                                <DropdownMenuItem
-                                                                    onClick={() =>
-                                                                        handleCompleteRequest(
-                                                                            request.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <CheckCheck className="mr-2 h-4 w-4 text-blue-500" />
-                                                                    Mark as
-                                                                    Completed
-                                                                </DropdownMenuItem>
-                                                            )}
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                                                )}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+
+                                {/* Pagination */}
+                                {meta && (
+                                    <div className="flex items-center justify-between mt-4">
+                                        <div className="text-sm text-muted-foreground">
+                                            Showing {appointments.length} of{" "}
+                                            {meta.itemCount} records
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    handlePageChange(
+                                                        currentPage - 1
+                                                    )
+                                                }
+                                                disabled={
+                                                    !meta.hasPreviousPage ||
+                                                    isLoading
+                                                }
+                                            >
+                                                Previous
+                                            </Button>
+                                            <div className="text-sm">
+                                                Page {currentPage} of{" "}
+                                                {meta.pageCount || 1}
+                                            </div>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    handlePageChange(
+                                                        currentPage + 1
+                                                    )
+                                                }
+                                                disabled={
+                                                    !meta.hasNextPage ||
+                                                    isLoading
+                                                }
+                                            >
+                                                Next
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </TabsContent>
                 </Tabs>
             </div>

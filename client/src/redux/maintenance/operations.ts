@@ -10,6 +10,110 @@ import type {
 } from "@/d";
 import type { FormValues as MaintenanceFormValues } from "@/components/maintenance-booking/types";
 
+// Admin operations
+// Get all maintenance appointments (admin only)
+export const getAllMaintenanceAppointments = createAsyncThunk<
+    MaintenanceHistoryResponse,
+    | {
+          status?: string;
+          dateFrom?: string;
+          dateTo?: string;
+          search?: string;
+          page?: number;
+          limit?: number;
+      }
+    | undefined
+>("maintenance/admin/getAll", async (params = {}, { rejectWithValue }) => {
+    try {
+        const queryParams = new URLSearchParams();
+        if (params.status && params.status !== "all") {
+            queryParams.append("status", params.status);
+        }
+        if (params.dateFrom) {
+            queryParams.append("dateFrom", params.dateFrom);
+        }
+        if (params.dateTo) {
+            queryParams.append("dateTo", params.dateTo);
+        }
+        if (params.search) {
+            queryParams.append("search", params.search);
+        }
+        if (params.page) {
+            queryParams.append("page", params.page.toString());
+        }
+        if (params.limit) {
+            queryParams.append("limit", params.limit.toString());
+        }
+
+        const response: AxiosResponse<MaintenanceHistoryResponse> =
+            await axios.get(
+                `api/maintenance/admin/all?${queryParams.toString()}`
+            );
+        return response.data;
+    } catch (error: any) {
+        handleApiError(error, {
+            context: "fetch",
+            resourceType: "maintenance appointments",
+            defaultMessage: "Failed to fetch maintenance appointments",
+        });
+        return rejectWithValue(error);
+    }
+});
+
+// Update maintenance appointment (admin)
+export const updateMaintenanceAppointment = createAsyncThunk<
+    MaintenanceResponse,
+    {
+        id: string;
+        data: {
+            status?: string;
+            technician?: string;
+            cost?: string;
+            notes?: string;
+        };
+    }
+>("maintenance/admin/update", async ({ id, data }, { rejectWithValue }) => {
+    try {
+        const response: AxiosResponse<MaintenanceResponse> = await axios.patch(
+            `api/maintenance/${id}`,
+            data
+        );
+
+        toast({
+            title: "Success",
+            description: "Maintenance appointment updated successfully!",
+        });
+        return response.data;
+    } catch (error: any) {
+        handleApiError(error, {
+            context: "update",
+            resourceType: "maintenance appointment",
+            defaultMessage: "Failed to update maintenance appointment",
+        });
+        return rejectWithValue(error);
+    }
+});
+
+// Get admin overview stats
+export const getAdminOverviewStats = createAsyncThunk<
+    any, // Using any here since we didn't define the exact type
+    void
+>("maintenance/admin/overview", async (_, { rejectWithValue }) => {
+    try {
+        const response: AxiosResponse<any> = await axios.get(
+            `api/maintenance/admin/overview`
+        );
+        return response.data;
+    } catch (error: any) {
+        handleApiError(error, {
+            context: "fetch",
+            resourceType: "admin overview",
+            defaultMessage: "Failed to fetch admin overview statistics",
+        });
+        return rejectWithValue(error);
+    }
+});
+
 // Create new maintenance appointment
 export const createMaintenanceAppointment = createAsyncThunk<
     MaintenanceResponse,

@@ -5,6 +5,7 @@ import {
     selectMaintenance,
     selectSaveNavigation,
     selectVehicles,
+    selectAdmin,
 } from "@/redux/selectors";
 
 export const useAppState = (): AppState => ({
@@ -12,4 +13,5 @@ export const useAppState = (): AppState => ({
     saveNavigation: useSelector(selectSaveNavigation),
     vehicles: useSelector(selectVehicles),
     maintenance: useSelector(selectMaintenance),
+    admin: useSelector(selectAdmin),
 });

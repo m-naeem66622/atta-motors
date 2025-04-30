@@ -5,7 +5,7 @@ const { imageCleanup } = require("../utils/imageCleanup.util");
 /**
  * @desc    Create a new vehicle listing
  * @route   POST /api/vehicles
- * @access  Private/User
+ * @access  Private/Admin
  */
 const createVehicle = async (req, res, next) => {
     try {
@@ -40,7 +40,7 @@ const createVehicle = async (req, res, next) => {
 };
 
 /**
- * @desc    Get all vehicle listings
+ * @desc    Get all vehicle listings with advanced filtering, sorting, and searching
  * @route   GET /api/vehicles
  * @access  Public
  */
@@ -50,16 +50,83 @@ const getVehicles = async (req, res, next) => {
             page = 1,
             limit = 20,
             status = "ACTIVE",
+            sort,
+            search,
+            make,
+            model,
+            year,
+            min_price,
+            max_price,
+            min_year,
+            max_year,
+            mileage_min,
+            mileage_max,
             ...restQuery
         } = req.query;
-        const filter = { isDeleted: false, ...restQuery };
+
+        // Start with base filter
+        const filter = { isDeleted: false, status };
+
+        // Add search functionality
+        if (search) {
+            filter.$or = [
+                { title: { $regex: search, $options: "i" } },
+                { description: { $regex: search, $options: "i" } },
+                { make: { $regex: search, $options: "i" } },
+                { model: { $regex: search, $options: "i" } },
+            ];
+        }
+
+        // Add specific filters
+        if (make) filter.make = { $regex: make, $options: "i" };
+        if (model) filter.model = { $regex: model, $options: "i" };
+        if (year) filter.year = parseInt(year);
+        if (min_year || max_year) {
+            filter.year = {};
+            if (min_year) filter.year.$gte = parseInt(min_year);
+            if (max_year) filter.year.$lte = parseInt(max_year);
+        }
+        if (min_price || max_price) {
+            filter.price = {};
+            if (min_price) filter.price.$gte = parseInt(min_price);
+            if (max_price) filter.price.$lte = parseInt(max_price);
+        }
+        if (mileage_min || mileage_max) {
+            filter.mileage = {};
+            if (mileage_min) filter.mileage.$gte = parseInt(mileage_min);
+            if (mileage_max) filter.mileage.$lte = parseInt(mileage_max);
+        }
+
+        // Add remaining query params to filter
+        Object.keys(restQuery).forEach((key) => {
+            filter[key] = restQuery[key];
+        });
+
         const projection = { isDeleted: 0 };
+
+        // Prepare options with sorting
         const options = {
             populate: {
                 path: "owner",
                 select: "avatar name phone email createdAt",
             },
         };
+
+        // Handle sorting
+        if (sort) {
+            // Parse sort parameter (e.g., "price:asc,createdAt:desc")
+            const sortFields = sort.split(",").reduce((acc, field) => {
+                const [key, direction] = field.split(":");
+                acc[key] = direction === "desc" ? -1 : 1;
+                return acc;
+            }, {});
+
+            options.sort = sortFields;
+        } else {
+            // Default sort by newest first
+            options.sort = { createdAt: -1 };
+        }
+
         const count = await Vehicle.countVehicles(filter);
         const vehicles = await Vehicle.getVehicles(
             filter,
@@ -84,9 +151,9 @@ const getVehicles = async (req, res, next) => {
                 hasNextPage: page < Math.ceil(count.data / limit),
                 hasPreviousPage: page > 1,
                 itemCount: count.data,
-                page: page,
+                page: parseInt(page),
                 pageCount: Math.ceil(count.data / limit),
-                limit,
+                limit: parseInt(limit),
             },
             data: vehicles.data,
         });
@@ -139,7 +206,7 @@ const getVehicleById = async (req, res, next) => {
 /**
  * @desc    Update a vehicle listing
  * @route   PATCH /api/vehicles/:id
- * @access  Private/User
+ * @access  Private/Admin
  */
 const updateVehicle = async (req, res, next) => {
     try {
@@ -153,16 +220,6 @@ const updateVehicle = async (req, res, next) => {
                 existingVehicle.error.statusCode,
                 existingVehicle.error.message,
                 existingVehicle.error.identifier
-            );
-        }
-
-        // Check if the user is the owner of the vehicle
-        if (existingVehicle.data.owner.toString() !== req.user._id) {
-            throwError(
-                "FAILED",
-                403,
-                "You are not authorized to update this vehicle listing",
-                "0x000B08"
             );
         }
 
@@ -210,7 +267,7 @@ const updateVehicle = async (req, res, next) => {
 /**
  * @desc    Delete a vehicle listing
  * @route   DELETE /api/vehicles/:id
- * @access  Private/User
+ * @access  Private/Admin
  */
 const deleteVehicle = async (req, res, next) => {
     try {
@@ -223,16 +280,6 @@ const deleteVehicle = async (req, res, next) => {
                 existingVehicle.error.statusCode,
                 existingVehicle.error.message,
                 existingVehicle.error.identifier
-            );
-        }
-
-        // Check if the user is the owner of the vehicle
-        if (existingVehicle.data.owner.toString() !== req.user._id) {
-            throwError(
-                "FAILED",
-                403,
-                "You are not authorized to delete this vehicle listing",
-                "0x000B09"
             );
         }
 
@@ -259,63 +306,10 @@ const deleteVehicle = async (req, res, next) => {
     }
 };
 
-/**
- * @desc    Get all vehicles for a specific user or the authenticated user
- * @route   GET /api/vehicles/user/:userId or /api/vehicles/user/me
- * @access  Private/User
- */
-const getUserVehicles = async (req, res, next) => {
-    try {
-        const userId = req.params.userId || req.user._id;
-
-        const { page = 1, limit = 20, ...restQuery } = req.query;
-        const filter = {
-            isDeleted: false,
-            owner: userId,
-            status: "ACTIVE",
-            ...restQuery,
-        };
-
-        const projection = { isDeleted: 0 };
-        const count = await Vehicle.countVehicles(filter);
-        const vehicles = await Vehicle.getVehicles(
-            filter,
-            projection,
-            parseInt(page),
-            parseInt(limit)
-        );
-
-        if (vehicles.status === "FAILED") {
-            throwError(
-                vehicles.status,
-                vehicles.error.statusCode,
-                vehicles.error.message,
-                vehicles.error.identifier
-            );
-        }
-
-        return res.status(200).json({
-            status: "SUCCESS",
-            meta: {
-                hasNextPage: page < Math.ceil(count.data / limit),
-                hasPreviousPage: page > 1,
-                itemCount: count.data,
-                page: page,
-                pageCount: Math.ceil(count.data / limit),
-                limit,
-            },
-            data: vehicles.data,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
 module.exports = {
     createVehicle,
     getVehicles,
     getVehicleById,
     updateVehicle,
     deleteVehicle,
-    getUserVehicles,
 };

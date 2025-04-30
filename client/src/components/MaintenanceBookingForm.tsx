@@ -84,7 +84,7 @@ export const MaintenanceBookingForm: React.FC<MaintenanceBookingFormProps> = ({
             // Submit the form data to the backend API
             const result = await dispatch(createMaintenanceAppointment(values));
 
-            if (result.meta.requestStatus === "fulfilled") {                
+            if (result.meta.requestStatus === "fulfilled") {
                 // Reset form and navigate back to maintenance page
                 form.reset();
                 navigate(AppRoutes.maintenance);

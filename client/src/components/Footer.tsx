@@ -48,9 +48,11 @@ export const Footer: FC<FooterProps> = () => {
                             Contact Us
                         </h3>
                         <ul className="space-y-2 text-sm">
-                            <li>123 Car Street, Autoville</li>
-                            <li>Phone: (123) 456-7890</li>
-                            <li>Email: info@attamotors.com</li>
+                            <li>
+                                Nadra U-Turn G.T Road Kharian, Punjab Pakistan
+                            </li>
+                            <li>Phone: +92 3444446145</li>
+                            <li>Email: attaautocares@gmail.com</li>
                         </ul>
                     </div>
                     <div>

@@ -254,3 +254,79 @@ describe("GET /api/vehicles/user/me", () => {
     });
 });
 
+// describe("GET /api/vehicles/search", () => {
+//     it("should return vehicles matching search criteria", async () => {
+//         // Create test vehicles with specific attributes for searching
+//         await Vehicle.create([
+//             {
+//                 title: "BMW X5 SUV",
+//                 make: "BMW",
+//                 model: "X5",
+//                 year: 2021,
+//                 price: 65000,
+//                 condition: "Fair",
+//                 bodyType: "SUV",
+//                 transmission: "Automatic",
+//                 fuelType: "Diesel",
+//                 owner: testUser._id,
+//             },
+//             {
+//                 title: "Mercedes C-Class Sedan",
+//                 make: "Mercedes",
+//                 model: "C-Class",
+//                 year: 2022,
+//                 price: 55000,
+//                 condition: "New",
+//                 bodyType: "Sedan",
+//                 transmission: "Automatic",
+//                 fuelType: "Petrol",
+//                 owner: testUser._id,
+//             },
+//         ]);
+
+//         // Test search by make
+//         const makeSearch = await request(app)
+//             .get("/api/vehicles/search")
+//             .query({ make: "BMW" });
+
+//         expect(makeSearch.statusCode).toBe(200);
+//         expect(makeSearch.body.status).toBe("SUCCESS");
+//         expect(makeSearch.body.data.some((v) => v.make === "BMW")).toBeTruthy();
+//         expect(
+//             makeSearch.body.data.every((v) => v.make === "BMW")
+//         ).toBeTruthy();
+
+//         // Test search by price range
+//         const priceSearch = await request(app)
+//             .get("/api/vehicles/search")
+//             .query({ minPrice: 60000, maxPrice: 70000 });
+
+//         expect(priceSearch.statusCode).toBe(200);
+//         expect(priceSearch.body.status).toBe("SUCCESS");
+//         expect(
+//             priceSearch.body.data.every(
+//                 (v) => v.price >= 60000 && v.price <= 70000
+//             )
+//         ).toBeTruthy();
+
+//         // Test search by multiple criteria
+//         const multiSearch = await request(app)
+//             .get("/api/vehicles/search")
+//             .query({
+//                 condition: "New",
+//                 transmission: "Automatic",
+//                 fuelType: "Petrol",
+//             });
+
+//         expect(multiSearch.statusCode).toBe(200);
+//         expect(multiSearch.body.status).toBe("SUCCESS");
+//         expect(
+//             multiSearch.body.data.some(
+//                 (v) =>
+//                     v.condition === "New" &&
+//                     v.transmission === "Automatic" &&
+//                     v.fuelType === "Petrol"
+//             )
+//         ).toBeTruthy();
+//     });
+// });

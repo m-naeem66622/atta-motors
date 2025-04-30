@@ -4,12 +4,10 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     ArrowLeft,
-    User,
     Mail,
     Phone,
     Calendar,
     MapPin,
-    Clock,
     Shield,
     CheckCircle2,
     XCircle,
@@ -18,16 +16,13 @@ import {
     UserX,
     Wrench,
     MessageSquare,
-    FileText,
     Lock,
-    Car,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
@@ -45,7 +40,6 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 // Mock user data
@@ -75,40 +69,6 @@ const userData = {
             vehicle: "2020 Toyota Camry",
         },
     ],
-    vehicles: [
-        {
-            id: "VEH-5678",
-            title: "2020 Toyota Camry",
-            image: "/placeholder.svg?height=100&width=150",
-        },
-    ],
-    activityLog: [
-        {
-            date: "2025-04-15T10:15:00Z",
-            action: "User Login",
-            details: "User logged in from IP 192.168.1.1",
-        },
-        {
-            date: "2025-04-14T15:30:00Z",
-            action: "Profile Updated",
-            details: "User updated their phone number",
-        },
-        {
-            date: "2025-04-14T09:45:00Z",
-            action: "Maintenance Request",
-            details: "User scheduled an oil change appointment",
-        },
-        {
-            date: "2025-04-10T11:20:00Z",
-            action: "User Login",
-            details: "User logged in from IP 192.168.1.1",
-        },
-        {
-            date: "2025-04-05T16:15:00Z",
-            action: "Account Created",
-            details: "User created their account",
-        },
-    ],
 };
 
 export const AdminUserDetail = () => {
@@ -117,11 +77,6 @@ export const AdminUserDetail = () => {
     const [activeTab, setActiveTab] = useState("profile");
     const [isSuspendDialogOpen, setIsSuspendDialogOpen] = useState(false);
     const [suspensionReason, setSuspensionReason] = useState("");
-    const [permissions, setPermissions] = useState({
-        canBookMaintenance: true,
-        canViewVehicles: true,
-        canContactSupport: true,
-    });
 
     const handleGoBack = () => {
         navigate("/admin/users");
@@ -137,13 +92,6 @@ export const AdminUserDetail = () => {
     const handleActivate = () => {
         console.log("Activating user:", id);
         // Here you would update the status and redirect or refresh
-    };
-
-    const handlePermissionChange = (permission: string, value: boolean) => {
-        setPermissions((prev) => ({
-            ...prev,
-            [permission]: value,
-        }));
     };
 
     const formatDate = (dateString: string) => {
@@ -316,11 +264,8 @@ export const AdminUserDetail = () => {
                         onValueChange={setActiveTab}
                         className="w-full"
                     >
-                        <TabsList className="grid w-full grid-cols-3">
+                        <TabsList className="grid w-full grid-cols-2">
                             <TabsTrigger value="profile">Profile</TabsTrigger>
-                            <TabsTrigger value="activity">
-                                Activity Log
-                            </TabsTrigger>
                             <TabsTrigger value="maintenance">
                                 Maintenance Requests
                             </TabsTrigger>
@@ -401,129 +346,6 @@ export const AdminUserDetail = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Vehicles</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    {userData.vehicles.length > 0 ? (
-                                        <div className="space-y-4">
-                                            {userData.vehicles.map(
-                                                (vehicle) => (
-                                                    <div
-                                                        key={vehicle.id}
-                                                        className="flex items-center justify-between"
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <img
-                                                                src={
-                                                                    vehicle.image ||
-                                                                    "/placeholder.svg"
-                                                                }
-                                                                alt={
-                                                                    vehicle.title
-                                                                }
-                                                                className="w-16 h-10 object-cover rounded"
-                                                            />
-                                                            <div>
-                                                                <p className="font-medium">
-                                                                    {
-                                                                        vehicle.title
-                                                                    }
-                                                                </p>
-                                                                <p className="text-xs text-gray-500">
-                                                                    ID:{" "}
-                                                                    {vehicle.id}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                navigate(
-                                                                    `/admin/vehicles/${vehicle.id}`
-                                                                )
-                                                            }
-                                                        >
-                                                            View Details
-                                                        </Button>
-                                                    </div>
-                                                )
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div className="text-center py-6 text-gray-500">
-                                            <Car className="h-12 w-12 mx-auto text-gray-300 mb-2" />
-                                            <p>
-                                                No vehicles associated with this
-                                                user
-                                            </p>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-
-                        <TabsContent value="activity">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Activity Log</CardTitle>
-                                    <CardDescription>
-                                        Recent user activity and system events
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-6">
-                                        {userData.activityLog.map(
-                                            (activity, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="flex gap-4"
-                                                >
-                                                    <div className="mt-1">
-                                                        <div className="bg-gray-100 rounded-full p-2">
-                                                            {activity.action ===
-                                                            "User Login" ? (
-                                                                <User className="h-4 w-4 text-blue-500" />
-                                                            ) : activity.action ===
-                                                              "Profile Updated" ? (
-                                                                <FileText className="h-4 w-4 text-green-500" />
-                                                            ) : activity.action ===
-                                                              "Maintenance Request" ? (
-                                                                <Wrench className="h-4 w-4 text-purple-500" />
-                                                            ) : (
-                                                                <Clock className="h-4 w-4 text-gray-500" />
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <div className="flex items-center gap-2">
-                                                            <p className="font-medium">
-                                                                {
-                                                                    activity.action
-                                                                }
-                                                            </p>
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="text-xs"
-                                                            >
-                                                                {formatDateTime(
-                                                                    activity.date
-                                                                )}
-                                                            </Badge>
-                                                        </div>
-                                                        <p className="text-sm">
-                                                            {activity.details}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            )
-                                        )}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -642,71 +464,6 @@ export const AdminUserDetail = () => {
                                 </div>
                             </div>
                         </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Account Permissions</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Wrench className="h-4 w-4 text-gray-500" />
-                                    <Label htmlFor="canBookMaintenance">
-                                        Book Maintenance
-                                    </Label>
-                                </div>
-                                <Switch
-                                    id="canBookMaintenance"
-                                    checked={permissions.canBookMaintenance}
-                                    onCheckedChange={(checked) =>
-                                        handlePermissionChange(
-                                            "canBookMaintenance",
-                                            checked
-                                        )
-                                    }
-                                />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Car className="h-4 w-4 text-gray-500" />
-                                    <Label htmlFor="canViewVehicles">
-                                        View Vehicles
-                                    </Label>
-                                </div>
-                                <Switch
-                                    id="canViewVehicles"
-                                    checked={permissions.canViewVehicles}
-                                    onCheckedChange={(checked) =>
-                                        handlePermissionChange(
-                                            "canViewVehicles",
-                                            checked
-                                        )
-                                    }
-                                />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <MessageSquare className="h-4 w-4 text-gray-500" />
-                                    <Label htmlFor="canContactSupport">
-                                        Contact Support
-                                    </Label>
-                                </div>
-                                <Switch
-                                    id="canContactSupport"
-                                    checked={permissions.canContactSupport}
-                                    onCheckedChange={(checked) =>
-                                        handlePermissionChange(
-                                            "canContactSupport",
-                                            checked
-                                        )
-                                    }
-                                />
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button className="w-full">Save Permissions</Button>
-                        </CardFooter>
                     </Card>
 
                     <Card>

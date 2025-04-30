@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { paginationSchema } = require("./common.validator");
 
 const registerSchema = Joi.object({
     avatar: Joi.string().trim(),
@@ -36,8 +37,28 @@ const updateProfileSchema = Joi.object({
         }),
 });
 
+const getAllUsersSchema = paginationSchema.concat(
+    Joi.object({
+        status: Joi.string()
+            .valid("Active", "Inactive", "Suspended")
+            .optional(),
+        joinedFrom: Joi.date().optional(),
+        joinedTo: Joi.date().optional(),
+        search: Joi.string().optional(),
+    })
+);
+const updateUserSchema = Joi.object({
+    status: Joi.string()
+        .valid("Active", "Inactive", "Suspended")
+        .default("Active")
+        .optional(),
+    password: Joi.string().optional(),
+});
+
 module.exports = {
     registerSchema,
     loginSchema,
     updateProfileSchema,
+    getAllUsersSchema,
+    updateUserSchema,
 };

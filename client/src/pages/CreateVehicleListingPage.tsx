@@ -3,13 +3,12 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { VehicleListingForm } from "@/components";
-import { AppRoutes } from "@/router";
 
 export const CreateVehicleListingPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4">
             <div className="container mx-auto max-w-6xl">
-                <Link to={AppRoutes.vehicleSales}>
+                <Link to="/admin/vehicles">
                     <Button
                         variant="ghost"
                         className="mb-6 text-black hover:text-gray-700"

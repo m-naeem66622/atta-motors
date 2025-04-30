@@ -6,6 +6,7 @@ import {
     fetchProfile,
     updateProfile,
     register,
+    getAllUsers,
 } from "@/redux/authenticate/operations";
 import { CookiesApi } from "@/utils";
 
@@ -16,6 +17,7 @@ const initialState: AuthenticateState = {
     isUpdateLoading: false,
     isRefreshing: true,
     user: null,
+    users: [],
     tokens: null,
     error: null,
 };
@@ -90,6 +92,20 @@ const authSlice = createSlice({
             })
             .addCase(updateProfile.rejected, (state) => {
                 state.isUpdateLoading = false;
+            })
+            .addCase(getAllUsers.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(getAllUsers.fulfilled, (state, { payload }) => {
+                state.isLoading = false;
+                state.users = payload.data;
+                state.meta = payload.meta;
+            })
+            .addCase(getAllUsers.rejected, (state, { error }) => {
+                state.isLoading = false;
+                state.error =
+                    error.message || "Failed to fetch maintenance appointments";
             });
     },
 });

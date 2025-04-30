@@ -12,12 +12,12 @@ const { uploadImages } = require("../middlewares/image.middleware");
 // Public routes
 router.get(
     "/",
-    validate(CommonValidation.paginationSchema, "QUERY"),
+    validate(VehicleValidation.getVehiclesSchema, "QUERY"),
     Controller.getVehicles
 );
 router.get(
     "/:id",
-    validate(CommonValidation.mogooseIdSchema, "PARAMS"),
+    validate(CommonValidation.mongooseIdSchema, "PARAMS"),
     Controller.getVehicleById
 );
 
@@ -31,18 +31,8 @@ router.post(
     Controller.createVehicle
 );
 
-// // Get current user's vehicle listings
-// router.get("/user/me", Controller.getUserVehicles);
-
-// // Get specific user's vehicle listings
-// router.get(
-//     "/user/:userId",
-//     validate(CommonValidation.mogooseIdSchema, "PARAMS"),
-//     Controller.getUserVehicles
-// );
-
 // Update vehicle listing
-router.put(
+router.patch(
     "/:id",
     authenticate,
     Authorize.isAdmin,
@@ -56,7 +46,7 @@ router.delete(
     "/:id",
     authenticate,
     Authorize.isAdmin,
-    validate(CommonValidation.mogooseIdSchema, "PARAMS"),
+    validate(CommonValidation.mongooseIdSchema, "PARAMS"),
     Controller.deleteVehicle
 );
 

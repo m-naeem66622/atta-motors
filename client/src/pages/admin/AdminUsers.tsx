@@ -9,9 +9,6 @@ import {
     Filter,
     ChevronDown,
     MoreHorizontal,
-    CheckCircle2,
-    XCircle,
-    AlertCircle,
     Eye,
     UserCog,
     UserX,
@@ -178,19 +175,19 @@ export const AdminUsers = () => {
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case "active":
+            case "Active":
                 return (
                     <Badge className="bg-green-100 text-green-800 border-green-200">
                         Active
                     </Badge>
                 );
-            case "inactive":
+            case "Inactive":
                 return (
                     <Badge className="bg-gray-100 text-gray-800 border-gray-200">
                         Inactive
                     </Badge>
                 );
-            case "suspended":
+            case "Suspended":
                 return (
                     <Badge className="bg-red-100 text-red-800 border-red-200">
                         Suspended
@@ -201,18 +198,18 @@ export const AdminUsers = () => {
         }
     };
 
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case "active":
-                return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-            case "inactive":
-                return <AlertCircle className="h-5 w-5 text-gray-500" />;
-            case "suspended":
-                return <XCircle className="h-5 w-5 text-red-500" />;
-            default:
-                return <AlertCircle className="h-5 w-5 text-gray-500" />;
-        }
-    };
+    // const getStatusIcon = (status: string) => {
+    //     switch (status) {
+    //         case "active":
+    //             return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+    //         case "inactive":
+    //             return <AlertCircle className="h-5 w-5 text-gray-500" />;
+    //         case "suspended":
+    //             return <XCircle className="h-5 w-5 text-red-500" />;
+    //         default:
+    //             return <AlertCircle className="h-5 w-5 text-gray-500" />;
+    //     }
+    // };
 
     const filteredUsers = users.filter((user) => {
         // Filter by tab

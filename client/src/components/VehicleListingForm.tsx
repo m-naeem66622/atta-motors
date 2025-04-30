@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
@@ -19,7 +19,16 @@ import { useAppDispatch, useAppState } from "@/hooks";
 import { AppRoutes } from "@/router";
 import { createVehicle } from "@/redux/store";
 
-export const VehicleListingForm: React.FC = () => {
+const { VITE_APP_IMAGE_URL } = import.meta.env;
+
+export const VehicleListingForm: React.FC<{
+    initialValues?: any;
+    isEditMode?: boolean;
+    onSubmitOverride?: (
+        data: VehicleFormValues,
+        images: File[]
+    ) => Promise<void>;
+}> = ({ initialValues, onSubmitOverride }) => {
     const dispatch = useAppDispatch();
     const { vehicles } = useAppState();
     const navigate = useNavigate();
@@ -47,16 +56,22 @@ export const VehicleListingForm: React.FC = () => {
             contactPhone: "",
             contactEmail: "",
             preferredContact: "phone",
+            ...initialValues, // ← apply prefilled data for edit
         },
     });
 
     const onSubmit = async (values: VehicleFormValues) => {
         try {
-            const result = await dispatch(createVehicle({ ...values, images }));
-
-            if (result.meta.requestStatus === "fulfilled") {
-                form.reset();
-                navigate(AppRoutes.vehicleSales);
+            if (onSubmitOverride) {
+                await onSubmitOverride(values, images);
+            } else {
+                const result = await dispatch(
+                    createVehicle({ ...values, images })
+                );
+                if (result.meta.requestStatus === "fulfilled") {
+                    form.reset();
+                    navigate(AppRoutes.vehicleSales);
+                }
             }
         } catch (error) {
             console.error("Error submitting form:", error);
@@ -78,6 +93,16 @@ export const VehicleListingForm: React.FC = () => {
             window.scrollTo(0, 0);
         }
     };
+
+    useEffect(() => {
+        if (initialValues) {
+            setImageUrls(
+                initialValues.images.map(
+                    (image: string) => `${VITE_APP_IMAGE_URL}/${image}`
+                ) || []
+            ); // Set pre-existing image URLs
+        }
+    }, [initialValues]);
 
     return (
         <div className="w-full">

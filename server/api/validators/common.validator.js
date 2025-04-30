@@ -5,11 +5,11 @@ const paginationSchema = Joi.object({
     limit: Joi.number().min(1).max(50),
 });
 
-const mogooseIdSchema = Joi.object({
+const mongooseIdSchema = Joi.object({
     id: Joi.string().hex().length(24).required(),
 });
 
 module.exports = {
     paginationSchema,
-    mogooseIdSchema,
+    mongooseIdSchema,
 };

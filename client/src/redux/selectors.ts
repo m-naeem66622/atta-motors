@@ -7,3 +7,5 @@ export const selectSaveNavigation = (state: AppState) => state.saveNavigation;
 export const selectVehicles = (state: AppState) => state.vehicles;
 
 export const selectMaintenance = (state: AppState) => state.maintenance;
+
+export const selectAdmin = (state: AppState) => state.admin;
