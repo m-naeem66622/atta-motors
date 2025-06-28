@@ -98,9 +98,8 @@ export const fetchProfile = createAsyncThunk<UserResponse>(
         setAuthHeader(accessToken);
 
         try {
-            const response: AxiosResponse<UserResponse> = await axios.get(
-                "api/users/profile"
-            );
+            const response: AxiosResponse<UserResponse> =
+                await axios.get("api/users/profile");
 
             // CookiesApi.setValue("accessToken", response.data.tokens.accessToken);
             // setAuthHeader(response.data.tokens.accessToken);
@@ -178,10 +177,9 @@ export const getAllUsers = createAsyncThunk<
             queryParams.append("limit", params.limit.toString());
         }
 
-        const response: AxiosResponse<UsersResponse> =
-            await axios.get(
-                `api/users?${queryParams.toString()}`
-            );
+        const response: AxiosResponse<UsersResponse> = await axios.get(
+            `api/users?${queryParams.toString()}`
+        );
         return response.data;
     } catch (error: any) {
         handleApiError(error, {

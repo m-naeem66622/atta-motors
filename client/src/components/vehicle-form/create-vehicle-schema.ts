@@ -7,7 +7,7 @@ export const createVehicleSchema = z.object({
     year: z.string().min(4, "Year must be a valid year"),
     price: z.string().min(1, "Price is required"),
     title: z.string().min(1, "Title is required"),
-    
+
     // Vehicle Details
     mileage: z.string().optional(),
     fuelType: z.string().optional(),

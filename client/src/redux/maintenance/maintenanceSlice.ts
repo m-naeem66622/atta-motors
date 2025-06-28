@@ -105,10 +105,11 @@ const maintenanceSlice = createSlice({
                         state.currentAppointment = action.payload.data;
                     }
                     // Update in the list if present
-                    state.appointments = state.appointments.map((appointment) =>
-                        appointment._id === action.payload.data._id
-                            ? action.payload.data
-                            : appointment
+                    state.appointments = state.appointments.map(
+                        (appointment) =>
+                            appointment._id === action.payload.data._id
+                                ? action.payload.data
+                                : appointment
                     );
                 }
             )
@@ -183,10 +184,11 @@ const maintenanceSlice = createSlice({
                         state.currentAppointment = action.payload.data;
                     }
                     // Update in the list if present
-                    state.appointments = state.appointments.map((appointment) =>
-                        appointment._id === action.payload.data._id
-                            ? action.payload.data
-                            : appointment
+                    state.appointments = state.appointments.map(
+                        (appointment) =>
+                            appointment._id === action.payload.data._id
+                                ? action.payload.data
+                                : appointment
                     );
                 }
             )

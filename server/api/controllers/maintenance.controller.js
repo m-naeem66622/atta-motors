@@ -108,9 +108,8 @@ const getMaintenanceHistory = async (req, res, next) => {
         }
 
         // Get total count
-        const countResult = await Maintenance.countMaintenanceAppointments(
-            filter
-        );
+        const countResult =
+            await Maintenance.countMaintenanceAppointments(filter);
 
         if (countResult.status === "FAILED") {
             throwError(
@@ -346,9 +345,8 @@ const getAllMaintenanceAppointments = async (req, res, next) => {
         }
 
         // Get total count
-        const countResult = await Maintenance.countMaintenanceAppointments(
-            filter
-        );
+        const countResult =
+            await Maintenance.countMaintenanceAppointments(filter);
 
         if (countResult.status === "FAILED") {
             throwError(

@@ -91,7 +91,10 @@ export const AdminMaintenance = () => {
     };
 
     const handleFilterChange = (name: string, value: string) => {
-        setFilters((prev) => ({ ...prev, [name]: value === "any" ? "" : value }));
+        setFilters((prev) => ({
+            ...prev,
+            [name]: value === "any" ? "" : value,
+        }));
         setCurrentPage(1); // Reset to first page when filtering
     };
 

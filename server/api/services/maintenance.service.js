@@ -41,7 +41,13 @@ const countMaintenanceAppointments = async (filter) => {
 };
 
 // GetMaintenanceAppointments
-const getMaintenanceAppointments = async (filter, projection, page, limit, sort = { appointmentDate: -1, appointmentTime: -1 }) => {
+const getMaintenanceAppointments = async (
+    filter,
+    projection,
+    page,
+    limit,
+    sort = { appointmentDate: -1, appointmentTime: -1 }
+) => {
     try {
         const appointments = await Maintenance.find(filter, projection, {
             skip: (page - 1) * limit,
@@ -162,11 +168,13 @@ const checkAppointmentAvailability = async (date) => {
     try {
         // Parse the requested date with proper timezone handling
         // First get the date parts (year, month, day)
-        const [year, month, day] = date.split('-').map(num => parseInt(num, 10));
-        
+        const [year, month, day] = date
+            .split("-")
+            .map((num) => parseInt(num, 10));
+
         // Create dates using UTC to avoid timezone issues
         const requestedDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
-        
+
         const nextDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
         nextDay.setUTCDate(nextDay.getUTCDate() + 1);
 

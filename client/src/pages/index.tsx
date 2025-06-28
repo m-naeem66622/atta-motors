@@ -41,5 +41,5 @@ export {
     AdminUsers,
     AdminVehicleDetail,
     AdminVehicles,
-    EditVehicleListingPage
+    EditVehicleListingPage,
 };

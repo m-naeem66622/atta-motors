@@ -30,8 +30,8 @@ export const MaintenanceHistory: React.FC = () => {
             activeTab === "all"
                 ? undefined
                 : activeTab === "completed"
-                ? "Completed"
-                : "Scheduled";
+                  ? "Completed"
+                  : "Scheduled";
 
         dispatch(getMaintenanceHistory({ status }));
     }, [dispatch, activeTab]);
@@ -118,8 +118,8 @@ export const MaintenanceHistory: React.FC = () => {
                                         appointment.status === "Completed"
                                             ? "bg-green-50 text-green-700 border-green-200"
                                             : appointment.status === "Cancelled"
-                                            ? "bg-red-50 text-red-700 border-red-200"
-                                            : "bg-blue-500 text-white"
+                                              ? "bg-red-50 text-red-700 border-red-200"
+                                              : "bg-blue-500 text-white"
                                     }
                                 >
                                     {appointment.status}
