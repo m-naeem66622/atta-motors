@@ -6,6 +6,8 @@
     "scripts": {
         "start": "node index.js",
         "dev": "nodemon index.js",
+        "format": "prettier --write \"**/*.{js,json,md}\"",
+        "format:check": "prettier --check \"**/*.{js,json,md}\"",
         "test": "jest --forceExit --detectOpenHandles",
         "test:specific": "jest --forceExit --detectOpenHandles",
         "test:vehicles": "jest --forceExit --detectOpenHandles tests/routes/vehicle.test.js",
@@ -39,6 +41,7 @@
         "jest": "^29.7.0",
         "mongodb-memory-server": "^10.1.4",
         "nodemon": "^3.1.7",
+        "prettier": "^3.6.2",
         "supertest": "^7.1.0"
     }
 }
