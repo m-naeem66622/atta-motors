@@ -68,7 +68,7 @@ export const Footer: FC<FooterProps> = () => {
                                 <Facebook className="w-6 h-6" />
                             </a>
                             <a
-                                href="#"
+                                href="https://www.instagram.com/attaautocare"
                                 className="text-muted-foreground hover:text-primary"
                                 aria-label="Instagram"
                             >
