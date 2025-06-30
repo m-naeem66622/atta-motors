@@ -28,10 +28,10 @@ export const EditVehicleListingPage: React.FC = () => {
 
     const handleUpdate = async (values: any, images: any) => {
         const result = await dispatch(
-            updateVehicle({ id: id, ...values, images })
+            updateVehicle({ id: id!, data: { ...values, images } })
         );
         if (result.meta.requestStatus === "fulfilled") {
-            navigate(AppRoutes.vehicleSales);
+            navigate(`${AppRoutes.admin}${AppRoutes.vehicles}`);
         }
     };
 

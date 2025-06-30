@@ -56,20 +56,27 @@ const extractImageFilenames = () => {
     const content = fs.readFileSync(seederPath, "utf8");
 
     // Extract all image filenames using regex
-    const regex = /images: \[(.*?)\]/g;
-    const imageArrays = [];
+    const regex = /images:\s*\[\s*((?:.*?\s*)+?)\s*\]/g;
+    const imageFileList = [];
     let match;
 
     while ((match = regex.exec(content)) !== null) {
         const imagesString = match[1];
-        const fileNames = imagesString
-            .split(",")
-            .map((str) => str.trim().replace(/"/g, "").replace(/'/g, ""));
-
-        imageArrays.push(...fileNames);
+        // Extract individual filenames by matching quoted strings
+        const fileRegex = /"([^"]+)"|'([^']+)'/g;
+        let fileMatch;
+        while ((fileMatch = fileRegex.exec(imagesString)) !== null) {
+            // The filename will be in group 1 or group 2 depending on quote type
+            const filename = fileMatch[1] || fileMatch[2];
+            if (filename) {
+                // Extract just the filename part from the path
+                const baseFilename = path.basename(filename);
+                imageFileList.push(baseFilename);
+            }
+        }
     }
 
-    return imageArrays;
+    return imageFileList;
 };
 
 // Map of image filenames to URLs where they can be downloaded

@@ -82,9 +82,7 @@ const updateVehicleSchema = Joi.object({
         .optional(),
 });
 
-const getVehiclesSchema = Joi.object({
-    page: Joi.number().integer().min(1).default(1),
-    limit: Joi.number().integer().min(1).max(50).default(20),
+const getVehiclesSchema = paginationSchema.keys({
     status: Joi.string()
         .uppercase()
         .valid("ACTIVE", "SOLD", "PENDING", "DRAFT")

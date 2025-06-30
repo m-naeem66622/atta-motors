@@ -55,7 +55,6 @@ export const VehicleListingForm: React.FC<{
             location: "",
             contactPhone: "",
             contactEmail: "",
-            preferredContact: "phone",
             ...initialValues, // ← apply prefilled data for edit
         },
     });

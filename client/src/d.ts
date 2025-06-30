@@ -194,7 +194,7 @@ export type Vehicle = {
         User,
         "_id" | "name" | "avatar" | "phone" | "email" | "createdAt"
     >;
-    status: "available" | "sold" | "reserved";
+    status: "ACTIVE" | "SOLD" | "PENDING" | "DRAFT";
     createdAt: string;
     updatedAt: string;
 };

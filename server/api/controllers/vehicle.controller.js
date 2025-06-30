@@ -240,8 +240,8 @@ const updateVehicle = async (req, res, next) => {
         }
 
         // If images are being updated, clean up old ones
-        if (req.body?.images && existingVehicle.images.length > 0) {
-            const imagesToRemove = existingVehicle.images.filter(
+        if (req.body?.images && existingVehicle.data.images.length > 0) {
+            const imagesToRemove = existingVehicle.data.images.filter(
                 (img) => !req.body.images.includes(img)
             );
             if (imagesToRemove.length > 0) {

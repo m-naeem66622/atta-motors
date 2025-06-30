@@ -37,16 +37,13 @@ const updateProfileSchema = Joi.object({
         }),
 });
 
-const getAllUsersSchema = paginationSchema.concat(
-    Joi.object({
-        status: Joi.string()
-            .valid("Active", "Inactive", "Suspended")
-            .optional(),
-        joinedFrom: Joi.date().optional(),
-        joinedTo: Joi.date().optional(),
-        search: Joi.string().optional(),
-    })
-);
+const getAllUsersSchema = paginationSchema.keys({
+    status: Joi.string().valid("Active", "Inactive", "Suspended").optional(),
+    joinedFrom: Joi.date().optional(),
+    joinedTo: Joi.date().optional(),
+    search: Joi.string().optional(),
+});
+
 const updateUserSchema = Joi.object({
     status: Joi.string()
         .valid("Active", "Inactive", "Suspended")

@@ -20,10 +20,9 @@ export const createVehicleSchema = z.object({
         .min(10, "Description must be at least 10 characters"),
 
     // Contact Info
-    location: z.string().min(1, "Location is required"),
-    contactPhone: z.string().min(1, "Contact phone is required"),
-    contactEmail: z.string().email("Invalid email address").optional(),
-    preferredContact: z.enum(["phone", "email"]),
+    location: z.string().optional(),
+    contactPhone: z.string().optional(),
+    contactEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
 });
 
 export type VehicleFormValues = z.infer<typeof createVehicleSchema>;

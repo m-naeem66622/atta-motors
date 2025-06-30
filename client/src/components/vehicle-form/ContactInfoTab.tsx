@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+// import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
+// import { Label } from "@/components/ui/label";
 import { VehicleFormValues } from "@/components/vehicle-form";
 
 interface ContactInfoTabProps {
@@ -78,7 +78,7 @@ export const ContactInfoTab: React.FC<ContactInfoTabProps> = ({ form }) => {
                 />
             </div>
 
-            <FormField
+            {/* <FormField
                 control={form.control}
                 name="preferredContact"
                 render={({ field }) => (
@@ -103,7 +103,7 @@ export const ContactInfoTab: React.FC<ContactInfoTabProps> = ({ form }) => {
                         <FormMessage />
                     </FormItem>
                 )}
-            />
+            /> */}
 
             <Alert>
                 <AlertDescription>
