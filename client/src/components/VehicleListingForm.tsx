@@ -26,7 +26,8 @@ export const VehicleListingForm: React.FC<{
     isEditMode?: boolean;
     onSubmitOverride?: (
         data: VehicleFormValues,
-        images: File[]
+        images: File[],
+        existingImages?: string[]
     ) => Promise<void>;
 }> = ({ initialValues, onSubmitOverride }) => {
     const dispatch = useAppDispatch();
@@ -36,6 +37,7 @@ export const VehicleListingForm: React.FC<{
     const [activeTab, setActiveTab] = useState<string>("1");
     const [images, setImages] = useState<File[]>([]);
     const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const [existingImagePaths, setExistingImagePaths] = useState<string[]>([]);
 
     const form = useForm<VehicleFormValues>({
         resolver: zodResolver(createVehicleSchema),
@@ -62,7 +64,7 @@ export const VehicleListingForm: React.FC<{
     const onSubmit = async (values: VehicleFormValues) => {
         try {
             if (onSubmitOverride) {
-                await onSubmitOverride(values, images);
+                await onSubmitOverride(values, images, existingImagePaths);
             } else {
                 const result = await dispatch(
                     createVehicle({ ...values, images })
@@ -95,11 +97,14 @@ export const VehicleListingForm: React.FC<{
 
     useEffect(() => {
         if (initialValues) {
+            // Store the original image paths from the server
+            setExistingImagePaths(initialValues.images || []);
+            // Set the URLs for display
             setImageUrls(
                 initialValues.images.map(
                     (image: string) => `${VITE_APP_IMAGE_URL}/${image}`
                 ) || []
-            ); // Set pre-existing image URLs
+            );
         }
     }, [initialValues]);
 
@@ -157,6 +162,8 @@ export const VehicleListingForm: React.FC<{
                                 setImages={setImages}
                                 imageUrls={imageUrls}
                                 setImageUrls={setImageUrls}
+                                existingImagePaths={existingImagePaths}
+                                setExistingImagePaths={setExistingImagePaths}
                             />
                         </TabsContent>
 

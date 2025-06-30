@@ -8,12 +8,16 @@ interface PhotosTabProps {
     setImages: React.Dispatch<React.SetStateAction<File[]>>;
     imageUrls: string[];
     setImageUrls: React.Dispatch<React.SetStateAction<string[]>>;
+    existingImagePaths?: string[];
+    setExistingImagePaths?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export const PhotosTab: React.FC<PhotosTabProps> = ({
     setImages,
     imageUrls,
     setImageUrls,
+    existingImagePaths = [],
+    setExistingImagePaths,
 }) => {
     const handleFileChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,14 +37,34 @@ export const PhotosTab: React.FC<PhotosTabProps> = ({
 
     const removeImage = useCallback(
         (index: number) => {
-            // Remove the image and its URL
-            setImages((prev) => prev.filter((_, i) => i !== index));
+            // Check if this is an existing image or a new upload
+            const existingImagesCount = existingImagePaths.length;
 
-            // Revoke the object URL to avoid memory leaks
-            URL.revokeObjectURL(imageUrls[index]);
-            setImageUrls((prev) => prev.filter((_, i) => i !== index));
+            if (index < existingImagesCount) {
+                // This is an existing image
+                if (setExistingImagePaths) {
+                    setExistingImagePaths((prev) =>
+                        prev.filter((_, i) => i !== index)
+                    );
+                }
+                setImageUrls((prev) => prev.filter((_, i) => i !== index));
+            } else {
+                // This is a new image
+                const newImageIndex = index - existingImagesCount;
+                setImages((prev) => prev.filter((_, i) => i !== newImageIndex));
+
+                // Revoke the object URL to avoid memory leaks
+                URL.revokeObjectURL(imageUrls[index]);
+                setImageUrls((prev) => prev.filter((_, i) => i !== index));
+            }
         },
-        [imageUrls, setImages, setImageUrls]
+        [
+            imageUrls,
+            existingImagePaths.length,
+            setImages,
+            setImageUrls,
+            setExistingImagePaths,
+        ]
     );
 
     return (

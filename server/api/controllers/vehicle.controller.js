@@ -223,6 +223,23 @@ const updateVehicle = async (req, res, next) => {
             );
         }
 
+        // Handle images: combine existing images with new ones
+        if (req.body.existingImages || req.body.images) {
+            const existingImages = req.body.existingImages || [];
+            const newImages = req.body.images || [];
+
+            // Ensure existingImages is an array
+            const existingImagesArray = Array.isArray(existingImages)
+                ? existingImages
+                : [existingImages].filter(Boolean);
+
+            // Combine existing and new images
+            req.body.images = [...existingImagesArray, ...newImages];
+
+            // Remove the temporary existingImages field
+            delete req.body.existingImages;
+        }
+
         const options = { new: true, fields: { isDeleted: 0 } };
         const updatedVehicle = await Vehicle.updateVehicleById(
             vehicleId,

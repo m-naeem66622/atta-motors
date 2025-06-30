@@ -63,6 +63,7 @@ const updateVehicleSchema = Joi.object({
     price: Joi.number().min(0).optional(),
     description: Joi.string().trim().allow("").optional(),
     images: Joi.array().items(Joi.string().trim()).optional(),
+    existingImages: Joi.array().items(Joi.string().trim()).optional(),
     mileage: Joi.number().min(0).optional(),
     transmission: Joi.string().valid("Automatic", "Manual", "CVT").optional(),
     fuelType: Joi.string()

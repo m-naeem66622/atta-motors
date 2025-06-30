@@ -118,7 +118,10 @@ export const createVehicle = createAsyncThunk<
 // Update vehicle
 export const updateVehicle = createAsyncThunk<
     VehicleResponse,
-    { id: string; data: VehicleFormValues & { images: File[] } } // TODO: Not sure if this is correct because of not tested yet
+    {
+        id: string;
+        data: VehicleFormValues & { images: File[]; existingImages: string[] };
+    }
 >("vehicles/update", async ({ id, data }, { rejectWithValue }) => {
     const formData = new FormData();
 
@@ -138,6 +141,13 @@ export const updateVehicle = createAsyncThunk<
     if (data.interiorColor)
         formData.append("interiorColor", data.interiorColor);
     if (data.description) formData.append("description", data.description);
+
+    // Append existing images (as strings)
+    if (data.existingImages && data.existingImages.length > 0) {
+        data.existingImages.forEach((imagePath, index) => {
+            formData.append(`existingImages[${index}]`, imagePath);
+        });
+    }
 
     // Append new images if present
     if (data.images && data.images.length > 0) {
