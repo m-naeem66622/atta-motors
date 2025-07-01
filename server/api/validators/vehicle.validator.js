@@ -1,6 +1,18 @@
 const Joi = require("joi");
 const { paginationSchema } = require("./common.validator");
 
+// Schema for Cloudinary image objects
+const cloudinaryImageSchema = Joi.object({
+    url: Joi.string().uri().required(),
+    public_id: Joi.string().required(),
+    asset_id: Joi.string().optional(),
+    version_id: Joi.string().optional(),
+    width: Joi.number().optional(),
+    height: Joi.number().optional(),
+    format: Joi.string().optional(),
+    bytes: Joi.number().optional(),
+});
+
 const createVehicleSchema = Joi.object({
     title: Joi.string().trim().required().messages({
         "string.empty": "Title is required",
@@ -32,7 +44,14 @@ const createVehicleSchema = Joi.object({
         "any.required": "Price is required",
     }),
     description: Joi.string().trim().allow("").optional(),
-    images: Joi.array().items(Joi.string().trim()).optional(),
+    images: Joi.array()
+        .items(
+            Joi.alternatives().try(
+                Joi.string().trim(), // Legacy string paths
+                cloudinaryImageSchema // New Cloudinary objects
+            )
+        )
+        .optional(),
     mileage: Joi.number().min(0).optional().messages({
         "number.base": "Mileage must be a number",
         "number.min": "Mileage cannot be negative",
@@ -62,8 +81,22 @@ const updateVehicleSchema = Joi.object({
         .optional(),
     price: Joi.number().min(0).optional(),
     description: Joi.string().trim().allow("").optional(),
-    images: Joi.array().items(Joi.string().trim()).optional(),
-    existingImages: Joi.array().items(Joi.string().trim()).optional(),
+    images: Joi.array()
+        .items(
+            Joi.alternatives().try(
+                Joi.string().trim(), // Legacy string paths
+                cloudinaryImageSchema // New Cloudinary objects
+            )
+        )
+        .optional(),
+    existingImages: Joi.array()
+        .items(
+            Joi.alternatives().try(
+                Joi.string().trim(), // Legacy string paths
+                cloudinaryImageSchema // New Cloudinary objects
+            )
+        )
+        .optional(),
     mileage: Joi.number().min(0).optional(),
     transmission: Joi.string().valid("Automatic", "Manual", "CVT").optional(),
     fuelType: Joi.string()

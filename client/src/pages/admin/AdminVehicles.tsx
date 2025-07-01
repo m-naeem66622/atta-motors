@@ -52,15 +52,7 @@ import { useAppDispatch, useAppState } from "@/hooks";
 import { fetchVehicles, deleteVehicle } from "@/redux/vehicles/operations";
 import type { SearchParams } from "@/d";
 import { toast } from "@/hooks/use-toast";
-
-// Environment variables
-const { VITE_APP_IMAGE_URL } = import.meta.env;
-
-// Define image path function
-const getImagePath = (path: string) => {
-    if (!path) return "/placeholder.svg";
-    return path.startsWith("http") ? path : `${VITE_APP_IMAGE_URL}/${path}`;
-};
+import { getFirstImageUrl } from "@/utils/imageUtils";
 
 export const AdminVehicles = () => {
     const navigate = useNavigate();
@@ -360,6 +352,10 @@ export const AdminVehicles = () => {
         );
     };
 
+    const getImageUrl = (path: string) => {
+        return getFirstImageUrl([path]);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -616,23 +612,22 @@ export const AdminVehicles = () => {
                 ) : viewMode === "grid" ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {vehicles &&
-                            vehicles.map((vehicle: any) => (
+                            vehicles.map((vehicle) => (
                                 <Card
                                     key={vehicle._id}
                                     className="overflow-hidden hover:shadow-lg transition-shadow"
                                 >
                                     <div className="relative">
                                         <img
-                                            src={
-                                                vehicle.images &&
-                                                vehicle.images.length > 0
-                                                    ? getImagePath(
-                                                          vehicle.images[0]
-                                                      )
-                                                    : "/placeholder.svg"
-                                            }
+                                            src={getImageUrl(
+                                                vehicle.images?.[0] || ""
+                                            )}
                                             alt={vehicle.title}
                                             className="w-full h-48 object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.src =
+                                                    "https://placehold.co/400x300";
+                                            }}
                                         />
                                         <div className="absolute top-2 right-2">
                                             {getStatusBadge(vehicle.status)}
@@ -785,7 +780,7 @@ export const AdminVehicles = () => {
                             </thead>
                             <tbody>
                                 {vehicles &&
-                                    vehicles.map((vehicle: any) => (
+                                    vehicles.map((vehicle) => (
                                         <tr
                                             key={vehicle._id}
                                             className="border-b last:border-0 hover:bg-gray-50"
@@ -796,18 +791,17 @@ export const AdminVehicles = () => {
                                             <td className="p-2">
                                                 <div className="flex items-center gap-2">
                                                     <img
-                                                        src={
-                                                            vehicle.images &&
-                                                            vehicle.images
-                                                                .length > 0
-                                                                ? getImagePath(
-                                                                      vehicle
-                                                                          .images[0]
-                                                                  )
-                                                                : "/placeholder.svg"
-                                                        }
+                                                        src={getImageUrl(
+                                                            vehicle
+                                                                .images?.[0] ||
+                                                                ""
+                                                        )}
                                                         alt={vehicle.title}
                                                         className="h-10 w-16 object-cover rounded"
+                                                        onError={(e) => {
+                                                            e.currentTarget.src =
+                                                                "https://placehold.co/400x300";
+                                                        }}
                                                     />
                                                     <div>
                                                         <p className="font-medium">

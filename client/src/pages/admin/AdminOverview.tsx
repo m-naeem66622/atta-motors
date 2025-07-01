@@ -22,8 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAppDispatch, useAppState } from "@/hooks";
 import { getAdminOverview } from "@/redux/store";
-
-const { VITE_APP_IMAGE_URL } = import.meta.env;
+import { getFirstImageUrl } from "@/utils/imageUtils";
 
 export const AdminOverview = () => {
     const navigate = useNavigate();
@@ -493,11 +492,19 @@ export const AdminOverview = () => {
                                                     <td className="p-2">
                                                         <div className="flex items-center gap-2">
                                                             <img
-                                                                src={`${VITE_APP_IMAGE_URL}/${vehicle.images?.[0]}`}
+                                                                src={getFirstImageUrl(
+                                                                    vehicle.images
+                                                                )}
                                                                 alt={
                                                                     vehicle.title
                                                                 }
                                                                 className="h-10 w-16 object-cover rounded"
+                                                                onError={(
+                                                                    e
+                                                                ) => {
+                                                                    e.currentTarget.src =
+                                                                        "https://placehold.co/400x300?text=No+Image";
+                                                                }}
                                                             />
                                                             <p className="font-medium">
                                                                 {vehicle.title}

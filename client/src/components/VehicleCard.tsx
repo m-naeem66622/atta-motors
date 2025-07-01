@@ -12,14 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FormatterDate } from "@/utils";
 import { Vehicle } from "@/d";
-
-const { VITE_APP_IMAGE_URL } = import.meta.env;
+import { getFirstImageUrl } from "@/utils/imageUtils";
 
 interface VehicleCardProps {
     vehicle: Vehicle;
 }
 
 export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
+    const imageUrl = getFirstImageUrl(vehicle.images);
+
     return (
         <Card
             key={vehicle._id}
@@ -28,13 +29,13 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             <div className="aspect-video w-full overflow-hidden">
                 {vehicle.images && vehicle.images.length > 0 ? (
                     <img
-                        src={`${VITE_APP_IMAGE_URL}/${vehicle.images[0]}`}
+                        src={imageUrl}
                         alt={`${vehicle.make} ${vehicle.model}`}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                             // Fallback if image fails to load
                             e.currentTarget.src =
-                                "https://placehold.co/600x400/png";
+                                "https://placehold.co/600x400";
                         }}
                     />
                 ) : (

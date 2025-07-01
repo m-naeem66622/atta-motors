@@ -19,7 +19,7 @@ export const EditVehicleListingPage: React.FC = () => {
             if (id) {
                 const result = await dispatch(fetchVehicleById(id));
                 if (result.meta.requestStatus === "fulfilled") {
-                    console.log("Loaded:", result.payload);
+                    // console.log("Loaded:", result.payload);
                 }
             }
         };

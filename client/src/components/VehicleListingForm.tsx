@@ -18,8 +18,8 @@ import {
 import { useAppDispatch, useAppState } from "@/hooks";
 import { AppRoutes } from "@/router";
 import { createVehicle } from "@/redux/store";
-
-const { VITE_APP_IMAGE_URL } = import.meta.env;
+import { getImageUrl } from "@/utils/imageUtils";
+import { LoadingButton } from "./LoadingButton";
 
 export const VehicleListingForm: React.FC<{
     initialValues?: any;
@@ -99,10 +99,10 @@ export const VehicleListingForm: React.FC<{
         if (initialValues) {
             // Store the original image paths from the server
             setExistingImagePaths(initialValues.images || []);
-            // Set the URLs for display
+            // Set the URLs for display using the new utility
             setImageUrls(
-                initialValues.images.map(
-                    (image: string) => `${VITE_APP_IMAGE_URL}/${image}`
+                initialValues.images.map((image: string) =>
+                    getImageUrl(image)
                 ) || []
             );
         }
@@ -201,23 +201,18 @@ export const VehicleListingForm: React.FC<{
                                     <ChevronRight className="ml-2 h-4 w-4" />
                                 </Button>
                             ) : (
-                                <Button
-                                    type="submit"
-                                    disabled={vehicles.isCreating}
+                                <LoadingButton
+                                    isLoading={
+                                        onSubmitOverride
+                                            ? vehicles.isUpdating
+                                            : vehicles.isCreating
+                                    }
                                     className="min-w-[120px]"
+                                    type="submit"
                                 >
-                                    {vehicles.isCreating ? (
-                                        <span className="flex items-center">
-                                            <span className="mr-2 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-white"></span>
-                                            Submitting...
-                                        </span>
-                                    ) : (
-                                        <>
-                                            Submit Listing
-                                            <Check className="ml-2 h-4 w-4" />
-                                        </>
-                                    )}
-                                </Button>
+                                    {onSubmitOverride ? "Update" : "Submit"}
+                                    <Check className="ml-2 h-4 w-4" />
+                                </LoadingButton>
                             )}
                         </div>
                     </form>

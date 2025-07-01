@@ -256,13 +256,25 @@ const updateVehicle = async (req, res, next) => {
             );
         }
 
-        // If images are being updated, clean up old ones
+        // If images are being updated, clean up old ones from Cloudinary
         if (req.body?.images && existingVehicle.data.images.length > 0) {
-            const imagesToRemove = existingVehicle.data.images.filter(
-                (img) => !req.body.images.includes(img)
+            // Find images that were removed (in existing but not in new)
+            const newImageUrls = req.body.images.map((img) =>
+                typeof img === "string" ? img : img.url
             );
-            if (imagesToRemove.length > 0) {
-                await imageCleanup(imagesToRemove);
+            const removedImages = existingVehicle.data.images.filter(
+                (existingImg) =>
+                    !newImageUrls.includes(existingImg.url || existingImg)
+            );
+
+            if (removedImages.length > 0) {
+                const cleanupResult = await imageCleanup(removedImages);
+                if (!cleanupResult.success) {
+                    console.warn(
+                        "Some images failed to delete from Cloudinary:",
+                        cleanupResult.data.failed
+                    );
+                }
             }
         }
 
@@ -306,12 +318,20 @@ const deleteVehicle = async (req, res, next) => {
             options
         );
 
-        // Clean up images
+        // Clean up images from Cloudinary
         if (
             deletedVehicle.data.images &&
             deletedVehicle.data.images.length > 0
         ) {
-            await imageCleanup(deletedVehicle.data.images);
+            const cleanupResult = await imageCleanup(
+                deletedVehicle.data.images
+            );
+            if (!cleanupResult.success) {
+                console.warn(
+                    "Some images failed to delete from Cloudinary:",
+                    cleanupResult.data.failed
+                );
+            }
         }
 
         res.status(200).json({

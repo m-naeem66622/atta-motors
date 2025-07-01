@@ -1,5 +1,20 @@
 const mongoose = require("mongoose");
 
+// Schema for Cloudinary image objects
+const cloudinaryImageSchema = new mongoose.Schema(
+    {
+        url: { type: String, required: true },
+        public_id: { type: String, required: true },
+        asset_id: { type: String },
+        version_id: { type: String },
+        width: { type: Number },
+        height: { type: Number },
+        format: { type: String },
+        bytes: { type: Number },
+    },
+    { _id: false }
+);
+
 const vehicleSchema = new mongoose.Schema(
     {
         make: { type: String, required: true, trim: true },
@@ -8,7 +23,10 @@ const vehicleSchema = new mongoose.Schema(
         price: { type: Number, required: true },
         title: { type: String, required: true, trim: true },
         description: { type: String, trim: true },
-        images: { type: [String], default: [] },
+        images: {
+            type: [cloudinaryImageSchema],
+            default: [],
+        },
         mileage: { type: Number },
         transmission: { type: String, enum: ["Automatic", "Manual", "CVT"] },
         fuelType: {

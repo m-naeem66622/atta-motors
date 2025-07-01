@@ -55,8 +55,6 @@ export const LoginPage: FC<LoginPageProps> = () => {
             // Here you would typically handle the login process
             const result = await dispatch(login(values)).unwrap();
 
-            console.log("Result:", result);
-
             if (result.status === "SUCCESS") {
                 if (saveNavigation.saveRoute !== "") {
                     setTimeout(() => {

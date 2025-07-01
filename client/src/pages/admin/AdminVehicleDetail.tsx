@@ -34,15 +34,7 @@ import {
 import { useAppDispatch, useAppState } from "@/hooks";
 import { fetchVehicleById, deleteVehicle } from "@/redux/vehicles/operations";
 import { toast } from "@/hooks/use-toast";
-
-// Environment variables
-const { VITE_APP_IMAGE_URL } = import.meta.env;
-
-// Define image path function
-const getImagePath = (path: string) => {
-    if (!path) return "/placeholder.svg";
-    return path.startsWith("http") ? path : `${VITE_APP_IMAGE_URL}/${path}`;
-};
+import { getImageUrl } from "@/utils/imageUtils";
 
 export const AdminVehicleDetail = () => {
     const navigate = useNavigate();
@@ -249,12 +241,12 @@ export const AdminVehicleDetail = () => {
                                             src={
                                                 vehicle.images &&
                                                 vehicle.images.length > 0
-                                                    ? getImagePath(
+                                                    ? getImageUrl(
                                                           vehicle.images[
                                                               activeImage
                                                           ]
                                                       )
-                                                    : "/placeholder.svg"
+                                                    : "https://placehold.co/600x400"
                                             }
                                             alt={vehicle.title}
                                             className="w-full h-[400px] object-cover"
@@ -280,7 +272,7 @@ export const AdminVehicleDetail = () => {
                                                         }
                                                     >
                                                         <img
-                                                            src={getImagePath(
+                                                            src={getImageUrl(
                                                                 image
                                                             )}
                                                             alt={`${

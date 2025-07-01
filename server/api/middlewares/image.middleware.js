@@ -1,6 +1,5 @@
 const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
+const { createCloudinaryStorage } = require("../services/cloudinary.service");
 
 let times = 0;
 
@@ -22,11 +21,7 @@ const createStorage = (uploadType) => {
         filename: (req, file, cb) => {
             // console.log("4. File Name times", times);
             try {
-                fs.mkdirSync(destinationPath, { recursive: true });
-                const filename = `${Date.now()}-${file.originalname}`;
-
-                // console.log("Filename:", filename);
-                cb(null, filename);
+                cb(null, file.originalname);
             } catch (error) {
                 // console.error("Error in image upload", error);
                 cb(new Error("Error occurred"));
@@ -61,9 +56,9 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Create multer upload for user avatars
+// Create multer upload for user avatars with Cloudinary storage
 const avatarUpload = multer({
-    storage: createStorage("USER"),
+    storage: createCloudinaryStorage("atta-motors/users"),
     limits: avatarLimit,
     fileFilter,
 }).single("avatar");
@@ -90,16 +85,26 @@ const uploadImage = (req, res, next) => {
         // console.log("File:", req.file);
         // console.log("Avatar Path:", req.file?.path);
         if (req.file) {
-            req.body.avatar = req.file.path;
+            // Store Cloudinary URL and metadata
+            req.body.avatar = {
+                url: req.file.path,
+                public_id: req.file.filename,
+                asset_id: req.file.asset_id,
+                version_id: req.file.version_id,
+                width: req.file.width,
+                height: req.file.height,
+                format: req.file.format,
+                bytes: req.file.bytes,
+            };
         }
 
         next();
     });
 };
 
-// Create multer upload for vehicle images
+// Create multer upload for vehicle images with Cloudinary storage
 const vehicleImagesUpload = multer({
-    storage: createStorage("VEHICLE"),
+    storage: createCloudinaryStorage("atta-motors/vehicles"),
     limits: vehicleLimit,
     fileFilter,
 }).array("images", 5);
@@ -126,7 +131,17 @@ const uploadImages = (req, res, next) => {
         // console.log("Files:", req.files);
         // console.log("Files Path:", req.files?.map((file) => file.path));
         if (req.files) {
-            req.body.images = req.files.map((file) => file.path);
+            // Store Cloudinary URLs and metadata
+            req.body.images = req.files.map((file) => ({
+                url: file.path,
+                public_id: file.filename,
+                asset_id: file.asset_id,
+                version_id: file.version_id,
+                width: file.width,
+                height: file.height,
+                format: file.format,
+                bytes: file.bytes,
+            }));
         }
 
         next();

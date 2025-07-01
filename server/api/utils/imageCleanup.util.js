@@ -1,35 +1,43 @@
-const fs = require("fs");
+const {
+    deleteFromCloudinary,
+    extractPublicIdFromUrl,
+} = require("../services/cloudinary.service");
 
 /**
- * @description: Function to remove images from the server
- * @param {String|String[]} files - file path or array of file paths
- * @returns {Promise<void>}
+ * @description: Function to remove images from Cloudinary
+ * @param {String|String[]|Object|Object[]} files - Cloudinary URLs, public IDs, or image objects
+ * @returns {Promise<Object>}
  */
 const imageCleanup = async (files) => {
-    if (!files) return;
+    if (!files) return { success: true, data: { successful: [], failed: [] } };
 
-    // Convert to array if single string is provided
+    // Convert to array if single item is provided
     const filesList = Array.isArray(files) ? files : [files];
 
-    const deletePromises = filesList.map((file) => {
-        return new Promise((resolve) => {
-            fs.unlink(file, (error) => {
-                if (error) {
-                    fs.appendFileSync(
-                        `logs/files-not-deleted.txt`,
-                        file + "\n"
-                    );
-                    console.log(
-                        "imagesCleanup -> failed while removing picture:",
-                        file
-                    );
+    // Extract public IDs from various formats
+    const publicIds = filesList
+        .map((file) => {
+            if (typeof file === "string") {
+                // If it's a URL, extract public ID
+                if (file.startsWith("http")) {
+                    return extractPublicIdFromUrl(file);
                 }
-                resolve();
-            });
-        });
-    });
+                // If it's already a public ID
+                return file;
+            } else if (file && typeof file === "object") {
+                // If it's an image object with public_id
+                return file.public_id || extractPublicIdFromUrl(file.url);
+            }
+            return null;
+        })
+        .filter(Boolean); // Remove null values
 
-    await Promise.all(deletePromises);
+    if (publicIds.length === 0) {
+        return { success: true, data: { successful: [], failed: [] } };
+    }
+
+    // Delete from Cloudinary
+    return await deleteFromCloudinary(publicIds);
 };
 
 module.exports = { imageCleanup };

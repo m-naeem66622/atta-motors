@@ -22,7 +22,11 @@ export const createVehicleSchema = z.object({
     // Contact Info
     location: z.string().optional(),
     contactPhone: z.string().optional(),
-    contactEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
+    contactEmail: z
+        .string()
+        .email("Invalid email address")
+        .optional()
+        .or(z.literal("")),
 });
 
 export type VehicleFormValues = z.infer<typeof createVehicleSchema>;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
     ArrowLeft,
     Calendar,
@@ -15,7 +15,6 @@ import {
     ChevronLeft,
     ChevronRight,
     User,
-    Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,9 +26,7 @@ import { fetchVehicleById } from "@/redux/store";
 import { AppRoutes } from "@/router";
 import { toast } from "@/hooks/use-toast";
 import { FormatterDate } from "@/utils";
-
-// Environment variables
-const { VITE_APP_IMAGE_URL } = import.meta.env;
+import { getImageUrl } from "@/utils/imageUtils";
 
 // Fallback data for similar vehicles
 const similarVehicles = [
@@ -37,7 +34,7 @@ const similarVehicles = [
         id: 1,
         title: "2019 Toyota Camry",
         price: 20500,
-        image: "/placeholder.svg?height=150&width=250",
+        image: "https://placehold.co/200x150",
         mileage: 42000,
         location: "San Diego, CA",
     },
@@ -45,7 +42,7 @@ const similarVehicles = [
         id: 2,
         title: "2021 Honda Civic",
         price: 19800,
-        image: "/placeholder.svg?height=150&width=250",
+        image: "https://placehold.co/200x150",
         mileage: 28000,
         location: "Los Angeles, CA",
     },
@@ -53,7 +50,7 @@ const similarVehicles = [
         id: 3,
         title: "2020 Mazda 3",
         price: 18200,
-        image: "/placeholder.svg?height=150&width=250",
+        image: "https://placehold.co/200x150",
         mileage: 32000,
         location: "Irvine, CA",
     },
@@ -68,37 +65,36 @@ const formatDate = (dateString: string) => {
     });
 };
 
-export const VehicleDetailPage = () => {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [isWishlisted, setIsWishlisted] = useState(false);
-    const navigate = useNavigate();
+export const VehicleDetailPage: React.FC = () => {
     const { id } = useParams();
     const dispatch = useAppDispatch();
-    const { vehicles } = useAppState();
-    const { isLoading, foundVehicle: vehicle } = vehicles;
+    const { isLoading, foundVehicle } = useAppState().vehicles;
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isWishlisted, setIsWishlisted] = useState(false);
 
-    // Fetch the vehicle data based on the ID
+    console.log("foundVehicle", foundVehicle);
+
     useEffect(() => {
         if (id) {
             dispatch(fetchVehicleById(id));
         }
     }, [id, dispatch]);
 
-    const handleGoBack = () => {
-        navigate(AppRoutes.vehicleSales);
-    };
-
     const nextImage = () => {
-        if (!vehicle || !vehicle.images) return;
+        if (!foundVehicle || !foundVehicle.images) return;
         setCurrentImageIndex((prevIndex) =>
-            prevIndex === (vehicle.images?.length ?? 0) - 1 ? 0 : prevIndex + 1
+            prevIndex === (foundVehicle.images?.length ?? 0) - 1
+                ? 0
+                : prevIndex + 1
         );
     };
 
     const prevImage = () => {
-        if (!vehicle || !vehicle.images) return;
+        if (!foundVehicle || !foundVehicle.images) return;
         setCurrentImageIndex((prevIndex) =>
-            prevIndex === 0 ? (vehicle.images?.length ?? 0) - 1 : prevIndex - 1
+            prevIndex === 0
+                ? (foundVehicle.images?.length ?? 0) - 1
+                : prevIndex - 1
         );
     };
 
@@ -115,27 +111,34 @@ export const VehicleDetailPage = () => {
     // If still loading, show a loading indicator
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-12 w-12 animate-spin text-gray-400" />
-                    <p className="text-gray-500">Loading vehicle details...</p>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">
+                        Loading vehicle details...
+                    </p>
                 </div>
             </div>
         );
     }
 
+    const vehicle = foundVehicle;
+
     // If vehicle not found, show error message
     if (!vehicle) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-8 text-center">
-                <h1 className="text-2xl font-bold">Vehicle Not Found</h1>
-                <p className="text-gray-500">
-                    Sorry, the vehicle you're looking for may have been sold or
-                    removed.
-                </p>
-                <Button onClick={() => navigate(AppRoutes.vehicleSales)}>
-                    View All Vehicles
-                </Button>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-4">
+                        Vehicle Not Found
+                    </h1>
+                    <p className="text-gray-600 mb-6">
+                        The vehicle you're looking for doesn't exist.
+                    </p>
+                    <Link to={AppRoutes.vehicleSales}>
+                        <Button>Back to Vehicle Sales</Button>
+                    </Link>
+                </div>
             </div>
         );
     }
@@ -143,10 +146,15 @@ export const VehicleDetailPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4">
             <div className="container mx-auto max-w-7xl">
-                <Button variant="ghost" onClick={handleGoBack} className="mb-6">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Listings
-                </Button>
+                <Link to={AppRoutes.vehicleSales}>
+                    <Button
+                        variant="ghost"
+                        className="mb-6 text-black hover:text-gray-700"
+                    >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Vehicle Sales
+                    </Button>
+                </Link>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Content - Left and Center */}
@@ -155,19 +163,50 @@ export const VehicleDetailPage = () => {
                         <div className="relative bg-white rounded-xl overflow-hidden shadow-md">
                             <div className="relative aspect-[16/9] bg-gray-100">
                                 {vehicle.images && vehicle.images.length > 0 ? (
-                                    <img
-                                        src={
-                                            vehicle.images[currentImageIndex]
-                                                ? `${VITE_APP_IMAGE_URL}/${vehicle.images[currentImageIndex]}`
-                                                : "/placeholder.svg"
-                                        }
-                                        alt={vehicle.title}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.currentTarget.src =
-                                                "https://placehold.co/600x400/png";
-                                        }}
-                                    />
+                                    <>
+                                        <img
+                                            src={getImageUrl(
+                                                vehicle.images[
+                                                    currentImageIndex
+                                                ]
+                                            )}
+                                            alt={vehicle.title}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.src =
+                                                    "https://placehold.co/600x400/png";
+                                            }}
+                                        />
+                                        {/* Image Navigation - Only show if there are multiple images */}
+                                        {vehicle.images.length > 1 && (
+                                            <>
+                                                <div className="absolute inset-0 flex items-center justify-between px-4">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="icon"
+                                                        className="rounded-full bg-white/80 hover:bg-white"
+                                                        onClick={prevImage}
+                                                    >
+                                                        <ChevronLeft className="h-6 w-6" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="icon"
+                                                        className="rounded-full bg-white/80 hover:bg-white"
+                                                        onClick={nextImage}
+                                                    >
+                                                        <ChevronRight className="h-6 w-6" />
+                                                    </Button>
+                                                </div>
+
+                                                {/* Image Counter */}
+                                                <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                                                    {currentImageIndex + 1} /{" "}
+                                                    {vehicle.images.length}
+                                                </div>
+                                            </>
+                                        )}
+                                    </>
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
                                         <span className="text-gray-400">
@@ -175,37 +214,6 @@ export const VehicleDetailPage = () => {
                                         </span>
                                     </div>
                                 )}
-
-                                {/* Image Navigation - Only show if there are multiple images */}
-                                {vehicle.images &&
-                                    vehicle.images.length > 1 && (
-                                        <>
-                                            <div className="absolute inset-0 flex items-center justify-between px-4">
-                                                <Button
-                                                    variant="outline"
-                                                    size="icon"
-                                                    className="rounded-full bg-white/80 hover:bg-white"
-                                                    onClick={prevImage}
-                                                >
-                                                    <ChevronLeft className="h-6 w-6" />
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="icon"
-                                                    className="rounded-full bg-white/80 hover:bg-white"
-                                                    onClick={nextImage}
-                                                >
-                                                    <ChevronRight className="h-6 w-6" />
-                                                </Button>
-                                            </div>
-
-                                            {/* Image Counter */}
-                                            <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-                                                {currentImageIndex + 1} /{" "}
-                                                {vehicle.images.length}
-                                            </div>
-                                        </>
-                                    )}
                             </div>
 
                             {/* Thumbnail Navigation */}
@@ -224,7 +232,7 @@ export const VehicleDetailPage = () => {
                                             }`}
                                         >
                                             <img
-                                                src={`${VITE_APP_IMAGE_URL}/${image}`}
+                                                src={getImageUrl(image)}
                                                 alt={`Thumbnail ${index + 1}`}
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => {
@@ -542,7 +550,7 @@ export const VehicleDetailPage = () => {
                                             <img
                                                 src={
                                                     vehicle.image ||
-                                                    "/placeholder.svg"
+                                                    "https://placehold.co/200x150"
                                                 }
                                                 alt={vehicle.title}
                                                 className="w-20 h-16 object-cover rounded-md flex-shrink-0"

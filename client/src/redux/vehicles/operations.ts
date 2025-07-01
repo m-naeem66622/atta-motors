@@ -142,10 +142,13 @@ export const updateVehicle = createAsyncThunk<
         formData.append("interiorColor", data.interiorColor);
     if (data.description) formData.append("description", data.description);
 
-    // Append existing images (as strings)
+    // Append existing images (as objects of cloudinary)
+    // existingImages is an array of objects of cloudinary
     if (data.existingImages && data.existingImages.length > 0) {
-        data.existingImages.forEach((imagePath, index) => {
-            formData.append(`existingImages[${index}]`, imagePath);
+        data.existingImages.forEach((image, index) => {
+            Object.entries(image).forEach(([key, value]) => {
+                formData.append(`existingImages[${index}][${key}]`, value);
+            });
         });
     }
 
