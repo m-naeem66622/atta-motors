@@ -3,7 +3,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 
 mongoose.set("strictQuery", true);
-mongoose.set("debug", { shell: process.env.DEBUG === "true" });
+mongoose.set("debug", process.env.DEBUG === "true");
 
 const connectDB = async () => {
     try {
