@@ -49,6 +49,7 @@ import {
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useAppState } from "@/hooks/useAppState";
 import { toast } from "@/hooks/use-toast";
+import { Helmet } from "react-helmet-async";
 
 export const AdminMaintenanceDetail = () => {
     const navigate = useNavigate();
@@ -304,385 +305,495 @@ export const AdminMaintenanceDetail = () => {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center">
-                    <Button
-                        variant="ghost"
-                        onClick={handleGoBack}
-                        className="mr-4"
-                    >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Maintenance
-                    </Button>
-                    <h1 className="text-2xl font-bold tracking-tight">
-                        Maintenance Request {currentAppointment._id.slice(-8)}
-                    </h1>
-                    <div className="ml-4">
-                        {getStatusBadge(currentAppointment.status)}
+        <>
+            <Helmet>
+                <title>Admin Maintenance Detail | Atta Motors</title>
+            </Helmet>
+            <div className="space-y-6">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center">
+                        <Button
+                            variant="ghost"
+                            onClick={handleGoBack}
+                            className="mr-4"
+                        >
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to Maintenance
+                        </Button>
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            Maintenance Request{" "}
+                            {currentAppointment._id.slice(-8)}
+                        </h1>
+                        <div className="ml-4">
+                            {getStatusBadge(currentAppointment.status)}
+                        </div>
+                    </div>
+                    {/* Always show action buttons, regardless of status */}
+                    <div className="flex gap-2">
+                        {/* Edit Maintenance Details (always available) */}
+                        <Dialog
+                            open={isApproveDialogOpen}
+                            onOpenChange={setIsApproveDialogOpen}
+                        >
+                            <DialogTrigger asChild>
+                                <Button variant="outline" disabled={isUpdating}>
+                                    {isUpdating ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <User className="mr-2 h-4 w-4" />
+                                    )}
+                                    {currentAppointment.technician
+                                        ? "Edit Technician"
+                                        : "Assign Technician"}
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        Edit Maintenance Details
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                        Update the technician and price
+                                        information
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="technician">
+                                            Assigned Technician
+                                        </Label>
+                                        <Input
+                                            id="technician"
+                                            type="text"
+                                            value={technician}
+                                            onChange={(e) =>
+                                                setTechnician(e.target.value)
+                                            }
+                                            placeholder="Enter technician name"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="price">Price ($)</Label>
+                                        <Input
+                                            id="price"
+                                            type="text"
+                                            value={updatedPrice}
+                                            onChange={(e) =>
+                                                setUpdatedPrice(e.target.value)
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() =>
+                                            setIsApproveDialogOpen(false)
+                                        }
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        onClick={handleTechnicianAndPrice}
+                                        disabled={isUpdating}
+                                    >
+                                        {isUpdating ? (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : (
+                                            "Save Changes"
+                                        )}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+
+                        {/* Update Status - always available regardless of current status */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant={
+                                        currentAppointment.status ===
+                                        "Scheduled"
+                                            ? "default"
+                                            : "secondary"
+                                    }
+                                    disabled={isUpdating}
+                                >
+                                    {isUpdating ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : (
+                                        getStatusIcon(currentAppointment.status)
+                                    )}
+                                    <span className="ml-2">Update Status</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuLabel>
+                                    Set Status
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+
+                                {/* Pending option - shown if not already pending */}
+                                {currentAppointment.status !== "Pending" && (
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            handleStatusUpdate("Pending")
+                                        }
+                                    >
+                                        <AlertCircle className="mr-2 h-4 w-4 text-yellow-500" />
+                                        Mark as Pending
+                                    </DropdownMenuItem>
+                                )}
+
+                                {/* Schedule option - shown if not already scheduled */}
+                                {currentAppointment.status !== "Scheduled" && (
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            handleStatusUpdate("Scheduled")
+                                        }
+                                    >
+                                        <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+                                        Mark as Scheduled
+                                    </DropdownMenuItem>
+                                )}
+
+                                {/* Complete option - shown if not already completed */}
+                                {currentAppointment.status !== "Completed" && (
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            handleStatusUpdate("Completed")
+                                        }
+                                    >
+                                        <CheckCheck className="mr-2 h-4 w-4 text-blue-500" />
+                                        Mark as Completed
+                                    </DropdownMenuItem>
+                                )}
+
+                                {/* Cancel option - shown if not already cancelled */}
+                                {currentAppointment.status !== "Cancelled" && (
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            handleStatusUpdate("Cancelled")
+                                        }
+                                        className="text-red-500"
+                                    >
+                                        <X className="mr-2 h-4 w-4" />
+                                        Cancel Appointment
+                                    </DropdownMenuItem>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        {/* Cancellation Dialog - available through dropdown, but defined here
+                        <Dialog
+                            open={isRejectDialogOpen}
+                            onOpenChange={setIsRejectDialogOpen}
+                        >
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        Cancel Maintenance Appointment
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                        Please provide a reason for cancellation.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="reason">
+                                            Cancellation Reason
+                                        </Label>
+                                        <Textarea
+                                            id="reason"
+                                            placeholder="Enter the reason for cancellation..."
+                                            value={rejectionReason}
+                                            onChange={(e) =>
+                                                setRejectionReason(e.target.value)
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setIsRejectDialogOpen(false)}
+                                    >
+                                        Back
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={handleReject}
+                                        disabled={isUpdating}
+                                    >
+                                        {isUpdating ? (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : (
+                                            "Cancel Appointment"
+                                        )}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog> */}
                     </div>
                 </div>
-                {/* Always show action buttons, regardless of status */}
-                <div className="flex gap-2">
-                    {/* Edit Maintenance Details (always available) */}
-                    <Dialog
-                        open={isApproveDialogOpen}
-                        onOpenChange={setIsApproveDialogOpen}
-                    >
-                        <DialogTrigger asChild>
-                            <Button variant="outline" disabled={isUpdating}>
-                                {isUpdating ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    <User className="mr-2 h-4 w-4" />
-                                )}
-                                {currentAppointment.technician
-                                    ? "Edit Technician"
-                                    : "Assign Technician"}
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>
-                                    Edit Maintenance Details
-                                </DialogTitle>
-                                <DialogDescription>
-                                    Update the technician and price information
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="technician">
-                                        Assigned Technician
-                                    </Label>
-                                    <Input
-                                        id="technician"
-                                        type="text"
-                                        value={technician}
-                                        onChange={(e) =>
-                                            setTechnician(e.target.value)
-                                        }
-                                        placeholder="Enter technician name"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="price">Price ($)</Label>
-                                    <Input
-                                        id="price"
-                                        type="text"
-                                        value={updatedPrice}
-                                        onChange={(e) =>
-                                            setUpdatedPrice(e.target.value)
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    variant="outline"
-                                    onClick={() =>
-                                        setIsApproveDialogOpen(false)
-                                    }
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    onClick={handleTechnicianAndPrice}
-                                    disabled={isUpdating}
-                                >
-                                    {isUpdating ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : (
-                                        "Save Changes"
-                                    )}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
 
-                    {/* Update Status - always available regardless of current status */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant={
-                                    currentAppointment.status === "Scheduled"
-                                        ? "default"
-                                        : "secondary"
-                                }
-                                disabled={isUpdating}
-                            >
-                                {isUpdating ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    getStatusIcon(currentAppointment.status)
-                                )}
-                                <span className="ml-2">Update Status</span>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuLabel>Set Status</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-
-                            {/* Pending option - shown if not already pending */}
-                            {currentAppointment.status !== "Pending" && (
-                                <DropdownMenuItem
-                                    onClick={() =>
-                                        handleStatusUpdate("Pending")
-                                    }
-                                >
-                                    <AlertCircle className="mr-2 h-4 w-4 text-yellow-500" />
-                                    Mark as Pending
-                                </DropdownMenuItem>
-                            )}
-
-                            {/* Schedule option - shown if not already scheduled */}
-                            {currentAppointment.status !== "Scheduled" && (
-                                <DropdownMenuItem
-                                    onClick={() =>
-                                        handleStatusUpdate("Scheduled")
-                                    }
-                                >
-                                    <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
-                                    Mark as Scheduled
-                                </DropdownMenuItem>
-                            )}
-
-                            {/* Complete option - shown if not already completed */}
-                            {currentAppointment.status !== "Completed" && (
-                                <DropdownMenuItem
-                                    onClick={() =>
-                                        handleStatusUpdate("Completed")
-                                    }
-                                >
-                                    <CheckCheck className="mr-2 h-4 w-4 text-blue-500" />
-                                    Mark as Completed
-                                </DropdownMenuItem>
-                            )}
-
-                            {/* Cancel option - shown if not already cancelled */}
-                            {currentAppointment.status !== "Cancelled" && (
-                                <DropdownMenuItem
-                                    onClick={() =>
-                                        handleStatusUpdate("Cancelled")
-                                    }
-                                    className="text-red-500"
-                                >
-                                    <X className="mr-2 h-4 w-4" />
-                                    Cancel Appointment
-                                </DropdownMenuItem>
-                            )}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Cancellation Dialog - available through dropdown, but defined here
-                    <Dialog
-                        open={isRejectDialogOpen}
-                        onOpenChange={setIsRejectDialogOpen}
-                    >
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>
-                                    Cancel Maintenance Appointment
-                                </DialogTitle>
-                                <DialogDescription>
-                                    Please provide a reason for cancellation.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="reason">
-                                        Cancellation Reason
-                                    </Label>
-                                    <Textarea
-                                        id="reason"
-                                        placeholder="Enter the reason for cancellation..."
-                                        value={rejectionReason}
-                                        onChange={(e) =>
-                                            setRejectionReason(e.target.value)
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setIsRejectDialogOpen(false)}
-                                >
-                                    Back
-                                </Button>
-                                <Button
-                                    variant="destructive"
-                                    onClick={handleReject}
-                                    disabled={isUpdating}
-                                >
-                                    {isUpdating ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : (
-                                        "Cancel Appointment"
-                                    )}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog> */}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Column - Details */}
-                <div className="lg:col-span-2 space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Service Information</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-500">
-                                        Service Type
-                                    </p>
-                                    <div className="flex items-center">
-                                        <Wrench className="h-4 w-4 mr-2 text-gray-400" />
-                                        <p>
-                                            {currentAppointment.maintenanceType}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-500">
-                                        Specific Service
-                                    </p>
-                                    <div className="flex items-center">
-                                        <Wrench className="h-4 w-4 mr-2 text-gray-400" />
-                                        <p>
-                                            {currentAppointment.specificService}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-500">
-                                        Appointment Date
-                                    </p>
-                                    <div className="flex items-center">
-                                        <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                                        <p>
-                                            {formatDate(
-                                                currentAppointment.appointmentDate
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-500">
-                                        Appointment Time
-                                    </p>
-                                    <div className="flex items-center">
-                                        <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                                        <p>
-                                            {formatTime(
-                                                currentAppointment.appointmentTime
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-500">
-                                        Price
-                                    </p>
-                                    <div className="flex items-center">
-                                        <DollarSign className="h-4 w-4 mr-2 text-gray-400" />
-                                        <p>
-                                            {currentAppointment.cost
-                                                ? `$${currentAppointment.cost}`
-                                                : "Not set"}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-500">
-                                        Assigned Technician
-                                    </p>
-                                    <div className="flex items-center">
-                                        <User className="h-4 w-4 mr-2 text-gray-400" />
-                                        <p>
-                                            {currentAppointment.technician ||
-                                                "Not assigned yet"}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <Separator className="my-4" />
-
-                            <div className="space-y-2">
-                                <p className="text-sm font-medium text-gray-500">
-                                    Notes
-                                </p>
-                                <p className="text-sm">
-                                    {currentAppointment.notes ||
-                                        "No notes provided."}
-                                </p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left Column - Details */}
+                    <div className="lg:col-span-2 space-y-6">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Vehicle Information</CardTitle>
+                                <CardTitle>Service Information</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-3">
-                                    <div className="flex items-center">
-                                        <Car className="h-4 w-4 mr-2 text-gray-400" />
-                                        <p className="font-medium">
-                                            {getVehicleDisplay()}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium text-gray-500">
+                                            Service Type
                                         </p>
+                                        <div className="flex items-center">
+                                            <Wrench className="h-4 w-4 mr-2 text-gray-400" />
+                                            <p>
+                                                {
+                                                    currentAppointment.maintenanceType
+                                                }
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2 text-sm">
-                                        <div>
-                                            <p className="text-gray-500">
-                                                Make:
-                                            </p>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium text-gray-500">
+                                            Specific Service
+                                        </p>
+                                        <div className="flex items-center">
+                                            <Wrench className="h-4 w-4 mr-2 text-gray-400" />
                                             <p>
                                                 {
-                                                    currentAppointment.vehicle
-                                                        .make
+                                                    currentAppointment.specificService
                                                 }
                                             </p>
                                         </div>
-                                        <div>
-                                            <p className="text-gray-500">
-                                                Model:
-                                            </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium text-gray-500">
+                                            Appointment Date
+                                        </p>
+                                        <div className="flex items-center">
+                                            <Calendar className="h-4 w-4 mr-2 text-gray-400" />
                                             <p>
+                                                {formatDate(
+                                                    currentAppointment.appointmentDate
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium text-gray-500">
+                                            Appointment Time
+                                        </p>
+                                        <div className="flex items-center">
+                                            <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                            <p>
+                                                {formatTime(
+                                                    currentAppointment.appointmentTime
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium text-gray-500">
+                                            Price
+                                        </p>
+                                        <div className="flex items-center">
+                                            <DollarSign className="h-4 w-4 mr-2 text-gray-400" />
+                                            <p>
+                                                {currentAppointment.cost
+                                                    ? `$${currentAppointment.cost}`
+                                                    : "Not set"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium text-gray-500">
+                                            Assigned Technician
+                                        </p>
+                                        <div className="flex items-center">
+                                            <User className="h-4 w-4 mr-2 text-gray-400" />
+                                            <p>
+                                                {currentAppointment.technician ||
+                                                    "Not assigned yet"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <Separator className="my-4" />
+
+                                <div className="space-y-2">
+                                    <p className="text-sm font-medium text-gray-500">
+                                        Notes
+                                    </p>
+                                    <p className="text-sm">
+                                        {currentAppointment.notes ||
+                                            "No notes provided."}
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Vehicle Information</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center">
+                                            <Car className="h-4 w-4 mr-2 text-gray-400" />
+                                            <p className="font-medium">
+                                                {getVehicleDisplay()}
+                                            </p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 text-sm">
+                                            <div>
+                                                <p className="text-gray-500">
+                                                    Make:
+                                                </p>
+                                                <p>
+                                                    {
+                                                        currentAppointment
+                                                            .vehicle.make
+                                                    }
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500">
+                                                    Model:
+                                                </p>
+                                                <p>
+                                                    {
+                                                        currentAppointment
+                                                            .vehicle.model
+                                                    }
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500">
+                                                    Year:
+                                                </p>
+                                                <p>
+                                                    {
+                                                        currentAppointment
+                                                            .vehicle.year
+                                                    }
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500">
+                                                    Registration:
+                                                </p>
+                                                <p>
+                                                    {
+                                                        currentAppointment
+                                                            .vehicle
+                                                            .registration
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Customer Information</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <Avatar className="h-10 w-10">
+                                            <AvatarFallback>
+                                                {currentAppointment.customer.name.charAt(
+                                                    0
+                                                )}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <p className="font-medium">
                                                 {
-                                                    currentAppointment.vehicle
-                                                        .model
+                                                    currentAppointment.customer
+                                                        .name
                                                 }
                                             </p>
                                         </div>
-                                        <div>
-                                            <p className="text-gray-500">
-                                                Year:
-                                            </p>
+                                    </div>
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex items-center">
+                                            <Mail className="h-4 w-4 mr-2 text-gray-400" />
                                             <p>
                                                 {
-                                                    currentAppointment.vehicle
-                                                        .year
+                                                    currentAppointment.customer
+                                                        .email
                                                 }
                                             </p>
                                         </div>
-                                        <div>
-                                            <p className="text-gray-500">
-                                                Registration:
-                                            </p>
+                                        <div className="flex items-center">
+                                            <Phone className="h-4 w-4 mr-2 text-gray-400" />
                                             <p>
                                                 {
-                                                    currentAppointment.vehicle
-                                                        .registration
+                                                    currentAppointment.customer
+                                                        .phone
                                                 }
                                             </p>
                                         </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+
+                    {/* Right Column - Status and Actions */}
+                    <div className="space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Request Status</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center gap-2">
+                                    {getStatusIcon(currentAppointment.status)}
+                                    <span className="font-medium capitalize">
+                                        {currentAppointment.status}
+                                    </span>
+                                </div>
+
+                                <Separator />
+
+                                <div className="space-y-2">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">
+                                            Request ID:
+                                        </span>
+                                        <span className="font-mono text-sm">
+                                            {currentAppointment._id}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">
+                                            Created:
+                                        </span>
+                                        <span>
+                                            {formatDateTime(
+                                                currentAppointment.createdAt
+                                            )}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">
+                                            Updated:
+                                        </span>
+                                        <span>
+                                            {formatDateTime(
+                                                currentAppointment.updatedAt
+                                            )}
+                                        </span>
                                     </div>
                                 </div>
                             </CardContent>
@@ -690,118 +801,32 @@ export const AdminMaintenanceDetail = () => {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Customer Information</CardTitle>
+                                <CardTitle>Notes</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="flex items-center gap-3 mb-4">
-                                    <Avatar className="h-10 w-10">
-                                        <AvatarFallback>
-                                            {currentAppointment.customer.name.charAt(
-                                                0
-                                            )}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <p className="font-medium">
-                                            {currentAppointment.customer.name}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex items-center">
-                                        <Mail className="h-4 w-4 mr-2 text-gray-400" />
-                                        <p>
-                                            {currentAppointment.customer.email}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <Phone className="h-4 w-4 mr-2 text-gray-400" />
-                                        <p>
-                                            {currentAppointment.customer.phone}
-                                        </p>
-                                    </div>
-                                </div>
+                                <Textarea
+                                    placeholder="Add internal notes about this request..."
+                                    className="min-h-[100px]"
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                />
+                                <Button
+                                    className="w-full mt-2"
+                                    onClick={handleSaveNotes}
+                                    disabled={isUpdating}
+                                >
+                                    {isUpdating ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : (
+                                        "Save Notes"
+                                    )}
+                                </Button>
                             </CardContent>
                         </Card>
                     </div>
                 </div>
-
-                {/* Right Column - Status and Actions */}
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Request Status</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center gap-2">
-                                {getStatusIcon(currentAppointment.status)}
-                                <span className="font-medium capitalize">
-                                    {currentAppointment.status}
-                                </span>
-                            </div>
-
-                            <Separator />
-
-                            <div className="space-y-2">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">
-                                        Request ID:
-                                    </span>
-                                    <span className="font-mono text-sm">
-                                        {currentAppointment._id}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">
-                                        Created:
-                                    </span>
-                                    <span>
-                                        {formatDateTime(
-                                            currentAppointment.createdAt
-                                        )}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">
-                                        Updated:
-                                    </span>
-                                    <span>
-                                        {formatDateTime(
-                                            currentAppointment.updatedAt
-                                        )}
-                                    </span>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Notes</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Textarea
-                                placeholder="Add internal notes about this request..."
-                                className="min-h-[100px]"
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                            />
-                            <Button
-                                className="w-full mt-2"
-                                onClick={handleSaveNotes}
-                                disabled={isUpdating}
-                            >
-                                {isUpdating ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    "Save Notes"
-                                )}
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </div>
             </div>
-        </div>
+        </>
     );
 };
 

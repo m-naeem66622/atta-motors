@@ -23,6 +23,7 @@ import {
 import { useAppDispatch, useAppState } from "@/hooks";
 import { login, setRoute } from "@/redux/store";
 import { AppRoutes } from "@/router";
+import { Helmet } from "react-helmet-async";
 
 const formSchema = z.object({
     emailOrUsername: z
@@ -71,82 +72,89 @@ export const LoginPage: FC<LoginPageProps> = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <Card className="w-[350px] z-10">
-                <CardHeader>
-                    <CardTitle>Login</CardTitle>
-                    <CardDescription>
-                        Enter your credentials to access your account.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(onSubmit)}
-                            className="space-y-8"
-                        >
-                            <FormField
-                                control={form.control}
-                                name="emailOrUsername"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Email or Username</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Enter email or username"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="password"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Password</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="password"
-                                                placeholder="Enter your password"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <LoadingButton
-                                type="submit"
-                                className="w-full"
-                                isLoading={authenticate.isLoading}
+        <>
+            <Helmet>
+                <title>Login | Atta Motors</title>
+            </Helmet>
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <Card className="w-[350px] z-10">
+                    <CardHeader>
+                        <CardTitle>Login</CardTitle>
+                        <CardDescription>
+                            Enter your credentials to access your account.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Form {...form}>
+                            <form
+                                onSubmit={form.handleSubmit(onSubmit)}
+                                className="space-y-8"
                             >
-                                Login
-                            </LoadingButton>
-                        </form>
-                    </Form>
-                </CardContent>
-                <CardFooter className="flex justify-center">
-                    <p className="text-sm text-muted-foreground">
-                        Don't have an account?{" "}
-                        <Link
-                            to={AppRoutes.register}
-                            className="text-primary hover:underline"
-                        >
-                            Register
-                        </Link>
-                    </p>
-                </CardFooter>
-            </Card>
-            <Particles
-                className="absolute inset-0"
-                quantity={1000}
-                ease={10}
-                color="#000000"
-                refresh
-            />
-        </div>
+                                <FormField
+                                    control={form.control}
+                                    name="emailOrUsername"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                Email or Username
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Enter email or username"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Password</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="password"
+                                                    placeholder="Enter your password"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <LoadingButton
+                                    type="submit"
+                                    className="w-full"
+                                    isLoading={authenticate.isLoading}
+                                >
+                                    Login
+                                </LoadingButton>
+                            </form>
+                        </Form>
+                    </CardContent>
+                    <CardFooter className="flex justify-center">
+                        <p className="text-sm text-muted-foreground">
+                            Don't have an account?{" "}
+                            <Link
+                                to={AppRoutes.register}
+                                className="text-primary hover:underline"
+                            >
+                                Register
+                            </Link>
+                        </p>
+                    </CardFooter>
+                </Card>
+                <Particles
+                    className="absolute inset-0"
+                    quantity={1000}
+                    ease={10}
+                    color="#000000"
+                    refresh
+                />
+            </div>
+        </>
     );
 };

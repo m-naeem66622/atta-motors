@@ -13,6 +13,7 @@ import {
 import { VehicleCard } from "@/components/VehicleCard";
 import { useAppDispatch, useAppState } from "@/hooks";
 import { fetchVehicles } from "@/redux/store";
+import { Helmet } from "react-helmet-async";
 
 interface HomePageProps {}
 
@@ -30,6 +31,9 @@ export const HomePage: FC<HomePageProps> = () => {
     }, [dispatch]);
     return (
         <>
+            <Helmet>
+                <title>Home | Atta Motors</title>
+            </Helmet>
             <section className="relative h-[600px] flex items-center justify-center text-center">
                 <div
                     className="absolute inset-0 bg-cover bg-center"

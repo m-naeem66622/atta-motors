@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MaintenanceBookingForm } from "@/components";
+import { Helmet } from "react-helmet-async";
 
 // Import the maintenance types data
 const maintenanceTypes = [
@@ -110,37 +111,42 @@ export const MaintenanceBookingPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
-            <div className="container mx-auto max-w-6xl">
-                <Button
-                    variant="ghost"
-                    onClick={handleGoBack}
-                    className="mb-6 text-black hover:text-gray-700"
-                >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Maintenance Services
-                </Button>
+        <>
+            <Helmet>
+                <title>Book Maintenance Appointment | Atta Motors</title>
+            </Helmet>
+            <div className="min-h-screen bg-gray-50 py-8 px-4">
+                <div className="container mx-auto max-w-6xl">
+                    <Button
+                        variant="ghost"
+                        onClick={handleGoBack}
+                        className="mb-6 text-black hover:text-gray-700"
+                    >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Maintenance Services
+                    </Button>
 
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div className="bg-black px-6 py-4">
-                        <h1 className="text-2xl font-bold text-white">
-                            Book Maintenance Appointment
-                        </h1>
-                        <p className="text-gray-300">
-                            Schedule your vehicle maintenance in a few simple
-                            steps
-                        </p>
-                    </div>
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div className="bg-black px-6 py-4">
+                            <h1 className="text-2xl font-bold text-white">
+                                Book Maintenance Appointment
+                            </h1>
+                            <p className="text-gray-300">
+                                Schedule your vehicle maintenance in a few
+                                simple steps
+                            </p>
+                        </div>
 
-                    <div className="p-6">
-                        <MaintenanceBookingForm
-                            onCancel={handleGoBack}
-                            maintenanceTypes={maintenanceTypes}
-                            initialServiceType={selectedService}
-                        />
+                        <div className="p-6">
+                            <MaintenanceBookingForm
+                                onCancel={handleGoBack}
+                                maintenanceTypes={maintenanceTypes}
+                                initialServiceType={selectedService}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };

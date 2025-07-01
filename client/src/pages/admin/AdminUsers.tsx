@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Helmet } from "react-helmet-async";
 
 // Mock data for users
 const users = [
@@ -253,318 +254,330 @@ export const AdminUsers = () => {
     });
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+        <>
+            <Helmet>
+                <title>Admin Users | Atta Motors</title>
+            </Helmet>
+            <div className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            User Management
+                        </h1>
+                        <p className="text-muted-foreground">
+                            Manage user accounts and permissions
+                        </p>
+                    </div>
+                </div>
+
+                {/* Search and Filters */}
+                <Card>
+                    <CardHeader className="pb-3">
+                        <CardTitle>Search & Filter</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <form
+                                onSubmit={handleSearch}
+                                className="flex-1 flex gap-2"
+                            >
+                                <div className="relative flex-1">
+                                    <Search
+                                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                        size={18}
+                                    />
+                                    <Input
+                                        type="text"
+                                        placeholder="Search by name, email, or ID"
+                                        value={searchTerm}
+                                        onChange={(e) =>
+                                            setSearchTerm(e.target.value)
+                                        }
+                                        className="pl-10"
+                                    />
+                                </div>
+                                <Button type="submit" variant="default">
+                                    Search
+                                </Button>
+                            </form>
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowFilters(!showFilters)}
+                            >
+                                <Filter size={18} className="mr-2" />
+                                Filters
+                                <ChevronDown
+                                    size={16}
+                                    className={`ml-2 transition-transform ${
+                                        showFilters ? "rotate-180" : ""
+                                    }`}
+                                />
+                            </Button>
+                        </div>
+
+                        {showFilters && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Status
+                                    </label>
+                                    <Select
+                                        value={filters.status}
+                                        onValueChange={(value) =>
+                                            handleFilterChange("status", value)
+                                        }
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="any">
+                                                Any
+                                            </SelectItem>
+                                            <SelectItem value="active">
+                                                Active
+                                            </SelectItem>
+                                            <SelectItem value="inactive">
+                                                Inactive
+                                            </SelectItem>
+                                            <SelectItem value="suspended">
+                                                Suspended
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Joined From
+                                    </label>
+                                    <Input
+                                        type="date"
+                                        value={filters.joinedFrom}
+                                        onChange={(e) =>
+                                            handleFilterChange(
+                                                "joinedFrom",
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Joined To
+                                    </label>
+                                    <Input
+                                        type="date"
+                                        value={filters.joinedTo}
+                                        onChange={(e) =>
+                                            handleFilterChange(
+                                                "joinedTo",
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Users List */}
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">
-                        User Management
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Manage user accounts and permissions
-                    </p>
+                    <Tabs
+                        defaultValue="all"
+                        onValueChange={setActiveTab}
+                        className="w-full"
+                    >
+                        <TabsList className="grid w-full grid-cols-4 mb-4">
+                            <TabsTrigger value="all">All Users</TabsTrigger>
+                            <TabsTrigger value="active">Active</TabsTrigger>
+                            <TabsTrigger value="inactive">Inactive</TabsTrigger>
+                            <TabsTrigger value="suspended">
+                                Suspended
+                            </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value={activeTab}>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b">
+                                            <th className="text-left font-medium p-2 pl-0">
+                                                ID
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                User
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Email
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Phone
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Joined
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Last Login
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Activity
+                                            </th>
+                                            <th className="text-left font-medium p-2">
+                                                Status
+                                            </th>
+                                            <th className="text-right font-medium p-2 pr-0">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredUsers.map((user) => (
+                                            <tr
+                                                key={user.id}
+                                                className="border-b last:border-0 hover:bg-gray-50"
+                                            >
+                                                <td className="p-2 pl-0">
+                                                    {user.id}
+                                                </td>
+                                                <td className="p-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <Avatar className="h-8 w-8">
+                                                            <AvatarImage
+                                                                src={
+                                                                    user.avatar ||
+                                                                    "/placeholder.svg"
+                                                                }
+                                                                alt={user.name}
+                                                            />
+                                                            <AvatarFallback>
+                                                                {user.name.charAt(
+                                                                    0
+                                                                )}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <p className="font-medium">
+                                                            {user.name}
+                                                        </p>
+                                                    </div>
+                                                </td>
+                                                <td className="p-2">
+                                                    {user.email}
+                                                </td>
+                                                <td className="p-2">
+                                                    {user.phone}
+                                                </td>
+                                                <td className="p-2">
+                                                    <div className="flex items-center gap-1">
+                                                        <Calendar className="h-4 w-4 text-gray-500" />
+                                                        <span>
+                                                            {formatDate(
+                                                                user.joined
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="p-2">
+                                                    {formatDate(user.lastLogin)}
+                                                </td>
+                                                <td className="p-2">
+                                                    <div className="text-sm">
+                                                        <div>
+                                                            Maintenance
+                                                            Requests:{" "}
+                                                            {
+                                                                user.maintenanceRequests
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="p-2">
+                                                    {getStatusBadge(
+                                                        user.status
+                                                    )}
+                                                </td>
+                                                <td className="p-2 pr-0 text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                handleViewUser(
+                                                                    user.id
+                                                                )
+                                                            }
+                                                        >
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                >
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuLabel>
+                                                                    Actions
+                                                                </DropdownMenuLabel>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem
+                                                                    onClick={() =>
+                                                                        handleViewUser(
+                                                                            user.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <UserCog className="mr-2 h-4 w-4" />
+                                                                    View Profile
+                                                                </DropdownMenuItem>
+                                                                {(user.status ===
+                                                                    "inactive" ||
+                                                                    user.status ===
+                                                                        "suspended") && (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() =>
+                                                                            handleActivateUser(
+                                                                                user.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <UserCheck className="mr-2 h-4 w-4 text-green-500" />
+                                                                        Activate
+                                                                        Account
+                                                                    </DropdownMenuItem>
+                                                                )}
+                                                                {user.status ===
+                                                                    "active" && (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() =>
+                                                                            handleSuspendUser(
+                                                                                user.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <UserX className="mr-2 h-4 w-4 text-red-500" />
+                                                                        Suspend
+                                                                        Account
+                                                                    </DropdownMenuItem>
+                                                                )}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </TabsContent>
+                    </Tabs>
                 </div>
             </div>
-
-            {/* Search and Filters */}
-            <Card>
-                <CardHeader className="pb-3">
-                    <CardTitle>Search & Filter</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <form
-                            onSubmit={handleSearch}
-                            className="flex-1 flex gap-2"
-                        >
-                            <div className="relative flex-1">
-                                <Search
-                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                    size={18}
-                                />
-                                <Input
-                                    type="text"
-                                    placeholder="Search by name, email, or ID"
-                                    value={searchTerm}
-                                    onChange={(e) =>
-                                        setSearchTerm(e.target.value)
-                                    }
-                                    className="pl-10"
-                                />
-                            </div>
-                            <Button type="submit" variant="default">
-                                Search
-                            </Button>
-                        </form>
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowFilters(!showFilters)}
-                        >
-                            <Filter size={18} className="mr-2" />
-                            Filters
-                            <ChevronDown
-                                size={16}
-                                className={`ml-2 transition-transform ${
-                                    showFilters ? "rotate-180" : ""
-                                }`}
-                            />
-                        </Button>
-                    </div>
-
-                    {showFilters && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Status
-                                </label>
-                                <Select
-                                    value={filters.status}
-                                    onValueChange={(value) =>
-                                        handleFilterChange("status", value)
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="any">Any</SelectItem>
-                                        <SelectItem value="active">
-                                            Active
-                                        </SelectItem>
-                                        <SelectItem value="inactive">
-                                            Inactive
-                                        </SelectItem>
-                                        <SelectItem value="suspended">
-                                            Suspended
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Joined From
-                                </label>
-                                <Input
-                                    type="date"
-                                    value={filters.joinedFrom}
-                                    onChange={(e) =>
-                                        handleFilterChange(
-                                            "joinedFrom",
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Joined To
-                                </label>
-                                <Input
-                                    type="date"
-                                    value={filters.joinedTo}
-                                    onChange={(e) =>
-                                        handleFilterChange(
-                                            "joinedTo",
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                            </div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* Users List */}
-            <div>
-                <Tabs
-                    defaultValue="all"
-                    onValueChange={setActiveTab}
-                    className="w-full"
-                >
-                    <TabsList className="grid w-full grid-cols-4 mb-4">
-                        <TabsTrigger value="all">All Users</TabsTrigger>
-                        <TabsTrigger value="active">Active</TabsTrigger>
-                        <TabsTrigger value="inactive">Inactive</TabsTrigger>
-                        <TabsTrigger value="suspended">Suspended</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value={activeTab}>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="text-left font-medium p-2 pl-0">
-                                            ID
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            User
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Email
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Phone
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Joined
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Last Login
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Activity
-                                        </th>
-                                        <th className="text-left font-medium p-2">
-                                            Status
-                                        </th>
-                                        <th className="text-right font-medium p-2 pr-0">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredUsers.map((user) => (
-                                        <tr
-                                            key={user.id}
-                                            className="border-b last:border-0 hover:bg-gray-50"
-                                        >
-                                            <td className="p-2 pl-0">
-                                                {user.id}
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="h-8 w-8">
-                                                        <AvatarImage
-                                                            src={
-                                                                user.avatar ||
-                                                                "/placeholder.svg"
-                                                            }
-                                                            alt={user.name}
-                                                        />
-                                                        <AvatarFallback>
-                                                            {user.name.charAt(
-                                                                0
-                                                            )}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <p className="font-medium">
-                                                        {user.name}
-                                                    </p>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
-                                                {user.email}
-                                            </td>
-                                            <td className="p-2">
-                                                {user.phone}
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="flex items-center gap-1">
-                                                    <Calendar className="h-4 w-4 text-gray-500" />
-                                                    <span>
-                                                        {formatDate(
-                                                            user.joined
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
-                                                {formatDate(user.lastLogin)}
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="text-sm">
-                                                    <div>
-                                                        Maintenance Requests:{" "}
-                                                        {
-                                                            user.maintenanceRequests
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
-                                                {getStatusBadge(user.status)}
-                                            </td>
-                                            <td className="p-2 pr-0 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            handleViewUser(
-                                                                user.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger
-                                                            asChild
-                                                        >
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                            >
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuLabel>
-                                                                Actions
-                                                            </DropdownMenuLabel>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem
-                                                                onClick={() =>
-                                                                    handleViewUser(
-                                                                        user.id
-                                                                    )
-                                                                }
-                                                            >
-                                                                <UserCog className="mr-2 h-4 w-4" />
-                                                                View Profile
-                                                            </DropdownMenuItem>
-                                                            {(user.status ===
-                                                                "inactive" ||
-                                                                user.status ===
-                                                                    "suspended") && (
-                                                                <DropdownMenuItem
-                                                                    onClick={() =>
-                                                                        handleActivateUser(
-                                                                            user.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <UserCheck className="mr-2 h-4 w-4 text-green-500" />
-                                                                    Activate
-                                                                    Account
-                                                                </DropdownMenuItem>
-                                                            )}
-                                                            {user.status ===
-                                                                "active" && (
-                                                                <DropdownMenuItem
-                                                                    onClick={() =>
-                                                                        handleSuspendUser(
-                                                                            user.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <UserX className="mr-2 h-4 w-4 text-red-500" />
-                                                                    Suspend
-                                                                    Account
-                                                                </DropdownMenuItem>
-                                                            )}
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </TabsContent>
-                </Tabs>
-            </div>
-        </div>
+        </>
     );
 };

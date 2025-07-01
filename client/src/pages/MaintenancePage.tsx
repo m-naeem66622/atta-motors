@@ -16,6 +16,7 @@ import {
     AlertCircle,
     ArrowRight,
 } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 export const MaintenancePage: React.FC = () => {
     const navigate = useNavigate();
@@ -123,108 +124,116 @@ export const MaintenancePage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12">
-            <div className="container mx-auto px-4">
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-12">
-                        <h1 className="text-3xl font-bold mb-4">
-                            Vehicle Maintenance Services
-                        </h1>
-                        <p className="text-gray-600 max-w-3xl mx-auto">
-                            Keep your vehicle in top condition with our
-                            professional maintenance services. Our certified
-                            technicians use the latest tools and genuine parts
-                            to ensure quality service.
-                        </p>
-                    </div>
+        <>
+            <Helmet>
+                <title>Maintenance Services | Atta Motors</title>
+            </Helmet>
+            <div className="min-h-screen bg-gray-50 py-12">
+                <div className="container mx-auto px-4">
+                    <div className="max-w-6xl mx-auto">
+                        <div className="text-center mb-12">
+                            <h1 className="text-3xl font-bold mb-4">
+                                Vehicle Maintenance Services
+                            </h1>
+                            <p className="text-gray-600 max-w-3xl mx-auto">
+                                Keep your vehicle in top condition with our
+                                professional maintenance services. Our certified
+                                technicians use the latest tools and genuine
+                                parts to ensure quality service.
+                            </p>
+                        </div>
 
-                    <div className="flex justify-between items-center mb-8">
-                        <h2 className="text-2xl font-bold">Our Services</h2>
-                        <Button variant="outline" onClick={handleViewHistory}>
-                            View Maintenance History
-                        </Button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                        {maintenanceTypes.map((type) => (
-                            <Card
-                                key={type.id}
-                                className="overflow-hidden hover:shadow-lg transition-all"
+                        <div className="flex justify-between items-center mb-8">
+                            <h2 className="text-2xl font-bold">Our Services</h2>
+                            <Button
+                                variant="outline"
+                                onClick={handleViewHistory}
                             >
-                                <CardHeader className="pb-2">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <CardTitle className="text-xl mb-1">
-                                                {type.title}
-                                            </CardTitle>
-                                            <CardDescription>
-                                                {type.description}
-                                            </CardDescription>
-                                        </div>
-                                        <div>{type.icon}</div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="pb-4">
-                                    <div className="space-y-2 mb-4">
-                                        <p className="text-sm font-medium">
-                                            Services include:
-                                        </p>
-                                        <ul className="text-sm text-gray-600 space-y-1">
-                                            {type.services.map(
-                                                (service, index) => (
-                                                    <li
-                                                        key={index}
-                                                        className="flex items-center"
-                                                    >
-                                                        <CheckCircle className="h-3 w-3 mr-2 text-green-500" />
-                                                        {service}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    </div>
-                                    <div className="flex justify-between text-sm text-gray-600">
-                                        <div className="flex items-center">
-                                            <Clock className="h-4 w-4 mr-1" />
-                                            {type.estimatedTime}
-                                        </div>
-                                        <div className="font-medium">
-                                            {type.price}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                                <div className="px-6 pb-6">
-                                    <Button
-                                        className="w-full"
-                                        onClick={() =>
-                                            handleBookService(type.id)
-                                        }
-                                    >
-                                        Book Appointment{" "}
-                                        <ArrowRight className="ml-2 h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
+                                View Maintenance History
+                            </Button>
+                        </div>
 
-                    <div className="bg-black text-white rounded-lg p-8 text-center mt-12">
-                        <h2 className="text-2xl font-bold mb-4">
-                            Need Emergency Service?
-                        </h2>
-                        <p className="mb-6">
-                            Our technicians are available for urgent repairs and
-                            roadside assistance.
-                        </p>
-                        <Button
-                            variant="outline"
-                            className="bg-transparent text-white border-white hover:bg-white hover:text-black"
-                        >
-                            Call Emergency Service
-                        </Button>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                            {maintenanceTypes.map((type) => (
+                                <Card
+                                    key={type.id}
+                                    className="overflow-hidden hover:shadow-lg transition-all"
+                                >
+                                    <CardHeader className="pb-2">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <CardTitle className="text-xl mb-1">
+                                                    {type.title}
+                                                </CardTitle>
+                                                <CardDescription>
+                                                    {type.description}
+                                                </CardDescription>
+                                            </div>
+                                            <div>{type.icon}</div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="pb-4">
+                                        <div className="space-y-2 mb-4">
+                                            <p className="text-sm font-medium">
+                                                Services include:
+                                            </p>
+                                            <ul className="text-sm text-gray-600 space-y-1">
+                                                {type.services.map(
+                                                    (service, index) => (
+                                                        <li
+                                                            key={index}
+                                                            className="flex items-center"
+                                                        >
+                                                            <CheckCircle className="h-3 w-3 mr-2 text-green-500" />
+                                                            {service}
+                                                        </li>
+                                                    )
+                                                )}
+                                            </ul>
+                                        </div>
+                                        <div className="flex justify-between text-sm text-gray-600">
+                                            <div className="flex items-center">
+                                                <Clock className="h-4 w-4 mr-1" />
+                                                {type.estimatedTime}
+                                            </div>
+                                            <div className="font-medium">
+                                                {type.price}
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                    <div className="px-6 pb-6">
+                                        <Button
+                                            className="w-full"
+                                            onClick={() =>
+                                                handleBookService(type.id)
+                                            }
+                                        >
+                                            Book Appointment{" "}
+                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+
+                        <div className="bg-black text-white rounded-lg p-8 text-center mt-12">
+                            <h2 className="text-2xl font-bold mb-4">
+                                Need Emergency Service?
+                            </h2>
+                            <p className="mb-6">
+                                Our technicians are available for urgent repairs
+                                and roadside assistance.
+                            </p>
+                            <Button
+                                variant="outline"
+                                className="bg-transparent text-white border-white hover:bg-white hover:text-black"
+                            >
+                                Call Emergency Service
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };

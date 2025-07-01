@@ -27,6 +27,7 @@ import { AppRoutes } from "@/router";
 import { toast } from "@/hooks/use-toast";
 import { FormatterDate } from "@/utils";
 import { getImageUrl } from "@/utils/imageUtils";
+import { Helmet } from "react-helmet-async";
 
 // Fallback data for similar vehicles
 const similarVehicles = [
@@ -111,14 +112,19 @@ export const VehicleDetailPage: React.FC = () => {
     // If still loading, show a loading indicator
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">
-                        Loading vehicle details...
-                    </p>
+            <>
+                <Helmet>
+                    <title>Loading Vehicle Details | Atta Motors</title>
+                </Helmet>
+                <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+                        <p className="mt-4 text-gray-600">
+                            Loading vehicle details...
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </>
         );
     }
 
@@ -127,468 +133,504 @@ export const VehicleDetailPage: React.FC = () => {
     // If vehicle not found, show error message
     if (!vehicle) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                        Vehicle Not Found
-                    </h1>
-                    <p className="text-gray-600 mb-6">
-                        The vehicle you're looking for doesn't exist.
-                    </p>
-                    <Link to={AppRoutes.vehicleSales}>
-                        <Button>Back to Vehicle Sales</Button>
-                    </Link>
+            <>
+                <Helmet>
+                    <title>Vehicle Not Found | Atta Motors</title>
+                </Helmet>
+                <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                    <div className="text-center">
+                        <h1 className="text-2xl font-bold text-gray-900 mb-4">
+                            Vehicle Not Found
+                        </h1>
+                        <p className="text-gray-600 mb-6">
+                            The vehicle you're looking for doesn't exist.
+                        </p>
+                        <Link to={AppRoutes.vehicleSales}>
+                            <Button>Back to Vehicle Sales</Button>
+                        </Link>
+                    </div>
                 </div>
-            </div>
+            </>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
-            <div className="container mx-auto max-w-7xl">
-                <Link to={AppRoutes.vehicleSales}>
-                    <Button
-                        variant="ghost"
-                        className="mb-6 text-black hover:text-gray-700"
-                    >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Vehicle Sales
-                    </Button>
-                </Link>
+        <>
+            <Helmet>
+                <title>
+                    {vehicle.title
+                        ? `${vehicle.title} | Atta Motors`
+                        : "Vehicle Details | Atta Motors"}
+                </title>
+            </Helmet>
+            <div className="min-h-screen bg-gray-50 py-8 px-4">
+                <div className="container mx-auto max-w-7xl">
+                    <Link to={AppRoutes.vehicleSales}>
+                        <Button
+                            variant="ghost"
+                            className="mb-6 text-black hover:text-gray-700"
+                        >
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to Vehicle Sales
+                        </Button>
+                    </Link>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Content - Left and Center */}
-                    <div className="lg:col-span-2 space-y-8">
-                        {/* Image Gallery */}
-                        <div className="relative bg-white rounded-xl overflow-hidden shadow-md">
-                            <div className="relative aspect-[16/9] bg-gray-100">
-                                {vehicle.images && vehicle.images.length > 0 ? (
-                                    <>
-                                        <img
-                                            src={getImageUrl(
-                                                vehicle.images[
-                                                    currentImageIndex
-                                                ]
-                                            )}
-                                            alt={vehicle.title}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                e.currentTarget.src =
-                                                    "https://placehold.co/600x400/png";
-                                            }}
-                                        />
-                                        {/* Image Navigation - Only show if there are multiple images */}
-                                        {vehicle.images.length > 1 && (
-                                            <>
-                                                <div className="absolute inset-0 flex items-center justify-between px-4">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="icon"
-                                                        className="rounded-full bg-white/80 hover:bg-white"
-                                                        onClick={prevImage}
-                                                    >
-                                                        <ChevronLeft className="h-6 w-6" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="icon"
-                                                        className="rounded-full bg-white/80 hover:bg-white"
-                                                        onClick={nextImage}
-                                                    >
-                                                        <ChevronRight className="h-6 w-6" />
-                                                    </Button>
-                                                </div>
-
-                                                {/* Image Counter */}
-                                                <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-                                                    {currentImageIndex + 1} /{" "}
-                                                    {vehicle.images.length}
-                                                </div>
-                                            </>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <span className="text-gray-400">
-                                            No images available
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Thumbnail Navigation */}
-                            {vehicle.images && vehicle.images.length > 1 && (
-                                <div className="p-4 flex gap-2 overflow-x-auto">
-                                    {vehicle.images.map((image, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() =>
-                                                setCurrentImageIndex(index)
-                                            }
-                                            className={`flex-shrink-0 w-20 h-14 rounded-md overflow-hidden border-2 transition-all ${
-                                                currentImageIndex === index
-                                                    ? "border-black"
-                                                    : "border-transparent"
-                                            }`}
-                                        >
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Main Content - Left and Center */}
+                        <div className="lg:col-span-2 space-y-8">
+                            {/* Image Gallery */}
+                            <div className="relative bg-white rounded-xl overflow-hidden shadow-md">
+                                <div className="relative aspect-[16/9] bg-gray-100">
+                                    {vehicle.images &&
+                                    vehicle.images.length > 0 ? (
+                                        <>
                                             <img
-                                                src={getImageUrl(image)}
-                                                alt={`Thumbnail ${index + 1}`}
+                                                src={getImageUrl(
+                                                    vehicle.images[
+                                                        currentImageIndex
+                                                    ]
+                                                )}
+                                                alt={vehicle.title}
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => {
                                                     e.currentTarget.src =
-                                                        "https://placehold.co/200x150/png";
+                                                        "https://placehold.co/600x400/png";
                                                 }}
                                             />
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                                            {/* Image Navigation - Only show if there are multiple images */}
+                                            {vehicle.images.length > 1 && (
+                                                <>
+                                                    <div className="absolute inset-0 flex items-center justify-between px-4">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="icon"
+                                                            className="rounded-full bg-white/80 hover:bg-white"
+                                                            onClick={prevImage}
+                                                        >
+                                                            <ChevronLeft className="h-6 w-6" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="icon"
+                                                            className="rounded-full bg-white/80 hover:bg-white"
+                                                            onClick={nextImage}
+                                                        >
+                                                            <ChevronRight className="h-6 w-6" />
+                                                        </Button>
+                                                    </div>
 
-                        {/* Vehicle Details */}
-                        <div className="bg-white rounded-xl shadow-md overflow-hidden p-6">
-                            <h2 className="text-xl font-semibold mb-4">
-                                Vehicle Specifications
-                            </h2>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4">
-                                <div className="space-y-1">
-                                    <p className="text-sm text-gray-500 flex items-center">
-                                        <Car className="h-4 w-4 mr-1" />
-                                        Make
-                                    </p>
-                                    <p className="font-medium">
-                                        {vehicle.make}
-                                    </p>
+                                                    {/* Image Counter */}
+                                                    <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                                                        {currentImageIndex + 1}{" "}
+                                                        /{" "}
+                                                        {vehicle.images.length}
+                                                    </div>
+                                                </>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                            <span className="text-gray-400">
+                                                No images available
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm text-gray-500 flex items-center">
-                                        <Car className="h-4 w-4 mr-1" />
-                                        Model
-                                    </p>
-                                    <p className="font-medium">
-                                        {vehicle.model}
-                                    </p>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm text-gray-500 flex items-center">
-                                        <Calendar className="h-4 w-4 mr-1" />
-                                        Year
-                                    </p>
-                                    <p className="font-medium">
-                                        {vehicle.year}
-                                    </p>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm text-gray-500 flex items-center">
-                                        <Gauge className="h-4 w-4 mr-1" />
-                                        Mileage
-                                    </p>
-                                    <p className="font-medium">
-                                        {vehicle.mileage
-                                            ? vehicle.mileage.toLocaleString()
-                                            : "N/A"}{" "}
-                                        miles
-                                    </p>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm text-gray-500 flex items-center">
-                                        <Car className="h-4 w-4 mr-1" />
-                                        Transmission
-                                    </p>
-                                    <p className="font-medium">
-                                        {vehicle.transmission || "N/A"}
-                                    </p>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm text-gray-500 flex items-center">
-                                        <Fuel className="h-4 w-4 mr-1" />
-                                        Fuel Type
-                                    </p>
-                                    <p className="font-medium">
-                                        {vehicle.fuelType || "N/A"}
-                                    </p>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm text-gray-500 flex items-center">
-                                        <Check className="h-4 w-4 mr-1" />
-                                        Condition
-                                    </p>
-                                    <p className="font-medium">
-                                        {vehicle.condition || "N/A"}
-                                    </p>
-                                </div>
-                                {vehicle.exteriorColor && (
-                                    <div className="space-y-1">
-                                        <p className="text-sm text-gray-500">
-                                            Exterior Color
-                                        </p>
-                                        <p className="font-medium">
-                                            {vehicle.exteriorColor}
-                                        </p>
-                                    </div>
-                                )}
-                                {vehicle.interiorColor && (
-                                    <div className="space-y-1">
-                                        <p className="text-sm text-gray-500">
-                                            Interior Color
-                                        </p>
-                                        <p className="font-medium">
-                                            {vehicle.interiorColor}
-                                        </p>
-                                    </div>
-                                )}
+
+                                {/* Thumbnail Navigation */}
+                                {vehicle.images &&
+                                    vehicle.images.length > 1 && (
+                                        <div className="p-4 flex gap-2 overflow-x-auto">
+                                            {vehicle.images.map(
+                                                (image, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() =>
+                                                            setCurrentImageIndex(
+                                                                index
+                                                            )
+                                                        }
+                                                        className={`flex-shrink-0 w-20 h-14 rounded-md overflow-hidden border-2 transition-all ${
+                                                            currentImageIndex ===
+                                                            index
+                                                                ? "border-black"
+                                                                : "border-transparent"
+                                                        }`}
+                                                    >
+                                                        <img
+                                                            src={getImageUrl(
+                                                                image
+                                                            )}
+                                                            alt={`Thumbnail ${index + 1}`}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                e.currentTarget.src =
+                                                                    "https://placehold.co/200x150/png";
+                                                            }}
+                                                        />
+                                                    </button>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
                             </div>
 
-                            <Separator className="my-6" />
-
-                            <h2 className="text-xl font-semibold mb-4">
-                                Description
-                            </h2>
-                            <p className="text-gray-700 whitespace-pre-line">
-                                {vehicle.description ||
-                                    "No description provided."}
-                            </p>
-
-                            <Separator className="my-6" />
-
-                            <div className="flex items-center justify-between text-sm text-gray-500">
-                                <div>
-                                    Listed on{" "}
-                                    {FormatterDate.formatDate(
-                                        vehicle.createdAt
-                                    )}
-                                </div>
-                                <div>
-                                    Vehicle ID: {vehicle._id.substring(0, 8)}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Sidebar - Right */}
-                    <div className="space-y-6">
-                        {/* Price and Actions */}
-                        <Card>
-                            <CardContent className="p-6">
-                                <div className="mb-4">
-                                    <h1 className="text-2xl font-bold mb-2">
-                                        {vehicle.title}
-                                    </h1>
-                                    <div className="flex items-center text-gray-500 text-sm">
-                                        <MapPin size={14} className="mr-1" />
-                                        {vehicle.location ||
-                                            "Location not specified"}
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-between items-center mb-6">
-                                    <div className="text-3xl font-bold">
-                                        ${vehicle.price.toLocaleString()}
-                                    </div>
-                                    {vehicle.condition && (
-                                        <Badge
-                                            variant="outline"
-                                            className={`${
-                                                vehicle.condition === "New"
-                                                    ? "bg-green-100 text-green-800 border-green-200"
-                                                    : "bg-blue-100 text-blue-800 border-blue-200"
-                                            }`}
-                                        >
-                                            {vehicle.condition}
-                                        </Badge>
-                                    )}
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-y-2 text-sm mb-6">
-                                    <div className="flex items-center">
-                                        <Calendar
-                                            size={16}
-                                            className="mr-2 text-gray-500"
-                                        />
-                                        {vehicle.year}
-                                    </div>
-                                    {vehicle.mileage && (
-                                        <div className="flex items-center">
-                                            <Gauge
-                                                size={16}
-                                                className="mr-2 text-gray-500"
-                                            />
-                                            {vehicle.mileage.toLocaleString()}{" "}
-                                            mi
-                                        </div>
-                                    )}
-                                    {vehicle.fuelType && (
-                                        <div className="flex items-center">
-                                            <Fuel
-                                                size={16}
-                                                className="mr-2 text-gray-500"
-                                            />
-                                            {vehicle.fuelType}
-                                        </div>
-                                    )}
-                                    {vehicle.transmission && (
-                                        <div className="flex items-center">
-                                            <Car
-                                                size={16}
-                                                className="mr-2 text-gray-500"
-                                            />
-                                            {vehicle.transmission}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="space-y-3">
-                                    <Button className="w-full">
-                                        Contact Seller
-                                    </Button>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <Button
-                                            variant="outline"
-                                            onClick={toggleWishlist}
-                                        >
-                                            <Heart
-                                                className={`mr-2 h-4 w-4 ${
-                                                    isWishlisted
-                                                        ? "fill-red-500 text-red-500"
-                                                        : ""
-                                                }`}
-                                            />
-                                            {isWishlisted ? "Saved" : "Save"}
-                                        </Button>
-                                        <Button variant="outline">
-                                            <Share className="mr-2 h-4 w-4" />
-                                            Share
-                                        </Button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Seller Information */}
-                        <Card>
-                            <CardContent className="p-6">
-                                <h2 className="text-lg font-semibold mb-4">
-                                    Seller Information
+                            {/* Vehicle Details */}
+                            <div className="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                                <h2 className="text-xl font-semibold mb-4">
+                                    Vehicle Specifications
                                 </h2>
-                                {vehicle.owner ? (
-                                    <>
-                                        <div className="flex items-center mb-4">
-                                            <Avatar className="h-12 w-12 mr-4">
-                                                <AvatarImage
-                                                    src={
-                                                        vehicle.owner.avatar ||
-                                                        undefined
-                                                    }
-                                                    alt={vehicle.owner.name}
-                                                />
-                                                <AvatarFallback>
-                                                    {vehicle.owner.name ? (
-                                                        vehicle.owner.name
-                                                            .substring(0, 1)
-                                                            .toUpperCase()
-                                                    ) : (
-                                                        <User className="h-6 w-6" />
-                                                    )}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <p className="font-medium">
-                                                    {vehicle.owner.name}
-                                                </p>
-                                                <p className="text-sm text-gray-500">
-                                                    Member since{" "}
-                                                    {formatDate(
-                                                        vehicle.owner.createdAt
-                                                    )}
-                                                </p>
-                                            </div>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4">
+                                    <div className="space-y-1">
+                                        <p className="text-sm text-gray-500 flex items-center">
+                                            <Car className="h-4 w-4 mr-1" />
+                                            Make
+                                        </p>
+                                        <p className="font-medium">
+                                            {vehicle.make}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm text-gray-500 flex items-center">
+                                            <Car className="h-4 w-4 mr-1" />
+                                            Model
+                                        </p>
+                                        <p className="font-medium">
+                                            {vehicle.model}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm text-gray-500 flex items-center">
+                                            <Calendar className="h-4 w-4 mr-1" />
+                                            Year
+                                        </p>
+                                        <p className="font-medium">
+                                            {vehicle.year}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm text-gray-500 flex items-center">
+                                            <Gauge className="h-4 w-4 mr-1" />
+                                            Mileage
+                                        </p>
+                                        <p className="font-medium">
+                                            {vehicle.mileage
+                                                ? vehicle.mileage.toLocaleString()
+                                                : "N/A"}{" "}
+                                            miles
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm text-gray-500 flex items-center">
+                                            <Car className="h-4 w-4 mr-1" />
+                                            Transmission
+                                        </p>
+                                        <p className="font-medium">
+                                            {vehicle.transmission || "N/A"}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm text-gray-500 flex items-center">
+                                            <Fuel className="h-4 w-4 mr-1" />
+                                            Fuel Type
+                                        </p>
+                                        <p className="font-medium">
+                                            {vehicle.fuelType || "N/A"}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm text-gray-500 flex items-center">
+                                            <Check className="h-4 w-4 mr-1" />
+                                            Condition
+                                        </p>
+                                        <p className="font-medium">
+                                            {vehicle.condition || "N/A"}
+                                        </p>
+                                    </div>
+                                    {vehicle.exteriorColor && (
+                                        <div className="space-y-1">
+                                            <p className="text-sm text-gray-500">
+                                                Exterior Color
+                                            </p>
+                                            <p className="font-medium">
+                                                {vehicle.exteriorColor}
+                                            </p>
                                         </div>
+                                    )}
+                                    {vehicle.interiorColor && (
+                                        <div className="space-y-1">
+                                            <p className="text-sm text-gray-500">
+                                                Interior Color
+                                            </p>
+                                            <p className="font-medium">
+                                                {vehicle.interiorColor}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
 
-                                        {(vehicle.contactPhone ||
-                                            vehicle.owner.phone) && (
-                                            <div className="space-y-3 mb-4">
-                                                {(vehicle.contactPhone ||
-                                                    vehicle.owner.phone) && (
-                                                    <div className="flex items-center text-sm">
-                                                        <Phone className="h-4 w-4 mr-3 text-gray-500" />
-                                                        {vehicle.contactPhone ||
-                                                            vehicle.owner.phone}
-                                                    </div>
-                                                )}
-                                                {(vehicle.contactEmail ||
-                                                    vehicle.owner.email) && (
-                                                    <div className="flex items-center text-sm">
-                                                        <Mail className="h-4 w-4 mr-3 text-gray-500" />
-                                                        {vehicle.contactEmail ||
-                                                            vehicle.owner.email}
-                                                    </div>
-                                                )}
+                                <Separator className="my-6" />
+
+                                <h2 className="text-xl font-semibold mb-4">
+                                    Description
+                                </h2>
+                                <p className="text-gray-700 whitespace-pre-line">
+                                    {vehicle.description ||
+                                        "No description provided."}
+                                </p>
+
+                                <Separator className="my-6" />
+
+                                <div className="flex items-center justify-between text-sm text-gray-500">
+                                    <div>
+                                        Listed on{" "}
+                                        {FormatterDate.formatDate(
+                                            vehicle.createdAt
+                                        )}
+                                    </div>
+                                    <div>
+                                        Vehicle ID:{" "}
+                                        {vehicle._id.substring(0, 8)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Sidebar - Right */}
+                        <div className="space-y-6">
+                            {/* Price and Actions */}
+                            <Card>
+                                <CardContent className="p-6">
+                                    <div className="mb-4">
+                                        <h1 className="text-2xl font-bold mb-2">
+                                            {vehicle.title}
+                                        </h1>
+                                        <div className="flex items-center text-gray-500 text-sm">
+                                            <MapPin
+                                                size={14}
+                                                className="mr-1"
+                                            />
+                                            {vehicle.location ||
+                                                "Location not specified"}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center mb-6">
+                                        <div className="text-3xl font-bold">
+                                            ${vehicle.price.toLocaleString()}
+                                        </div>
+                                        {vehicle.condition && (
+                                            <Badge
+                                                variant="outline"
+                                                className={`${
+                                                    vehicle.condition === "New"
+                                                        ? "bg-green-100 text-green-800 border-green-200"
+                                                        : "bg-blue-100 text-blue-800 border-blue-200"
+                                                }`}
+                                            >
+                                                {vehicle.condition}
+                                            </Badge>
+                                        )}
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-y-2 text-sm mb-6">
+                                        <div className="flex items-center">
+                                            <Calendar
+                                                size={16}
+                                                className="mr-2 text-gray-500"
+                                            />
+                                            {vehicle.year}
+                                        </div>
+                                        {vehicle.mileage && (
+                                            <div className="flex items-center">
+                                                <Gauge
+                                                    size={16}
+                                                    className="mr-2 text-gray-500"
+                                                />
+                                                {vehicle.mileage.toLocaleString()}{" "}
+                                                mi
                                             </div>
                                         )}
-                                    </>
-                                ) : (
-                                    <div className="text-gray-500 text-sm">
-                                        Seller information not available
+                                        {vehicle.fuelType && (
+                                            <div className="flex items-center">
+                                                <Fuel
+                                                    size={16}
+                                                    className="mr-2 text-gray-500"
+                                                />
+                                                {vehicle.fuelType}
+                                            </div>
+                                        )}
+                                        {vehicle.transmission && (
+                                            <div className="flex items-center">
+                                                <Car
+                                                    size={16}
+                                                    className="mr-2 text-gray-500"
+                                                />
+                                                {vehicle.transmission}
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </CardContent>
-                        </Card>
 
-                        {/* Similar Vehicles */}
-                        <Card>
-                            <CardContent className="p-6">
-                                <h2 className="text-lg font-semibold mb-4">
-                                    Similar Vehicles
-                                </h2>
-                                <div className="space-y-4">
-                                    {similarVehicles.map((vehicle) => (
-                                        <div
-                                            key={vehicle.id}
-                                            className="flex gap-3"
-                                        >
-                                            <img
-                                                src={
-                                                    vehicle.image ||
-                                                    "https://placehold.co/200x150"
-                                                }
-                                                alt={vehicle.title}
-                                                className="w-20 h-16 object-cover rounded-md flex-shrink-0"
-                                            />
-                                            <div className="flex-grow min-w-0">
-                                                <h3 className="font-medium text-sm truncate">
-                                                    {vehicle.title}
-                                                </h3>
-                                                <p className="text-sm font-bold">
-                                                    $
-                                                    {vehicle.price.toLocaleString()}
-                                                </p>
-                                                <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                    <Gauge
-                                                        size={12}
-                                                        className="mr-1"
+                                    <div className="space-y-3">
+                                        <Button className="w-full">
+                                            Contact Seller
+                                        </Button>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <Button
+                                                variant="outline"
+                                                onClick={toggleWishlist}
+                                            >
+                                                <Heart
+                                                    className={`mr-2 h-4 w-4 ${
+                                                        isWishlisted
+                                                            ? "fill-red-500 text-red-500"
+                                                            : ""
+                                                    }`}
+                                                />
+                                                {isWishlisted
+                                                    ? "Saved"
+                                                    : "Save"}
+                                            </Button>
+                                            <Button variant="outline">
+                                                <Share className="mr-2 h-4 w-4" />
+                                                Share
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Seller Information */}
+                            <Card>
+                                <CardContent className="p-6">
+                                    <h2 className="text-lg font-semibold mb-4">
+                                        Seller Information
+                                    </h2>
+                                    {vehicle.owner ? (
+                                        <>
+                                            <div className="flex items-center mb-4">
+                                                <Avatar className="h-12 w-12 mr-4">
+                                                    <AvatarImage
+                                                        src={
+                                                            vehicle.owner
+                                                                .avatar ||
+                                                            undefined
+                                                        }
+                                                        alt={vehicle.owner.name}
                                                     />
-                                                    <span className="mr-2">
-                                                        {vehicle.mileage.toLocaleString()}{" "}
-                                                        mi
-                                                    </span>
-                                                    <MapPin
-                                                        size={12}
-                                                        className="mr-1"
-                                                    />
-                                                    <span className="truncate">
-                                                        {vehicle.location}
-                                                    </span>
+                                                    <AvatarFallback>
+                                                        {vehicle.owner.name ? (
+                                                            vehicle.owner.name
+                                                                .substring(0, 1)
+                                                                .toUpperCase()
+                                                        ) : (
+                                                            <User className="h-6 w-6" />
+                                                        )}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div>
+                                                    <p className="font-medium">
+                                                        {vehicle.owner.name}
+                                                    </p>
+                                                    <p className="text-sm text-gray-500">
+                                                        Member since{" "}
+                                                        {formatDate(
+                                                            vehicle.owner
+                                                                .createdAt
+                                                        )}
+                                                    </p>
                                                 </div>
                                             </div>
+
+                                            {(vehicle.contactPhone ||
+                                                vehicle.owner.phone) && (
+                                                <div className="space-y-3 mb-4">
+                                                    {(vehicle.contactPhone ||
+                                                        vehicle.owner
+                                                            .phone) && (
+                                                        <div className="flex items-center text-sm">
+                                                            <Phone className="h-4 w-4 mr-3 text-gray-500" />
+                                                            {vehicle.contactPhone ||
+                                                                vehicle.owner
+                                                                    .phone}
+                                                        </div>
+                                                    )}
+                                                    {(vehicle.contactEmail ||
+                                                        vehicle.owner
+                                                            .email) && (
+                                                        <div className="flex items-center text-sm">
+                                                            <Mail className="h-4 w-4 mr-3 text-gray-500" />
+                                                            {vehicle.contactEmail ||
+                                                                vehicle.owner
+                                                                    .email}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="text-gray-500 text-sm">
+                                            Seller information not available
                                         </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Similar Vehicles */}
+                            <Card>
+                                <CardContent className="p-6">
+                                    <h2 className="text-lg font-semibold mb-4">
+                                        Similar Vehicles
+                                    </h2>
+                                    <div className="space-y-4">
+                                        {similarVehicles.map((vehicle) => (
+                                            <div
+                                                key={vehicle.id}
+                                                className="flex gap-3"
+                                            >
+                                                <img
+                                                    src={
+                                                        vehicle.image ||
+                                                        "https://placehold.co/200x150"
+                                                    }
+                                                    alt={vehicle.title}
+                                                    className="w-20 h-16 object-cover rounded-md flex-shrink-0"
+                                                />
+                                                <div className="flex-grow min-w-0">
+                                                    <h3 className="font-medium text-sm truncate">
+                                                        {vehicle.title}
+                                                    </h3>
+                                                    <p className="text-sm font-bold">
+                                                        $
+                                                        {vehicle.price.toLocaleString()}
+                                                    </p>
+                                                    <div className="flex items-center text-xs text-gray-500 mt-1">
+                                                        <Gauge
+                                                            size={12}
+                                                            className="mr-1"
+                                                        />
+                                                        <span className="mr-2">
+                                                            {vehicle.mileage.toLocaleString()}{" "}
+                                                            mi
+                                                        </span>
+                                                        <MapPin
+                                                            size={12}
+                                                            className="mr-1"
+                                                        />
+                                                        <span className="truncate">
+                                                            {vehicle.location}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
